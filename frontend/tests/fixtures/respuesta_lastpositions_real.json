@@ -1,0 +1,64 @@
+{
+  "type": "FeatureCollection",
+  "dataInfo": [
+    { "affVer": "json 1.0", "provider": "Nexe", "rptTime": "2026-07-03T14:10:12Z" }
+  ],
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "esn": "860000000000002",
+        "posTime": "2026-06-27T23:16:22Z",
+        "cog": 180,
+        "dataCtrTime": "2026-06-27T23:16:30.931336Z",
+        "src": "GPS",
+        "spd": 0,
+        "fix": "2D",
+        "atu": { "events": { "aircraft": { "power": "off" } } },
+        "pdop": 1,
+        "unitId": "VG-XX01",
+        "hgExtName": "Movil-B",
+        "hgAlias": "Movil-B",
+        "hgAssetModel": "Peugeot Boxer",
+        "hgCompany": "CONAF",
+        "hgNavstate": "2",
+        "hgAsset": "VG-XX01",
+        "hgSource": "Star Connect GPS",
+        "hgAssetFamily": "Furgonetas",
+        "hgFamilyType": "ground"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-71.54862, -33.011067]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "esn": "860000000000001",
+        "posTime": "2026-06-27T23:15:11Z",
+        "cog": 318,
+        "dataCtrTime": "2026-06-27T23:15:30.855891Z",
+        "src": "GPS",
+        "spd": 0,
+        "fix": "2D",
+        "atu": { "events": { "aircraft": { "power": "off" } } },
+        "pdop": 1,
+        "unitId": "VG-XX02",
+        "hgExtName": "Movil-A",
+        "hgAlias": "Movil-A",
+        "hgAssetModel": "Peugeot Boxer",
+        "hgCompany": "CONAF",
+        "hgNavstate": "2",
+        "hgAsset": "VG-XX02",
+        "hgSource": "Star Connect GPS",
+        "hgAssetFamily": "Furgonetas",
+        "hgFamilyType": "ground"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-71.542471, -32.949589]
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.compacto {
+  font-size: 12px;
+}

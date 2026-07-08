@@ -1,0 +1,67 @@
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
+}
+
+.cuerpo {
+  position: relative;
+  display: flex;
+  min-height: 0;
+}
+
+.panel {
+  width: 320px;
+  flex-shrink: 0;
+  min-height: 0;
+}
+
+.mapa {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.togglePanel {
+  position: absolute;
+  top: var(--sp-3);
+  left: var(--sp-3);
+  z-index: 1100; /* sobre los controles de Leaflet */
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: var(--glass);
+  backdrop-filter: blur(8px);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-1);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.togglePanel:hover {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.panelCerrado {
+  display: none;
+}
+
+/* bajo 900 px el panel colapsa a un drawer inferior; el mapa queda detrás (§10.2) */
+@media (max-width: 900px) {
+  .panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: 46%;
+    z-index: 1100;
+    border-top: 1px solid var(--line);
+    border-radius: var(--radius-l) var(--radius-l) 0 0;
+    overflow: hidden;
+    box-shadow: var(--shadow-2);
+  }
+}

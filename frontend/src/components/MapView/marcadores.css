@@ -1,0 +1,98 @@
+/**
+ * Estilos GLOBALES de los marcadores del mapa: el HTML del divIcon se monta
+ * fuera del árbol React, así que no puede usar CSS Modules. Solo tokens.
+ */
+
+.mk-envoltura {
+  background: transparent;
+  border: none;
+}
+
+.mk {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+}
+
+.mk-enruta {
+  --mk-color: var(--state-enroute);
+}
+
+.mk-tierra {
+  --mk-color: var(--state-ground);
+}
+
+.mk-parado {
+  --mk-color: var(--state-stopped);
+}
+
+.mk-stale {
+  --mk-color: var(--state-stale);
+}
+
+.mk-desconocido {
+  --mk-color: var(--text-muted);
+}
+
+.mk-glifo {
+  width: 20px;
+  height: 20px;
+  fill: var(--mk-color);
+  stroke: var(--bg-0);
+  stroke-width: 1.2;
+  transform: rotate(var(--rumbo, 0deg));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7));
+}
+
+/* anillo de frescura — pulso solo en "live" (§10.1), con halo suave */
+.mk-anillo {
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  border: 2px solid var(--mk-color);
+  opacity: 0.85;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--mk-color) 40%, transparent);
+}
+
+.mk-live .mk-anillo {
+  animation: mk-latido 2s ease-out infinite;
+}
+
+.mk-delayed .mk-anillo {
+  opacity: 0.45;
+  animation: none;
+}
+
+.mk-stale .mk-anillo {
+  border-style: dashed;
+  opacity: 0.9;
+  animation: none;
+}
+
+.mk-sel .mk-anillo {
+  box-shadow: var(--focus-ring);
+}
+
+@keyframes mk-latido {
+  0% {
+    transform: scale(0.72);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.18);
+    opacity: 0.12;
+  }
+  100% {
+    transform: scale(1.22);
+    opacity: 0;
+  }
+}
+
+/* sin animación: el estado queda dicho por color + etiqueta (§10.1) */
+@media (prefers-reduced-motion: reduce) {
+  .mk-live .mk-anillo {
+    animation: none;
+  }
+}

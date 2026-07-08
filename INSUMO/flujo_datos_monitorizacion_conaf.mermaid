@@ -1,0 +1,55 @@
+flowchart TB
+    subgraph L1A["① MEDIOS AÉREOS — activos físicos de CONAF"]
+        A1["Aviones institucionales CONAF · 6<br/>3 Dromader PZL M18B → baliza V2Track<br/>3 Air Tractor 802/802A → Trotter Controls"]
+        A2["Aviones arrendados"]
+        A3["Aeronaves SENAPRED · ex-ONEMI"]
+        A4["Helicópteros · Bambi Bucket / estanque ventral"]
+    end
+
+    subgraph L1B["① MEDIOS TERRESTRES — activos físicos de CONAF"]
+        T1["Camiones combustible / aljibe"]
+        T2["Camionetas de apoyo · repuestos de aeronaves"]
+        T3["Brigadistas → dispositivos Spot Gen 3 / Gen 4"]
+    end
+
+    subgraph L2["② TRANSMISIÓN DE LA SEÑAL"]
+        SAT["Satélite Iridium · cada ≤ 3-5 min<br/>zonas sin cobertura celular"]
+        CEL["Red celular · cada ≤ 20 seg<br/>donde hay cobertura"]
+    end
+
+    subgraph L3["③ INTEGRACIÓN · servidor del PROVEEDOR"]
+        SRV["Decodifica protocolos propietarios<br/>Uniforma, valida y almacena los datos · 24/7<br/>Retiene datos hasta 5 años post-contrato"]
+    end
+
+    subgraph L4["④ MONITORIZACIÓN · Plataforma Única — software LICENCIADO del proveedor"]
+        PESC["Versión escritorio<br/>multipantalla · 2D/3D · reportes exportables"]
+        PMOV["Versión móvil / lite<br/>navegador · conexión SSL"]
+    end
+
+    subgraph L5["⑤ USUARIOS CONAF"]
+        U1["CENCO · CENCOR · Puestos de Mando PUMA<br/>Coordinadores aéreos · Despachadores regionales"]
+    end
+
+    L1A --> L2
+    L1B --> L2
+    L2 --> L3
+    L3 --> L4
+    L4 --> L5
+
+    NLE["LE25 · 633-26-LE25<br/>Provee el FEED de los 6 aviones institucionales:<br/>conectividad satelital/celular + telemetría decodificada<br/>(alcance: capas ② y ③, solo aeronaves CONAF)"]
+    NLQ["LQ21 · 633-46-LQ21<br/>Provee la PLATAFORMA y la integración de TODOS<br/>los recursos, aéreos y terrestres<br/>(alcance: capas ③ y ④)"]
+    NDATA["PROPIEDAD — los DATOS son de CONAF;<br/>el SERVIDOR y la PLATAFORMA son del proveedor"]
+
+    NLE -.-> L2
+    NLQ -.-> L4
+    NDATA -.-> L3
+
+    classDef conaf fill:#e6f0e6,stroke:#2d5a2d,stroke-width:1px,color:#152915
+    classDef trans fill:#e6eef7,stroke:#2a4a7a,stroke-width:1px,color:#13233d
+    classDef prov fill:#fbe6e6,stroke:#9a1f1f,stroke-width:1px,color:#330a0a
+    classDef nota fill:#fff7e0,stroke:#b8860b,stroke-width:1px,color:#332600
+
+    class A1,A2,A3,A4,T1,T2,T3,U1 conaf
+    class SAT,CEL trans
+    class SRV,PESC,PMOV prov
+    class NLE,NLQ,NDATA nota

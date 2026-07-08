@@ -1,0 +1,80 @@
+{
+  "type": "FeatureCollection",
+  "dataInfo": [
+    { "affVer": "json 1.0", "provider": "Nexe", "rptTime": "2026-07-03T13:12:34Z" }
+  ],
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "esn": "860000000000001",
+        "posTime": "2026-06-19T00:37:02Z",
+        "cog": 179,
+        "dataCtrTime": "2026-06-19T00:37:09.561041Z",
+        "src": "GPS",
+        "spd": 0,
+        "fix": "2D",
+        "pdop": 1,
+        "hgExtName": "Movil-A"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-71.542791, -32.946836]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "esn": "860000000000001",
+        "posTime": "2026-06-19T00:38:08Z",
+        "cog": 179,
+        "dataCtrTime": "2026-06-19T00:38:09.609476Z",
+        "src": "GPS",
+        "spd": 0,
+        "fix": "2D",
+        "pdop": 1,
+        "hgExtName": "Movil-A"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-71.542791, -32.946836]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "esn": "860000000000001",
+        "posTime": "2026-06-19T00:38:22Z",
+        "cog": 179,
+        "dataCtrTime": "2026-06-19T00:38:39.753662Z",
+        "src": "GPS",
+        "spd": 0,
+        "fix": "2D",
+        "pdop": 1,
+        "hgExtName": "Movil-A"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-71.542791, -32.946836]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "esn": "860000000000001",
+        "posTime": "2026-06-19T00:39:02Z",
+        "cog": 179,
+        "dataCtrTime": "2026-06-19T00:39:09.705776Z",
+        "src": "GPS",
+        "spd": 0,
+        "fix": "2D",
+        "pdop": 1,
+        "hgExtName": "Movil-A"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-71.542791, -32.946836]
+      }
+    }
+  ]
+}

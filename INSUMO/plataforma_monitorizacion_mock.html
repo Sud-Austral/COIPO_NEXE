@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plataforma Única · Feed de monitorización (demo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#090E13;
+    --panel:#111A21;
+    --panel-2:#0D151B;
+    --inset:#0A1015;
+    --line:#1E2B34;
+    --line-soft:#16212a;
+    --txt:#D7DFE5;
+    --muted:#62737B;
+    --muted-2:#445158;
+    --green:#46B96B;   /* en vuelo / en marcha */
+    --amber:#E0B23C;   /* en baterías */
+    --red:#E5564B;     /* detenido */
+    --phos:#34D6B6;    /* fósforo radar / acento dato */
+    --phos-dim:rgba(52,214,182,.16);
+    --alert:#FF7A45;
+    --radius:3px;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --ui:'Chakra Petch',system-ui,-apple-system,Segoe UI,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:var(--bg);
+    color:var(--txt);
+    font-family:var(--ui);
+    font-size:14px;
+    line-height:1.4;
+    -webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;
+    min-height:100%;
+  }
+  /* ---------- header ---------- */
+  .head{
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#0E161D,#0B1116);
+    padding:14px 20px 12px;
+    display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-end;justify-content:space-between;
+  }
+  .brand{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .brand h1{
+    font-size:16px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin:0;
+    display:flex;align-items:center;gap:10px;
+  }
+  .brand h1 .tick{width:8px;height:8px;border-radius:50%;background:var(--phos);box-shadow:0 0 0 0 var(--phos-dim);animation:pulse 2.4s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,214,182,.45)}70%{box-shadow:0 0 0 9px rgba(52,214,182,0)}100%{box-shadow:0 0 0 0 rgba(52,214,182,0)}}
+  .brand .sub{font-size:11px;letter-spacing:.05em;color:var(--muted);font-family:var(--mono)}
+  .demotag{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--amber);
+    border:1px solid rgba(224,178,60,.4);border-radius:2px;padding:2px 6px;margin-left:4px;text-transform:uppercase;
+  }
+  .status-strip{display:flex;gap:22px;align-items:center;font-family:var(--mono)}
+  .clock{text-align:right}
+  .clock .t{font-size:21px;letter-spacing:.06em;color:var(--phos);line-height:1}
+  .clock .d{font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+  .tallies{display:flex;gap:18px}
+  .tally{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+  .tally .n{font-size:19px;line-height:1;font-weight:500}
+  .tally .l{font-size:9px;letter-spacing:.13em;color:var(--muted);text-transform:uppercase;display:flex;align-items:center;gap:5px}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex:none}
+  .dot.g{background:var(--green)} .dot.a{background:var(--amber)} .dot.r{background:var(--red)} .dot.al{background:var(--alert)}
+
+  /* ---------- layout ---------- */
+  .grid{flex:1;display:grid;grid-template-columns:1fr 384px;gap:1px;background:var(--line);min-height:0}
+  .panel{background:var(--panel);min-height:0;display:flex;flex-direction:column}
+  .panel > .ph{
+    padding:10px 14px;border-bottom:1px solid var(--line);
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+    display:flex;align-items:center;justify-content:space-between;gap:10px;flex:none;
+  }
+  .ph .eyebrow{color:var(--phos)}
+
+  /* ---------- map ---------- */
+  .map-wrap{position:relative;flex:1;min-height:340px;background:radial-gradient(120% 100% at 50% 38%,#0C151B 0%,#070C10 100%)}
+  svg.map{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .grat{stroke:#16242C;stroke-width:1}
+  .grat-lbl{fill:#33454D;font-family:var(--mono);font-size:11px;letter-spacing:.04em}
+  .ring{fill:none;stroke:rgba(52,214,182,.07);stroke-width:1}
+  .sweep-sector{fill:url(#sweepgrad)}
+  .sweep-line{stroke:rgba(52,214,182,.5);stroke-width:1.2}
+  .base-mk{fill:#22323A;stroke:#3A4F58;stroke-width:1}
+  .base-lbl{fill:#5C7079;font-family:var(--mono);font-size:11px;letter-spacing:.06em}
+  .trail{fill:none;stroke-width:1.4;stroke-linecap:round;opacity:.5}
+  .blip{cursor:pointer;transition:transform .25s ease}
+  .blip .hit{fill:transparent}
+  .blip-lbl{font-family:var(--mono);font-size:11px;letter-spacing:.03em;paint-order:stroke;stroke:#070C10;stroke-width:3px;stroke-linejoin:round}
+  .sel-ring{fill:none;stroke:var(--phos);stroke-width:1.4}
+  .reduce .sweep-line,.reduce .sweep-sector{display:none}
+  .reduce .blip,.reduce .sel-ring{transition:none}
+
+  .map-legend{
+    position:absolute;left:12px;bottom:12px;z-index:2;
+    background:rgba(9,15,20,.78);border:1px solid var(--line);border-radius:var(--radius);
+    padding:9px 11px;font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--muted);
+    display:flex;gap:14px;flex-wrap:wrap;max-width:calc(100% - 24px);backdrop-filter:blur(3px);
+  }
+  .map-legend span{display:flex;align-items:center;gap:6px}
+
+  /* ---------- side ---------- */
+  .side{display:flex;flex-direction:column;gap:1px;background:var(--line);min-height:0}
+  .side .panel{flex:none}
+  .side .panel.list-panel{flex:1 1 auto;min-height:160px}
+
+  .filters{display:flex;gap:4px}
+  .filters button{
+    font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+    background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:2px;
+    padding:3px 8px;cursor:pointer;transition:all .15s;
+  }
+  .filters button:hover{color:var(--txt);border-color:var(--muted-2)}
+  .filters button[aria-pressed="true"]{color:var(--bg);background:var(--phos);border-color:var(--phos);font-weight:700}
+
+  .list{overflow-y:auto;flex:1;min-height:0}
+  .row{
+    width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line-soft);
+    border-left:2px solid transparent;color:inherit;font:inherit;cursor:pointer;
+    padding:9px 14px 9px 12px;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;
+    transition:background .12s;
+  }
+  .row:hover{background:#0E171E}
+  .row:focus-visible{outline:2px solid var(--phos);outline-offset:-2px}
+  .row[aria-current="true"]{background:#0F1B22;border-left-color:var(--phos)}
+  .row .id{font-family:var(--mono);font-size:13px;letter-spacing:.02em;font-weight:500}
+  .row .meta{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .st{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+  .st-g{color:var(--green)} .st-a{color:var(--amber)} .st-r{color:var(--red)}
+
+  /* ---------- telemetry ---------- */
+  .tele-panel{flex:none}
+  .tele{padding:0}
+  .tele .topline{
+    padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+    border-bottom:1px solid var(--line);
+  }
+  .tele .topline .who{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .tele .topline .cs{font-family:var(--mono);font-size:18px;letter-spacing:.04em;font-weight:700}
+  .tele .topline .ty{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+  .badge{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:2px;white-space:nowrap;border:1px solid}
+  .badge.g{color:var(--green);border-color:rgba(70,185,107,.45);background:rgba(70,185,107,.08)}
+  .badge.a{color:var(--amber);border-color:rgba(224,178,60,.45);background:rgba(224,178,60,.08)}
+  .badge.r{color:var(--red);border-color:rgba(229,86,75,.45);background:rgba(229,86,75,.08)}
+
+  .readout{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft)}
+  .cell{background:var(--panel-2);padding:9px 12px;min-width:0}
+  .cell.full{grid-column:1 / -1}
+  .cell .k{font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+  .cell .v{font-family:var(--mono);font-size:14px;letter-spacing:.02em;color:var(--txt)}
+  .cell .v .u{color:var(--muted);font-size:11px;margin-left:3px}
+  .cell .v.hi{color:var(--phos)}
+  .gauge{height:4px;border-radius:2px;background:#0A1116;margin-top:7px;overflow:hidden;border:1px solid var(--line-soft)}
+  .gauge > i{display:block;height:100%;background:var(--phos);transition:width .5s ease}
+  .empty{padding:34px 16px;text-align:center;color:var(--muted-2);font-family:var(--mono);font-size:11px;letter-spacing:.06em;line-height:1.7}
+
+  /* ---------- event log ---------- */
+  .log-panel{flex:none;max-height:188px}
+  .log{overflow-y:auto;font-family:var(--mono);font-size:11.5px}
+  .ev{display:grid;grid-template-columns:62px 86px 1fr auto;gap:12px;padding:6px 14px;border-bottom:1px solid var(--line-soft);align-items:center;animation:flash .9s ease-out}
+  @keyframes flash{from{background:rgba(52,214,182,.10)}to{background:transparent}}
+  .reduce .ev{animation:none}
+  .ev .ts{color:var(--muted)}
+  .ev .src{color:var(--txt);letter-spacing:.02em}
+  .ev .msg{color:var(--muted)}
+  .ev .msg b{color:var(--phos);font-weight:500}
+  .ev .val{color:var(--txt);text-align:right;white-space:nowrap}
+  .ev.warn .msg b{color:var(--alert)}
+
+  /* scrollbars */
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-track{background:var(--inset)}
+  ::-webkit-scrollbar-thumb{background:#22313A;border-radius:5px;border:2px solid var(--inset)}
+  ::-webkit-scrollbar-thumb:hover{background:#2D3F49}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:880px){
+    .grid{grid-template-columns:1fr}
+    .side{order:2}
+    .map-wrap{min-height:300px}
+    .side .panel.list-panel{min-height:200px}
+    .readout{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:560px){
+    .status-strip{width:100%;justify-content:space-between}
+    .clock{order:-1}
+    .tallies{gap:12px}
+    .ev{grid-template-columns:54px 1fr auto;gap:8px}
+    .ev .src{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .brand h1 .tick{animation:none}
+  }
+</style>
+</head>
+<body>
+  <header class="head">
+    <div class="brand">
+      <h1><span class="tick" aria-hidden="true"></span>Plataforma Única de Monitorización<span class="demotag">datos de demostración</span></h1>
+      <div class="sub">Feed servidor del proveedor · recursos aéreos y terrestres · Protección contra Incendios Forestales</div>
+    </div>
+    <div class="status-strip">
+      <div class="tallies" id="tallies"><!-- filled --></div>
+      <div class="clock">
+        <div class="t" id="clock">--:--:--</div>
+        <div class="d" id="date">— · hora nacional</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="grid">
+    <!-- MAP -->
+    <section class="panel map-panel">
+      <div class="ph"><span><span class="eyebrow">PLOT TÁCTICO</span> · zona centro-sur · proyección lat/lon</span><span id="mapcount">—</span></div>
+      <div class="map-wrap">
+        <svg class="map" id="map" viewBox="0 0 1000 760" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mapa táctico de recursos">
+          <defs>
+            <radialGradient id="sweepgrad" cx="0" cy="0" r="1" gradientUnits="objectBoundingBox">
+              <stop offset="0%" stop-color="rgba(52,214,182,.22)"/>
+              <stop offset="100%" stop-color="rgba(52,214,182,0)"/>
+            </radialGradient>
+          </defs>
+          <g id="layer-grat"></g>
+          <g id="layer-rings"></g>
+          <g id="layer-sweep"></g>
+          <g id="layer-bases"></g>
+          <g id="layer-trails"></g>
+          <g id="layer-blips"></g>
+        </svg>
+        <div class="map-legend">
+          <span><span class="dot g"></span>en vuelo / marcha</span>
+          <span><span class="dot a"></span>en baterías</span>
+          <span><span class="dot r"></span>detenido</span>
+          <span style="color:var(--muted-2)">◆ avión · ● helicóptero · ■ terrestre</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIDE -->
+    <div class="side">
+      <section class="panel list-panel">
+        <div class="ph">
+          <span><span class="eyebrow">RECURSOS</span> · <span id="reslabel">todos</span></span>
+          <div class="filters" id="filters" role="group" aria-label="Filtrar recursos">
+            <button data-f="todos" aria-pressed="true">Todos</button>
+            <button data-f="aereo" aria-pressed="false">Aéreo</button>
+            <button data-f="terrestre" aria-pressed="false">Terrestre</button>
+          </div>
+        </div>
+        <div class="list" id="list" role="listbox" aria-label="Lista de recursos"></div>
+      </section>
+
+      <section class="panel tele-panel">
+        <div class="ph"><span class="eyebrow">TELEMETRÍA</span></div>
+        <div class="tele" id="tele">
+          <div class="empty">Selecciona un recurso en el mapa o en la lista<br>para ver su telemetría en vivo.</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <section class="panel log-panel">
+    <div class="ph"><span><span class="eyebrow">REGISTRO DE EVENTOS</span> · entrante</span><span id="logcount">0</span></div>
+    <div class="log" id="log"></div>
+  </section>
+
+<script>
+"use strict";
+(function(){
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce) document.body.classList.add('reduce');
+
+  // ----- geo projection (zona centro-sur de Chile) -----
+  const LAT_TOP=-32.4, LAT_BOT=-37.7, LON_W=-74.3, LON_E=-69.7;
+  const PAD={l:56,r:26,t:30,b:42}, VB={w:1000,h:760};
+  const CX=PAD.l+(VB.w-PAD.l-PAD.r)/2, CY=PAD.t+(VB.h-PAD.t-PAD.b)/2;
+  function proj(lat,lon){
+    return {
+      x: PAD.l + (lon-LON_W)/(LON_E-LON_W)*(VB.w-PAD.l-PAD.r),
+      y: PAD.t + (LAT_TOP-lat)/(LAT_TOP-LAT_BOT)*(VB.h-PAD.t-PAD.b)
+    };
+  }
+  const fmt = (n,d=0)=> Number(n).toLocaleString('es-CL',{minimumFractionDigits:d,maximumFractionDigits:d});
+  const pad2 = n => String(n).padStart(2,'0');
+
+  // ----- bases operativas -----
+  const BASES=[
+    {n:'Rodelillo',lat:-33.075,lon:-71.553},
+    {n:'Torquemada',lat:-32.918,lon:-71.480},
+    {n:'Curacaví (CMA)',lat:-33.402,lon:-71.140},
+    {n:'Panguilemo',lat:-35.378,lon:-71.602},
+    {n:'Carriel Sur',lat:-36.772,lon:-73.063},
+  ];
+
+  // ----- recursos (mock del feed) -----
+  // grupos: avion / helicoptero -> aéreo ; camion / camioneta / brigada -> terrestre
+  const R=[
+    {id:'CC-PZJ', grupo:'avion', tipo:'Dromader PZL M18B', alias:'TANKER 31', base:'Rodelillo', piloto:'R. Maldonado',
+     estado:'vuelo', lat:-33.21, lon:-71.02, alt:1240, elev:520, vel:112, rumbo:138, motor:true, cap:2500, agua:0, descargas:4, ultDesc:2350, horas:3.2, via:'CEL'},
+    {id:'CC-PZM', grupo:'avion', tipo:'Dromader PZL M18B', alias:'TANKER 32', base:'Torquemada', piloto:'I. Fuentes',
+     estado:'detenido', lat:-32.918, lon:-71.480, alt:18, elev:18, vel:0, rumbo:0, motor:false, cap:2500, agua:2500, descargas:0, ultDesc:0, horas:0.0, via:'CEL'},
+    {id:'CC-PZT', grupo:'avion', tipo:'Dromader PZL M18B', alias:'TANKER 33', base:'Panguilemo', piloto:'A. Cárcamo',
+     estado:'vuelo', lat:-35.49, lon:-71.92, alt:980, elev:410, vel:104, rumbo:222, motor:true, cap:2500, agua:2500, descargas:7, ultDesc:2480, horas:4.1, via:'CEL'},
+    {id:'CC-APH', grupo:'avion', tipo:'Air Tractor 802', alias:'TANKER 41', base:'Carriel Sur', piloto:'M. Soto',
+     estado:'vuelo', lat:-36.91, lon:-72.84, alt:1120, elev:610, vel:131, rumbo:298, motor:true, cap:3100, agua:0, descargas:5, ultDesc:3050, horas:2.7, via:'CEL'},
+    {id:'CC-DLW', grupo:'avion', tipo:'Air Tractor 802A', alias:'TANKER 42', base:'Curacaví (CMA)', piloto:'P. Reyes',
+     estado:'baterias', lat:-33.402, lon:-71.140, alt:24, elev:24, vel:0, rumbo:90, motor:true, cap:3100, agua:3100, descargas:0, ultDesc:0, horas:0.4, via:'CEL'},
+    {id:'CC-ARY', grupo:'avion', tipo:'Air Tractor 802A', alias:'TANKER 43', base:'Panguilemo', piloto:'—',
+     estado:'detenido', lat:-35.378, lon:-71.602, alt:114, elev:114, vel:0, rumbo:0, motor:false, cap:3100, agua:3100, descargas:0, ultDesc:0, horas:0.0, via:'CEL'},
+    {id:'CC-HBQ', grupo:'helicoptero', tipo:'Helicóptero (arrendado) · Bambi Bucket', alias:'HALCÓN 2', base:'O\u2019Higgins', piloto:'J. Aravena',
+     estado:'vuelo', lat:-34.61, lon:-71.05, alt:760, elev:300, vel:88, rumbo:15, motor:true, cap:1200, agua:1200, descargas:11, ultDesc:1180, horas:3.9, via:'CEL'},
+    {id:'ALJIBE-07', grupo:'camion', tipo:'Camión aljibe', alias:'Abast. Maule', base:'Panguilemo', piloto:'C. Villar',
+     estado:'vuelo', lat:-35.44, lon:-71.66, alt:120, elev:120, vel:58, rumbo:95, motor:true, cap:0, agua:0, descargas:0, ultDesc:0, horas:0, via:'SAT'},
+    {id:'APOYO-12', grupo:'camioneta', tipo:'Camioneta de apoyo · repuestos', alias:'Logística RM', base:'Curacaví (CMA)', piloto:'D. Pino',
+     estado:'detenido', lat:-33.402, lon:-71.140, alt:24, elev:24, vel:0, rumbo:0, motor:false, cap:0, agua:0, descargas:0, ultDesc:0, horas:0, via:'SAT'},
+    {id:'BRIG-MAQUI-1', grupo:'brigada', tipo:'Brigada terrestre · Spot Gen 4', alias:'Jefe cuadrilla', base:'Maule', piloto:'6 brigadistas',
+     estado:'vuelo', lat:-35.55, lon:-71.93, alt:430, elev:430, vel:4, rumbo:210, motor:true, cap:0, agua:0, descargas:0, ultDesc:0, horas:0, via:'SAT'},
+  ];
+  R.forEach((r,i)=>{ r.idx=i; r.trail=[]; r.lastSeen=0; }); // lastSeen = segundos desde última posición
+
+  const isAereo = r => r.grupo==='avion' || r.grupo==='helicoptero';
+  const estClass = e => e==='vuelo'?'g': e==='baterias'?'a':'r';
+  const estLabel = (r) => r.estado==='vuelo' ? (isAereo(r)?'en vuelo':'en marcha') : r.estado==='baterias'?'en baterías':'detenido';
+
+  // ----- DOM refs -----
+  const $ = s => document.querySelector(s);
+  const layerGrat=$('#layer-grat'), layerRings=$('#layer-rings'), layerSweep=$('#layer-sweep'),
+        layerBases=$('#layer-bases'), layerTrails=$('#layer-trails'), layerBlips=$('#layer-blips');
+  const listEl=$('#list'), teleEl=$('#tele'), logEl=$('#log');
+  const NS='http://www.w3.org/2000/svg';
+  const el=(t,a={})=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+
+  let selected=null, filter='todos', evCount=0;
+
+  // ----- static map: graticule + rings + bases -----
+  function drawStatic(){
+    for(let lon=-74; lon<=-70; lon++){
+      const a=proj(LAT_TOP,lon), b=proj(LAT_BOT,lon);
+      layerGrat.appendChild(el('line',{class:'grat',x1:a.x,y1:a.y,x2:b.x,y2:b.y}));
+      const lbl=el('text',{class:'grat-lbl','text-anchor':'middle',x:a.x,y:VB.h-PAD.b+16}); lbl.textContent=lon+'°'; layerGrat.appendChild(lbl);
+    }
+    for(let lat=-33; lat>=-37; lat--){
+      const a=proj(lat,LON_W), b=proj(lat,LON_E);
+      layerGrat.appendChild(el('line',{class:'grat',x1:a.x,y1:a.y,x2:b.x,y2:b.y}));
+      const lbl=el('text',{class:'grat-lbl','text-anchor':'end',x:PAD.l-8,y:a.y+4}); lbl.textContent=lat+'°'; layerGrat.appendChild(lbl);
+    }
+    [180,330,480].forEach(rr=> layerRings.appendChild(el('circle',{class:'ring',cx:CX,cy:CY,r:rr})));
+    // sweep (sector + line)
+    const sweep=el('g',{id:'sweepg'});
+    const sector=el('path',{class:'sweep-sector',d:`M ${CX} ${CY} L ${CX+520} ${CY} A 520 520 0 0 0 ${CX+520*Math.cos(-0.32)} ${CY+520*Math.sin(-0.32)} Z`});
+    const line=el('line',{class:'sweep-line',x1:CX,y1:CY,x2:CX+520,y2:CY});
+    sweep.appendChild(sector); sweep.appendChild(line); layerSweep.appendChild(sweep);
+    window.__sweep=sweep;
+    BASES.forEach(b=>{
+      const p=proj(b.lat,b.lon);
+      const g=el('g',{}); 
+      g.appendChild(el('path',{class:'base-mk',d:`M ${p.x} ${p.y-6} L ${p.x+6} ${p.y} L ${p.x} ${p.y+6} L ${p.x-6} ${p.y} Z`}));
+      const t=el('text',{class:'base-lbl','text-anchor':'middle',x:p.x,y:p.y+19}); t.textContent=b.n; g.appendChild(t);
+      layerBases.appendChild(g);
+    });
+  }
+
+  // ----- blips -----
+  function shapeFor(r,p,color){
+    if(r.grupo==='avion'){ // diamond w/ heading tick
+      const g=el('g',{});
+      g.appendChild(el('path',{d:`M ${p.x} ${p.y-7} L ${p.x+6} ${p.y} L ${p.x} ${p.y+7} L ${p.x-6} ${p.y} Z`,fill:color,stroke:'#06100E','stroke-width':1}));
+      if(r.estado==='vuelo'){const rad=(r.rumbo-90)*Math.PI/180; g.appendChild(el('line',{x1:p.x,y1:p.y,x2:p.x+13*Math.cos(rad),y2:p.y+13*Math.sin(rad),stroke:color,'stroke-width':1.6}));}
+      return g;
+    }
+    if(r.grupo==='helicoptero'){
+      const g=el('g',{});
+      g.appendChild(el('circle',{cx:p.x,cy:p.y,r:6,fill:color,stroke:'#06100E','stroke-width':1}));
+      if(r.estado==='vuelo'){const rad=(r.rumbo-90)*Math.PI/180; g.appendChild(el('line',{x1:p.x,y1:p.y,x2:p.x+12*Math.cos(rad),y2:p.y+12*Math.sin(rad),stroke:color,'stroke-width':1.6}));}
+      return g;
+    }
+    // terrestre -> square
+    const g=el('g',{});
+    g.appendChild(el('rect',{x:p.x-5,y:p.y-5,width:10,height:10,fill:color,stroke:'#06100E','stroke-width':1}));
+    return g;
+  }
+  function drawBlips(){
+    layerBlips.textContent=''; layerTrails.textContent='';
+    R.forEach(r=>{
+      const p=proj(r.lat,r.lon);
+      const color = r.estado==='vuelo'?'#46B96B': r.estado==='baterias'?'#E0B23C':'#E5564B';
+      // trail
+      if(r.trail.length>1){
+        let d='M '+r.trail.map(t=>{const q=proj(t.lat,t.lon);return q.x.toFixed(1)+' '+q.y.toFixed(1);}).join(' L ');
+        layerTrails.appendChild(el('path',{class:'trail',d,stroke:color}));
+      }
+      const g=el('g',{class:'blip','data-id':r.id,tabindex:'-1'});
+      if(selected===r.id) g.appendChild(el('circle',{class:'sel-ring',cx:p.x,cy:p.y,r:13}));
+      g.appendChild(shapeFor(r,p,color));
+      const lbl=el('text',{class:'blip-lbl',x:p.x+11,y:p.y-9,fill:color}); lbl.textContent=r.id; g.appendChild(lbl);
+      g.appendChild(el('circle',{class:'hit',cx:p.x,cy:p.y,r:16}));
+      g.addEventListener('click',()=>select(r.id));
+      layerBlips.appendChild(g);
+    });
+  }
+
+  // ----- list -----
+  function drawList(){
+    const rows = R.filter(r=> filter==='todos' || (filter==='aereo'?isAereo(r):!isAereo(r)));
+    $('#reslabel').textContent = filter==='todos'?'todos':filter==='aereo'?'aéreos':'terrestres';
+    listEl.textContent='';
+    rows.forEach(r=>{
+      const b=document.createElement('button');
+      b.className='row'; b.setAttribute('role','option');
+      b.setAttribute('aria-current', selected===r.id?'true':'false');
+      const sc = estClass(r.estado);
+      b.innerHTML = `<span class="id">${r.id}</span>
+        <span class="meta">${r.alias} · ${r.via}</span>
+        <span class="st st-${sc}"><span class="dot ${sc}"></span>${estLabel(r)}</span>`;
+      b.addEventListener('click',()=>select(r.id));
+      listEl.appendChild(b);
+    });
+    $('#mapcount').textContent = R.length+' recursos';
+  }
+
+  // ----- telemetry -----
+  function drawTele(){
+    if(!selected){ teleEl.innerHTML='<div class="empty">Selecciona un recurso en el mapa o en la lista<br>para ver su telemetría en vivo.</div>'; return; }
+    const r=R.find(x=>x.id===selected); if(!r) return;
+    const sc=estClass(r.estado);
+    const cells=[];
+    cells.push(['Posición', `${r.lat.toFixed(4)}, ${r.lon.toFixed(4)}`, 'full', true]);
+    if(isAereo(r)){
+      cells.push(['Altitud', `${fmt(r.alt)}<span class="u">m</span>`]);
+      cells.push(['Elev. terreno', `${fmt(r.elev)}<span class="u">m</span>`]);
+      cells.push(['Velocidad', `${fmt(r.vel)}<span class="u">kt</span>`]);
+      cells.push(['Rumbo', `${pad2(Math.round(r.rumbo))}<span class="u">°</span>`]);
+      cells.push(['Motor', r.motor?'encendido':'apagado', '', r.motor]);
+      cells.push(['Horas vuelo (día)', `${r.horas.toFixed(1)}<span class="u">h</span>`]);
+      const pct = r.cap? Math.round(r.agua/r.cap*100):0;
+      cells.push(['Carga agua', `${fmt(r.agua)} / ${fmt(r.cap)}<span class="u">L</span>`, 'full', false, pct]);
+      cells.push(['Descargas', `${r.descargas}`]);
+      cells.push(['Última descarga', r.ultDesc? `${fmt(r.ultDesc)}<span class="u">L</span>`:'—']);
+    }else{
+      cells.push(['Velocidad', `${fmt(r.vel)}<span class="u">km/h</span>`]);
+      cells.push(['Rumbo', `${pad2(Math.round(r.rumbo))}<span class="u">°</span>`]);
+      cells.push(['Responsable', r.piloto, 'full']);
+    }
+    cells.push(['Enlace', r.via==='SAT'?'satélite Iridium':'red celular']);
+    cells.push(['Última posición', r.lastSeen<=1?'ahora':`hace ${r.lastSeen}s`]);
+
+    let html=`<div class="topline">
+        <div class="who"><span class="cs">${r.id}</span><span class="ty">${r.alias} · ${r.tipo}</span></div>
+        <span class="badge ${sc}">${estLabel(r)}</span>
+      </div><div class="readout">`;
+    cells.forEach(c=>{
+      const [k,v,cls='',hi=false,gauge=null]=c;
+      html+=`<div class="cell ${cls}"><div class="k">${k}</div><div class="v ${hi?'hi':''}">${v}</div>`;
+      if(gauge!==null) html+=`<div class="gauge"><i style="width:${gauge}%"></i></div>`;
+      html+=`</div>`;
+    });
+    html+=`</div>`;
+    teleEl.innerHTML=html;
+  }
+
+  function select(id){ selected=id; drawBlips(); drawList(); drawTele(); }
+
+  // ----- tallies -----
+  function drawTallies(){
+    const c={vuelo:0,baterias:0,detenido:0};
+    R.forEach(r=>c[r.estado]++);
+    $('#tallies').innerHTML=
+      `<div class="tally"><span class="n" style="color:var(--green)">${c.vuelo}</span><span class="l"><span class="dot g"></span>en vuelo</span></div>
+       <div class="tally"><span class="n" style="color:var(--red)">${c.detenido}</span><span class="l"><span class="dot r"></span>detenidos</span></div>
+       <div class="tally"><span class="n" style="color:var(--amber)">${c.baterias}</span><span class="l"><span class="dot a"></span>en baterías</span></div>`;
+  }
+
+  // ----- event log -----
+  function now(){const d=new Date();return pad2(d.getHours())+':'+pad2(d.getMinutes())+':'+pad2(d.getSeconds());}
+  function logEvent(srcId,msg,val='',warn=false){
+    evCount++; $('#logcount').textContent=evCount;
+    const row=document.createElement('div'); row.className='ev'+(warn?' warn':'');
+    row.innerHTML=`<span class="ts">${now()}</span><span class="src">${srcId}</span><span class="msg">${msg}</span><span class="val">${val}</span>`;
+    logEl.prepend(row);
+    while(logEl.children.length>40) logEl.removeChild(logEl.lastChild);
+  }
+
+  // ----- simulation tick (data the server would push) -----
+  function step(){
+    R.forEach(r=>{
+      r.lastSeen += 1;
+      if(r.estado==='vuelo'){
+        const cadence = r.via==='SAT'?4:1;
+        if(r.lastSeen>=cadence){
+          // advance along heading
+          const spd = r.vel * (isAereo(r)?0.00022:0.00008);
+          const rad=(r.rumbo-90)*Math.PI/180;
+          r.lat -= spd*Math.sin(rad)*0.6;
+          r.lon += spd*Math.cos(rad)*0.9;
+          r.rumbo = (r.rumbo + (Math.random()*16-8) + 360)%360;
+          if(isAereo(r)){
+            r.alt = Math.max(120, r.alt + Math.round(Math.random()*120-60));
+            r.vel = Math.max(70, Math.min(150, r.vel + Math.round(Math.random()*16-8)));
+            r.horas = +(r.horas + 0.01).toFixed(2);
+          }
+          r.trail.push({lat:r.lat,lon:r.lon}); if(r.trail.length>14) r.trail.shift();
+          r.lastSeen=0;
+          // keep inside view
+          r.lat=Math.max(LAT_BOT+0.1,Math.min(LAT_TOP-0.1,r.lat));
+          r.lon=Math.max(LON_W+0.1,Math.min(LON_E-0.1,r.lon));
+        }
+      }
+    });
+
+    // occasional discrete events
+    if(Math.random()<0.55){
+      const aircraftFlying=R.filter(r=>r.grupo==='avion'&&r.estado==='vuelo'||r.grupo==='helicoptero'&&r.estado==='vuelo');
+      const r=aircraftFlying[Math.floor(Math.random()*aircraftFlying.length)];
+      if(r){
+        if(r.agua>0 && Math.random()<0.6){
+          r.ultDesc=r.agua; r.descargas++; r.agua=0;
+          logEvent(r.id,'Descarga · apertura de compuerta', fmt(r.ultDesc)+' L');
+        }else if(r.agua===0){
+          r.agua=r.cap;
+          logEvent(r.id,'Carga de agua (fill)', fmt(r.cap)+' L');
+        }
+      }
+    }
+    if(Math.random()<0.14){
+      const grounded=R.filter(r=>r.estado!=='vuelo');
+      const r=grounded[Math.floor(Math.random()*grounded.length)];
+      if(r){
+        if(r.estado==='detenido'){ r.estado='baterias'; r.motor=true; logEvent(r.id,'Encendido de motor'); }
+        else if(r.estado==='baterias'){ r.estado='vuelo'; r.vel=isAereo(r)?100:55; logEvent(r.id, isAereo(r)?'Despegue':'Inicio de marcha', isAereo(r)?('base '+r.base):''); }
+      }
+    }
+    if(Math.random()<0.08){
+      const flyers=R.filter(r=>r.estado==='vuelo'&&isAereo(r));
+      const r=flyers[Math.floor(Math.random()*flyers.length)];
+      if(r && r.horas>1.5){ r.estado='baterias'; r.vel=0; logEvent(r.id,'Aterrizaje · base '+r.base); }
+    }
+    if(Math.random()<0.04){
+      const flyers=R.filter(r=>r.estado==='vuelo'&&isAereo(r));
+      const r=flyers[Math.floor(Math.random()*flyers.length)];
+      if(r) logEvent(r.id,'Alerta de proximidad de terreno','GPWS',true);
+    }
+
+    drawBlips(); drawList(); drawTallies();
+    if(selected) drawTele();
+  }
+
+  // ----- clock + sweep -----
+  function clock(){
+    const d=new Date();
+    $('#clock').textContent = pad2(d.getHours())+':'+pad2(d.getMinutes())+':'+pad2(d.getSeconds());
+    const days=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+    $('#date').textContent = `${days[d.getDay()]} ${pad2(d.getDate())}/${pad2(d.getMonth()+1)} · hora nacional`;
+  }
+  let ang=0;
+  function sweepLoop(){
+    if(reduce) return;
+    ang=(ang+0.5)%360;
+    if(window.__sweep) window.__sweep.setAttribute('transform',`rotate(${ang} ${CX} ${CY})`);
+    requestAnimationFrame(sweepLoop);
+  }
+
+  // ----- boot -----
+  drawStatic(); drawBlips(); drawList(); drawTele(); drawTallies(); clock();
+  logEvent('CC-APH','Descarga · apertura de compuerta','3.050 L');
+  logEvent('CC-PZT','Carga de agua (fill)','2.500 L');
+  logEvent('CC-HBQ','Descarga sobre foco','1.180 L');
+  logEvent('BRIG-MAQUI-1','Posición actualizada','vía SAT');
+  select('CC-PZJ');
+
+  document.querySelectorAll('#filters button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      filter=btn.dataset.f;
+      document.querySelectorAll('#filters button').forEach(b=>b.setAttribute('aria-pressed', b===btn?'true':'false'));
+      drawList();
+    });
+  });
+
+  setInterval(clock,1000);
+  setInterval(step,1500);
+  if(!reduce) requestAnimationFrame(sweepLoop);
+})();
+</script>
+</body>
+</html>

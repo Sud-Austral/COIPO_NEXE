@@ -1,0 +1,185 @@
+/* Estilos globales: reset, tipografía, foco, reduced-motion y overrides de Leaflet. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  /* atmósfera: leve resplandor teal arriba y viñeta hacia los bordes */
+  background:
+    radial-gradient(1200px 500px at 18% -10%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 60%),
+    radial-gradient(900px 420px at 110% 115%, color-mix(in srgb, var(--accent-strong) 5%, transparent), transparent 55%),
+    var(--bg-0);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  overflow: hidden; /* la app es a pantalla completa; sin scroll horizontal (§10.2) */
+}
+
+/* scrollbars finos, en paleta */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent-strong);
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+dd {
+  margin: 0;
+  padding: 0;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+input {
+  font: inherit;
+}
+
+/* foco de teclado visible en TODO elemento interactivo (§10.3) */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-s);
+}
+
+/* prefers-reduced-motion respetado globalmente (§10.3) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Overrides de Leaflet para el tema táctico nocturno ────────────────────── */
+
+.leaflet-container {
+  background: var(--bg-1);
+  font-family: var(--font-body);
+}
+
+/* tiles OSM claros sobre tema oscuro: se atenúan e invierten levemente */
+.leaflet-tile-pane {
+  filter: brightness(0.72) saturate(0.65) contrast(1.05);
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-2);
+}
+
+.leaflet-popup-content {
+  margin: var(--sp-3) var(--sp-4);
+  line-height: 1.5;
+}
+
+.leaflet-popup-tip {
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: var(--text-muted);
+  padding: var(--sp-1);
+}
+
+.leaflet-bar {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+
+.leaflet-bar a {
+  background: var(--glass);
+  backdrop-filter: blur(8px);
+  color: var(--text);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+  background: var(--bg-1);
+  color: var(--accent);
+}
+
+/* etiqueta de recurso junto al marcador (Tooltip de Leaflet) */
+.leaflet-tooltip.mk-etiqueta {
+  background: var(--glass);
+  backdrop-filter: blur(8px);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  box-shadow: var(--shadow-1);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+}
+
+.leaflet-tooltip.mk-etiqueta::before {
+  display: none; /* sin flecha: la etiqueta flota limpia sobre el marcador */
+}
+
+/* atribución OSM obligatoria y legible (§4) */
+.leaflet-control-attribution {
+  background: var(--overlay-bg);
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.leaflet-control-attribution a {
+  color: var(--accent);
+}

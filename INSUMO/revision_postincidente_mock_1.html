@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Revisión post-incidente · Análisis histórico (demo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#090E13; --panel:#111A21; --panel-2:#0D151B; --inset:#0A1015;
+    --line:#1E2B34; --line-soft:#16212a;
+    --txt:#D7DFE5; --muted:#62737B; --muted-2:#445158;
+    --green:#46B96B; --amber:#E0B23C; --red:#E5564B; --blue:#5B9BD5;
+    --phos:#34D6B6; --phos-2:#1E6F5C;
+    --fire:#FF7A3C; --fire-2:#FFC24B;
+    --radius:3px;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --ui:'Chakra Petch',system-ui,-apple-system,Segoe UI,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--txt);font-family:var(--ui);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+
+  /* header */
+  .head{border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0E161D,#0B1116);padding:14px 22px 0}
+  .head-top{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:flex-start;justify-content:space-between}
+  .brand .k{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--phos)}
+  .brand h1{font-size:19px;font-weight:600;letter-spacing:.01em;margin:3px 0 0;display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+  .brand .loc{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;margin-top:3px}
+  .demotag{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--amber);border:1px solid rgba(224,178,60,.4);border-radius:2px;padding:2px 6px;text-transform:uppercase}
+  .ibadge{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:2px;border:1px solid;color:var(--green);border-color:rgba(70,185,107,.5);background:rgba(70,185,107,.09)}
+  .period{text-align:right;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;line-height:1.7}
+  .period b{color:var(--txt);font-weight:500}
+
+  .itabs{display:flex;gap:0;margin-top:12px;overflow-x:auto}
+  .itab{flex:none;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--muted);font:inherit;cursor:pointer;padding:7px 16px 10px;display:flex;align-items:center;gap:8px;white-space:nowrap;transition:color .15s}
+  .itab:hover{color:var(--txt)} .itab[aria-selected="true"]{color:var(--txt);border-bottom-color:var(--phos)}
+  .itab .nm{font-size:13px} .itab .yr{font-family:var(--mono);font-size:10px;color:var(--muted-2)}
+  .itab:focus-visible{outline:2px solid var(--phos);outline-offset:-2px;border-radius:2px}
+
+  /* kpi */
+  .kpis{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line);border-top:1px solid var(--line)}
+  .kpi{background:var(--panel-2);padding:11px 16px;display:flex;flex-direction:column;gap:4px}
+  .kpi .kv{font-family:var(--mono);font-size:20px;line-height:1;letter-spacing:.01em}
+  .kpi .kv .u{font-size:11px;color:var(--muted);margin-left:3px}
+  .kpi .kl{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .kpi.fire .kv{color:var(--fire)} .kpi.water .kv{color:var(--phos)}
+  @media(max-width:1100px){.kpis{grid-template-columns:repeat(4,1fr)}}
+  @media(max-width:620px){.kpis{grid-template-columns:repeat(2,1fr)}}
+
+  /* layout */
+  .report{padding:18px 22px 40px;max-width:1500px;margin:0 auto}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);display:flex;flex-direction:column;min-width:0}
+  .card.span2{grid-column:1 / -1}
+  .card > .ch{padding:11px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .card .ct{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt)}
+  .card .ct .eye{color:var(--phos)}
+  .card .csub{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.04em}
+  .card .cbody{padding:14px 15px}
+  @media(max-width:980px){.cards{grid-template-columns:1fr}.card.span2{grid-column:auto}}
+
+  svg.chart{width:100%;height:auto;display:block}
+  .axis{stroke:var(--line);stroke-width:1}
+  .grid-l{stroke:var(--line-soft);stroke-width:1}
+  .tick{fill:var(--muted-2);font-family:var(--mono);font-size:13px;letter-spacing:.02em}
+  .tick.r{fill:var(--phos-2)}
+  .ms-line{stroke:var(--muted-2);stroke-width:1;stroke-dasharray:3 4}
+  .ms-lbl{fill:var(--muted);font-family:var(--mono);font-size:12px;letter-spacing:.04em}
+  .area-fire{fill:rgba(255,122,60,.14)}
+  .line-fire{fill:none;stroke:var(--fire);stroke-width:2}
+  .line-water{fill:none;stroke:var(--phos);stroke-width:2}
+  .legend-sw{font-family:var(--mono);font-size:13px;letter-spacing:.02em}
+  .bar-int{fill:var(--phos-2)}
+  .bar-int-sel{fill:var(--fire)}
+
+  /* tabla */
+  .tbl-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+  thead th{text-align:right;padding:9px 12px;border-bottom:1px solid var(--line);color:var(--muted);font-weight:500;letter-spacing:.06em;text-transform:uppercase;font-size:9.5px;cursor:pointer;white-space:nowrap;user-select:none}
+  thead th:first-child{text-align:left}
+  thead th .ar{color:var(--phos);margin-left:4px}
+  thead th:hover{color:var(--txt)}
+  tbody td{text-align:right;padding:9px 12px;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+  tbody td:first-child{text-align:left;color:var(--txt);letter-spacing:.02em}
+  tbody tr{cursor:pointer;transition:background .12s}
+  tbody tr:hover{background:#0E171E}
+  tbody tr[aria-selected="true"]{background:#0F1B22}
+  tbody tr[aria-selected="true"] td:first-child{box-shadow:inset 2px 0 0 var(--phos)}
+  td .v-hi{color:var(--phos)} td .v-fire{color:var(--fire)} .muted{color:var(--muted)}
+
+  /* aporte bars */
+  .bars{display:flex;flex-direction:column;gap:9px}
+  .bar{cursor:pointer;display:grid;grid-template-columns:88px 1fr auto;gap:10px;align-items:center}
+  .bar .bid{font-family:var(--mono);font-size:12px;color:var(--txt)}
+  .bar .track{height:16px;background:#0A1116;border:1px solid var(--line-soft);border-radius:2px;overflow:hidden}
+  .bar .fill{height:100%;background:linear-gradient(90deg,var(--phos-2),var(--phos));transition:width .4s}
+  .bar.sel .fill{background:linear-gradient(90deg,#9A4A1E,var(--fire))}
+  .bar.sel .bid{color:var(--phos)}
+  .bar .bv{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:80px;text-align:right;white-space:nowrap}
+  .ctoggle{display:flex;gap:4px}
+  .ctoggle button{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:2px;padding:3px 7px;cursor:pointer}
+  .ctoggle button[aria-pressed="true"]{color:var(--bg);background:var(--phos);border-color:var(--phos);font-weight:700}
+
+  /* composición ciclo */
+  .cyc{display:flex;flex-direction:column;gap:11px}
+  .cyc-row{cursor:pointer}
+  .cyc-row .top{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11.5px;margin-bottom:4px}
+  .cyc-row .top .id{color:var(--txt)} .cyc-row.sel .top .id{color:var(--phos)}
+  .cyc-row .top .mm{color:var(--muted)}
+  .cyc-bar{height:14px;border-radius:2px;overflow:hidden;display:flex;border:1px solid var(--line-soft)}
+  .cyc-bar i{height:100%}
+  .seg-desc{background:var(--phos)} .seg-tran{background:var(--amber)} .seg-rec{background:var(--blue)} .seg-esp{background:#33424B}
+  .cyc-legend{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:4px}
+  .cyc-legend span{display:flex;align-items:center;gap:6px}
+  .sw{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* gantt */
+  .gantt-row-lbl{fill:var(--txt);font-family:var(--mono);font-size:13px}
+  .gantt-bar{rx:2;cursor:pointer}
+  .gantt-bar.sel{stroke:var(--phos);stroke-width:1.5}
+  .gantt-track{fill:#0A1116;stroke:var(--line-soft);stroke-width:1;rx:2}
+
+  /* detalle */
+  .det-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .det-head .who{display:flex;flex-direction:column;gap:2px}
+  .det-head .cs{font-family:var(--mono);font-size:17px;font-weight:700;letter-spacing:.03em}
+  .det-head .ty{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+  .det-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:2px;overflow:hidden}
+  .dcell{background:var(--panel-2);padding:10px 12px}
+  .dcell .dk{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+  .dcell .dv{font-family:var(--mono);font-size:15px;letter-spacing:.02em}
+  .dcell .dv .u{font-size:10.5px;color:var(--muted);margin-left:2px}
+  .dcell .dv.hi{color:var(--phos)} .dcell .dv.fire{color:var(--fire)}
+  @media(max-width:760px){.det-grid{grid-template-columns:repeat(2,1fr)}}
+  .det-foot{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end;margin-top:14px}
+  .share{flex:1;min-width:200px}
+  .share .sl{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between}
+  .share .sg{height:8px;background:#0A1116;border:1px solid var(--line-soft);border-radius:2px;overflow:hidden}
+  .share .sg i{display:block;height:100%;background:linear-gradient(90deg,var(--phos-2),var(--phos))}
+  .spark-wrap{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .spark-wrap .lab{margin-bottom:6px}
+
+  .note{font-family:var(--mono);font-size:10.5px;color:var(--muted-2);letter-spacing:.03em;margin-top:20px;line-height:1.7;border-top:1px solid var(--line-soft);padding-top:12px}
+
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-track{background:var(--inset)}
+  ::-webkit-scrollbar-thumb{background:#22313A;border-radius:5px;border:2px solid var(--inset)}
+</style>
+</head>
+<body>
+  <header class="head">
+    <div class="head-top">
+      <div class="brand">
+        <span class="k">Revisión post-incidente · análisis histórico</span>
+        <h1><span id="incName">—</span> <span class="ibadge" id="incBadge">Controlado</span> <span class="demotag">datos de demostración</span></h1>
+        <span class="loc" id="incLoc">—</span>
+      </div>
+      <div class="period" id="period"></div>
+    </div>
+    <div class="itabs" id="itabs" role="tablist" aria-label="Seleccionar incidente"></div>
+    <div class="kpis" id="kpis"></div>
+  </header>
+
+  <main class="report">
+    <div class="cards">
+
+      <section class="card span2">
+        <div class="ch"><div class="ct"><span class="eye">EVOLUCIÓN</span> DEL INCENDIO Y ESFUERZO DE SUPRESIÓN</div><div class="csub" id="heroSub"></div></div>
+        <div class="cbody"><svg class="chart" id="hero" viewBox="0 0 1000 300" role="img" aria-label="Evolución del incendio y agua acumulada"></svg></div>
+      </section>
+
+      <section class="card">
+        <div class="ch"><div class="ct"><span class="eye">INTENSIDAD</span> DE DESCARGAS · por 30 min</div><div class="csub" id="intSub"></div></div>
+        <div class="cbody"><svg class="chart" id="intensity" viewBox="0 0 640 260" role="img" aria-label="Descargas por intervalo"></svg></div>
+      </section>
+
+      <section class="card">
+        <div class="ch"><div class="ct"><span class="eye">VENTANA</span> DE PARTICIPACIÓN</div><div class="csub">llegada → salida de cada recurso</div></div>
+        <div class="cbody"><svg class="chart" id="gantt" viewBox="0 0 640 300" role="img" aria-label="Ventana de participación"></svg></div>
+      </section>
+
+      <section class="card span2">
+        <div class="ch"><div class="ct"><span class="eye">COMPORTAMIENTO</span> POR RECURSO AÉREO</div><div class="csub">clic en una fila o encabezado · ordena</div></div>
+        <div class="cbody tbl-wrap"><table id="tbl"><thead></thead><tbody></tbody></table></div>
+      </section>
+
+      <section class="card span2" id="detCard">
+        <div class="ch"><div class="ct"><span class="eye">RECURSO</span> SELECCIONADO</div><div class="csub">desglose histórico</div></div>
+        <div class="cbody" id="detail"></div>
+      </section>
+
+      <section class="card">
+        <div class="ch"><div class="ct"><span class="eye">COMPARATIVA</span> POR RECURSO</div>
+          <div class="ctoggle" id="ctoggle" role="group" aria-label="Métrica"><button data-m="water" aria-pressed="true">Agua</button><button data-m="dropCount" aria-pressed="false">Descargas</button><button data-m="tasa" aria-pressed="false">Tasa L/h</button><button data-m="velMedia" aria-pressed="false">Velocidad</button><button data-m="distKm" aria-pressed="false">Distancia</button></div>
+        </div>
+        <div class="cbody"><div class="bars" id="bars"></div></div>
+      </section>
+
+      <section class="card">
+        <div class="ch"><div class="ct"><span class="eye">COMPOSICIÓN</span> DEL CICLO PROMEDIO</div><div class="csub">en qué se va el tiempo de ciclo</div></div>
+        <div class="cbody">
+          <div class="cyc" id="cyc"></div>
+          <div class="cyc-legend">
+            <span><i class="sw seg-desc"></i>descarga</span>
+            <span><i class="sw seg-tran"></i>tránsito</span>
+            <span><i class="sw seg-rec"></i>recarga</span>
+            <span><i class="sw seg-esp"></i>espera</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+    <p class="note" id="note"></p>
+  </main>
+
+<script>
+"use strict";
+(function(){
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fmt=(n,d=0)=>Number(n).toLocaleString('es-CL',{minimumFractionDigits:d,maximumFractionDigits:d});
+  const fmtK=v=> v>=1000? (v/1000).toLocaleString('es-CL',{maximumFractionDigits:0})+'k' : ''+Math.round(v);
+  const pad2=n=>String(n).padStart(2,'0');
+  function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  function niceStep(x){const p=Math.pow(10,Math.floor(Math.log10(x||1)));const f=(x||1)/p;const n=f<1.5?1:f<3.5?2:f<7.5?5:10;return n*p;}
+  function niceMax(x){const s=niceStep(x/4);return Math.ceil(x/s)*s;}
+  function hm(min){const h=Math.floor(min/60),m=Math.round(min%60);return h+'h '+pad2(m)+'m';}
+
+  // ---------- incidentes (cerrados) ----------
+  const INCIDENTS=[
+    {id:'INC-2025-0412',name:'Incendio Quebrada Escalonada',loc:'Olmué · Región de Valparaíso',fecha:'12 feb 2025',inicio:'13:42',
+     durMin:462,respondMin:18,contentionMin:214,controlMin:441,maxHa:538,finalHa:512,
+     res:[
+       {id:'CC-PZJ',grupo:'avion',tipo:'Dromader PZL M18B',alias:'TANKER 31',arr:18,dep:455,cap:2500,cycle:14},
+       {id:'CC-PZM',grupo:'avion',tipo:'Dromader PZL M18B',alias:'TANKER 32',arr:44,dep:430,cap:2500,cycle:16},
+       {id:'CC-DLW',grupo:'avion',tipo:'Air Tractor 802A',alias:'TANKER 42',arr:66,dep:462,cap:3100,cycle:13},
+       {id:'CC-HBQ',grupo:'helicoptero',tipo:'Helicóptero (arrendado) · Bambi Bucket',alias:'HALCÓN 2',arr:95,dep:402,cap:1200,cycle:9},
+       {id:'CC-COA',grupo:'helicoptero',tipo:'Helicóptero de coordinación',alias:'COORDINADOR AÉREO',arr:14,dep:462,cap:0},
+       {id:'BRIG-OLMUE-2',grupo:'brigada',tipo:'Brigada terrestre · Spot Gen 4',alias:'Jefe cuadrilla',arr:34,dep:462,personnel:6},
+       {id:'BRIG-GRANIZO-1',grupo:'brigada',tipo:'Brigada terrestre · Spot Gen 3',alias:'Línea sur',arr:82,dep:462,personnel:5},
+       {id:'ALJIBE-05',grupo:'camion',tipo:'Camión aljibe',alias:'Abastecimiento V',arr:50,dep:462,trips:11,km:150,truckCap:10000},
+       {id:'APOYO-12',grupo:'camioneta',tipo:'Camioneta de apoyo',alias:'Logística RM',arr:70,dep:300,km:95},
+     ]},
+    {id:'INC-2025-0388',name:'Incendio Las Trancas',loc:'Pinto · Región de Ñuble',fecha:'05 mar 2025',inicio:'16:08',
+     durMin:318,respondMin:22,contentionMin:150,controlMin:300,maxHa:214,finalHa:201,
+     res:[
+       {id:'CC-PZT',grupo:'avion',tipo:'Dromader PZL M18B',alias:'TANKER 33',arr:22,dep:312,cap:2500,cycle:15},
+       {id:'CC-HBQ',grupo:'helicoptero',tipo:'Helicóptero (arrendado) · Bambi Bucket',alias:'HALCÓN 2',arr:40,dep:300,cap:1200,cycle:9},
+       {id:'BRIG-MAQUI-1',grupo:'brigada',tipo:'Brigada terrestre · Spot Gen 4',alias:'Jefe cuadrilla',arr:38,dep:318,personnel:6},
+       {id:'ALJIBE-07',grupo:'camion',tipo:'Camión aljibe',alias:'Abast. Maule',arr:55,dep:318,trips:8,km:120,truckCap:10000},
+       {id:'CISTERNA-03',grupo:'camion',tipo:'Camión cisterna',alias:'Abast. Ñuble',arr:60,dep:318,trips:6,km:140,truckCap:12000},
+     ]},
+    {id:'INC-2025-0401',name:'Incendio Nahuelbuta',loc:'Cañete · Región del Biobío',fecha:'22 ene 2025',inicio:'11:20',
+     durMin:196,respondMin:16,contentionMin:96,controlMin:188,maxHa:78,finalHa:71,
+     res:[
+       {id:'CC-APH',grupo:'avion',tipo:'Air Tractor 802',alias:'TANKER 41',arr:16,dep:190,cap:3100,cycle:13},
+       {id:'CC-ARY',grupo:'avion',tipo:'Air Tractor 802A',alias:'TANKER 43',arr:48,dep:160,cap:3100,cycle:14},
+       {id:'BRIG-PINO-1',grupo:'brigada',tipo:'Brigada terrestre · Spot Gen 4',alias:'Jefe cuadrilla',arr:30,dep:196,personnel:5},
+       {id:'ALJIBE-11',grupo:'camion',tipo:'Camión aljibe',alias:'Abast. Biobío',arr:44,dep:196,trips:5,km:90,truckCap:10000},
+     ]},
+  ];
+
+  const isAereo=r=>r.grupo==='avion'||r.grupo==='helicoptero';
+  const isDropper=r=>r.cap>0;
+  const grpLabel=r=> r.grupo==='avion'?'avión': r.grupo==='helicoptero'? (r.cap>0?'helicóptero':'coordinación') : r.grupo==='brigada'?'brigada':'camión';
+  const grpColor=r=> isDropper(r)?'#34D6B6': r.grupo==='helicoptero'?'#5B9BD5': r.grupo==='brigada'?'#46B96B':'#E0B23C';
+
+  // velocidad de referencia por tipo [crucero, máx] en kt
+  const VELMAP={
+    'Air Tractor 802':[158,190],'Air Tractor 802A':[161,192],
+    'Dromader PZL M18B':[126,150],
+    'Helicóptero (arrendado) · Bambi Bucket':[88,118],
+    'Helicóptero de coordinación':[100,132]
+  };
+
+  function fireHa(inc,t){
+    const k=6/inc.contentionMin, t0=inc.contentionMin*0.5;
+    let s=inc.maxHa/(1+Math.exp(-k*(t-t0)));
+    if(t>inc.controlMin){const f=(t-inc.controlMin)/Math.max(1,inc.durMin-inc.controlMin);s=inc.maxHa-(inc.maxHa-inc.finalHa)*f;}
+    return Math.max(0,s);
+  }
+  function gen(inc){
+    if(inc._done)return;
+    const r=rng(parseInt(inc.id.replace(/\D/g,''))||1);
+    inc.res.forEach(res=>{
+      if(isDropper(res)){
+        const drops=[];let t=res.arr+r()*5;
+        while(t<res.dep){const vol=Math.round(res.cap*(0.88+r()*0.12)/10)*10;drops.push({t:Math.round(t),vol});t+=res.cycle*(0.78+r()*0.5);}
+        res.drops=drops;res.dropCount=drops.length;res.water=drops.reduce((s,d)=>s+d.vol,0);
+        res.activeMin=res.dep-res.arr;res.hours=res.activeMin/60;
+        res.avgVol=res.dropCount?res.water/res.dropCount:0;
+        res.dropsPerHour=res.hours?res.dropCount/res.hours:0;
+        let df=[];for(let i=1;i<drops.length;i++)df.push(drops[i].t-drops[i-1].t);
+        res.cycleMean=df.length?df.reduce((a,b)=>a+b,0)/df.length:res.cycle;
+        res.participacion=res.activeMin/inc.durMin*100;
+        const desc=1,rec=3,tran=res.cycleMean*0.52,esp=Math.max(0,res.cycleMean-desc-rec-tran),tot=desc+rec+tran+esp;
+        res.util={descarga:desc/tot,transito:tran/tot,recarga:rec/tot,espera:esp/tot};
+        // velocidad y métricas derivadas (consistentes con ciclo y composición)
+        const vb=VELMAP[res.tipo]||[120,150];
+        res.velMedia=Math.round(vb[0]*(0.96+r()*0.08));
+        res.velMax=Math.round(Math.max(res.velMedia+8, vb[1]*(0.95+r()*0.08)));
+        res.altMedia=Math.round((res.grupo==='helicoptero'?500:1050)*(0.8+r()*0.5)/10)*10;
+        const velKmh=res.velMedia*1.852;
+        res.ferryKm=Math.max(6, velKmh*(res.cycleMean*res.util.transito/2/60));
+        res.distKm=Math.round(res.dropCount*2*res.ferryKm);
+        res.tasa=res.hours?res.water/res.hours:0;        // L/h entregados
+        res.fillPct=res.cap?res.avgVol/res.cap*100:0;     // % de llenado por descarga
+        res.lPerKm=res.distKm?res.water/res.distKm:0;      // L por km recorrido
+        res.recargas=res.dropCount;
+      }else{
+        res.activeMin=res.dep-res.arr;res.hours=res.activeMin/60;res.drops=[];res.water=0;res.dropCount=0;
+        if(res.grupo==='helicoptero'){const vb=VELMAP[res.tipo]||[100,130];res.velMedia=Math.round(vb[0]*(0.95+r()*0.1));res.velMax=Math.round(vb[1]*(0.95+r()*0.08));res.altMedia=Math.round(440*(0.8+r()*0.5)/10)*10;}
+        if(res.grupo==='brigada'){res.personaHoras=(res.personnel||0)*res.hours;res.velMedia=+(2+r()*3).toFixed(1);res.distKm=0;}
+        if(res.grupo==='camion'||res.grupo==='camioneta'){res.litros=(res.trips||0)*(res.truckCap||0);res.velMedia=Math.round(46+r()*16);res.distKm=res.km||0;}
+      }
+    });
+    const drops=[];inc.res.forEach(res=>res.drops.forEach(d=>drops.push({t:d.t,vol:d.vol,id:res.id})));
+    drops.sort((a,b)=>a.t-b.t);inc.allDrops=drops;
+    inc.totalDrops=drops.length;inc.totalWater=drops.reduce((s,d)=>s+d.vol,0);
+    const series=[];for(let t=0;t<=inc.durMin;t+=5){const cw=drops.filter(d=>d.t<=t).reduce((s,d)=>s+d.vol,0);series.push({t,cw,ha:fireHa(inc,t)});}
+    inc.series=series;
+    const bw=30,bins=[];for(let b=0;b<inc.durMin;b+=bw)bins.push({b,total:drops.filter(d=>d.t>=b&&d.t<b+bw).length});
+    inc.bins=bins;inc.binW=bw;
+    inc.aer=inc.res.filter(isAereo).length;inc.ter=inc.res.length-inc.aer;
+    inc.brig=inc.res.filter(x=>x.grupo==='brigada').reduce((s,x)=>s+(x.personnel||0),0);
+    inc._done=true;
+  }
+
+  // base date for clock labels
+  function clockAt(inc,min){const[h,m]=inc.inicio.split(':').map(Number);let tot=h*60+m+min;tot=((tot%1440)+1440)%1440;return pad2(Math.floor(tot/60))+':'+pad2(tot%60);}
+
+  let cur=0,selected=null,cmetric='water',sortKey='water',sortDir=-1;
+  const inc=()=>INCIDENTS[cur];
+  const NS='http://www.w3.org/2000/svg';
+  const $=s=>document.querySelector(s);
+  const droppers=()=>inc().res.filter(isDropper);
+
+  // ---------- tabs / header / kpi ----------
+  function drawTabs(){
+    const t=$('#itabs');t.innerHTML='';
+    INCIDENTS.forEach((x,i)=>{const b=document.createElement('button');b.className='itab';b.setAttribute('role','tab');b.setAttribute('aria-selected',i===cur?'true':'false');
+      b.innerHTML=`<span class="nm">${x.name.replace('Incendio ','')}</span><span class="yr">${x.fecha}</span>`;b.addEventListener('click',()=>switchInc(i));t.appendChild(b);});
+  }
+  function drawHeader(){
+    const I=inc();
+    $('#incName').textContent=I.name;
+    $('#incLoc').textContent=I.loc+' · '+I.id;
+    $('#period').innerHTML=`<b>${I.fecha}</b> · ${I.inicio}–${clockAt(I,I.durMin)} hrs<br>Duración <b>${hm(I.durMin)}</b> · estado final <b>Controlado</b>`;
+    const lha=I.totalWater/I.finalHa;
+    $('#kpis').innerHTML=
+      `<div class="kpi"><span class="kv">${hm(I.durMin)}</span><span class="kl">Duración total</span></div>
+       <div class="kpi fire"><span class="kv">${fmt(I.finalHa)}<span class="u">ha</span></span><span class="kl">Superficie final</span></div>
+       <div class="kpi"><span class="kv">${fmt(I.totalDrops)}</span><span class="kl">Descargas totales</span></div>
+       <div class="kpi water"><span class="kv">${fmt(I.totalWater)}<span class="u">L</span></span><span class="kl">Agua / retardante</span></div>
+       <div class="kpi"><span class="kv">${fmt(lha)}<span class="u">L/ha</span></span><span class="kl">Litros por hectárea</span></div>
+       <div class="kpi"><span class="kv">${I.respondMin}<span class="u">min</span></span><span class="kl">Tiempo a 1er ataque</span></div>
+       <div class="kpi"><span class="kv">${hm(I.controlMin)}</span><span class="kl">Tiempo a control</span></div>`;
+    $('#note').textContent=`Análisis sobre datos históricos del incidente (demostración). Las series y métricas se generan de forma determinista a partir de los parámetros de cada recurso (ventana de operación, capacidad y tiempo de ciclo); no provienen de un feed en tiempo real. La semántica de estados/colores reutiliza la de las vistas operativas. Incidente analizado: ${I.id}.`;
+  }
+
+  // ---------- hero chart ----------
+  function drawHero(){
+    const I=inc(),W=1000,H=300,pl=64,pr=64,pt=22,pb=36;
+    const x=m=>pl+m/I.durMin*(W-pl-pr);
+    const haMax=niceMax(I.maxHa),wMax=niceMax(I.totalWater);
+    const yH=v=>H-pb-v/haMax*(H-pt-pb), yW=v=>H-pb-v/wMax*(H-pt-pb);
+    let s='';
+    // grid + left ticks (ha)
+    const haStep=niceStep(haMax/4);
+    for(let v=0;v<=haMax+1;v+=haStep){s+=`<line class="grid-l" x1="${pl}" y1="${yH(v).toFixed(1)}" x2="${W-pr}" y2="${yH(v).toFixed(1)}"/>`;s+=`<text class="tick" text-anchor="end" x="${pl-8}" y="${(yH(v)+4).toFixed(1)}">${fmt(v)}</text>`;}
+    // right ticks (water)
+    const wStep=niceStep(wMax/4);
+    for(let v=0;v<=wMax+1;v+=wStep){s+=`<text class="tick r" text-anchor="start" x="${W-pr+8}" y="${(yW(v)+4).toFixed(1)}">${fmtK(v)}</text>`;}
+    // x ticks (hours)
+    for(let m=0;m<=I.durMin;m+=60){s+=`<line class="axis" x1="${x(m).toFixed(1)}" y1="${H-pb}" x2="${x(m).toFixed(1)}" y2="${H-pb+5}"/>`;s+=`<text class="tick" text-anchor="middle" x="${x(m).toFixed(1)}" y="${H-pb+20}">${clockAt(I,m)}</text>`;}
+    // area + line fire
+    let area=`M ${x(0).toFixed(1)} ${(H-pb).toFixed(1)} `;
+    I.series.forEach(p=>area+=`L ${x(p.t).toFixed(1)} ${yH(p.ha).toFixed(1)} `);
+    area+=`L ${x(I.durMin).toFixed(1)} ${(H-pb).toFixed(1)} Z`;
+    s+=`<path class="area-fire" d="${area}"/>`;
+    let lf='M '+I.series.map(p=>x(p.t).toFixed(1)+' '+yH(p.ha).toFixed(1)).join(' L ');
+    s+=`<path class="line-fire" d="${lf}"/>`;
+    // water line
+    let lw='M '+I.series.map(p=>x(p.t).toFixed(1)+' '+yW(p.cw).toFixed(1)).join(' L ');
+    s+=`<path class="line-water" d="${lw}"/>`;
+    // milestones
+    const ms=[[I.respondMin,'1er ataque'],[I.contentionMin,'contención'],[I.controlMin,'control']];
+    ms.forEach(([m,l])=>{s+=`<line class="ms-line" x1="${x(m).toFixed(1)}" y1="${pt}" x2="${x(m).toFixed(1)}" y2="${H-pb}"/>`;s+=`<text class="ms-lbl" text-anchor="middle" x="${x(m).toFixed(1)}" y="${pt-6}">${l}</text>`;});
+    // legend
+    s+=`<g transform="translate(${pl+8},${pt+6})">
+      <rect x="0" y="-9" width="18" height="3" fill="#FF7A3C"/><text class="legend-sw" x="24" y="-4" fill="#62737B">superficie (ha)</text>
+      <rect x="150" y="-9" width="18" height="3" fill="#34D6B6"/><text class="legend-sw" x="174" y="-4" fill="#62737B">agua acumulada (L)</text></g>`;
+    $('#hero').innerHTML=s;
+    $('#heroSub').textContent=`eje izq. hectáreas · eje der. litros · ${I.inicio}–${clockAt(I,I.durMin)}`;
+  }
+
+  // ---------- intensity ----------
+  function selBins(I,id){const a=new Array(I.bins.length).fill(0);const r=I.res.find(x=>x.id===id);if(r&&r.drops)r.drops.forEach(d=>{const k=Math.floor(d.t/I.binW);if(a[k]!=null)a[k]++;});return a;}
+  function drawIntensity(){
+    const I=inc(),W=640,H=260,pl=42,pr=16,pt=18,pb=34;
+    const n=I.bins.length;const bw=(W-pl-pr)/n;
+    const yMax=niceMax(Math.max(1,...I.bins.map(b=>b.total)));
+    const y=v=>H-pb-v/yMax*(H-pt-pb);
+    let s='';
+    const yStep=niceStep(yMax/4);
+    for(let v=0;v<=yMax+0.1;v+=yStep){s+=`<line class="grid-l" x1="${pl}" y1="${y(v).toFixed(1)}" x2="${W-pr}" y2="${y(v).toFixed(1)}"/>`;s+=`<text class="tick" text-anchor="end" x="${pl-7}" y="${(y(v)+4).toFixed(1)}">${fmt(v)}</text>`;}
+    const sel = selected? selBins(I,selected):null;
+    I.bins.forEach((b,i)=>{
+      const bx=pl+i*bw;
+      s+=`<rect class="bar-int" x="${(bx+1).toFixed(1)}" y="${y(b.total).toFixed(1)}" width="${(bw-2).toFixed(1)}" height="${(H-pb-y(b.total)).toFixed(1)}"/>`;
+      if(sel&&sel[i]>0)s+=`<rect class="bar-int-sel" x="${(bx+bw*0.28).toFixed(1)}" y="${y(sel[i]).toFixed(1)}" width="${(bw*0.44).toFixed(1)}" height="${(H-pb-y(sel[i])).toFixed(1)}"/>`;
+    });
+    for(let m=0;m<=I.durMin;m+=60){const px=pl+(m/I.durMin)*(W-pl-pr);s+=`<text class="tick" text-anchor="middle" x="${px.toFixed(1)}" y="${H-pb+20}">${clockAt(I,m)}</text>`;}
+    $('#intensity').innerHTML=s;
+    $('#intSub').textContent= selected? ('resaltado: '+selected) : 'total de la operación';
+  }
+
+  // ---------- gantt ----------
+  function drawGantt(){
+    const I=inc();const rows=I.res;const W=640,pl=120,pr=18;
+    const padT=10,rh=Math.max(20,Math.min(30,(300-30)/rows.length)),H=padT+rows.length*rh+24;
+    const x=m=>pl+m/I.durMin*(W-pl-pr);
+    let s='';
+    for(let m=0;m<=I.durMin;m+=60){s+=`<line class="grid-l" x1="${x(m).toFixed(1)}" y1="${padT}" x2="${x(m).toFixed(1)}" y2="${padT+rows.length*rh}"/>`;s+=`<text class="tick" text-anchor="middle" x="${x(m).toFixed(1)}" y="${H-6}">${clockAt(I,m)}</text>`;}
+    rows.forEach((r,i)=>{
+      const cy=padT+i*rh+rh/2;
+      s+=`<text class="gantt-row-lbl" x="0" y="${(cy+4).toFixed(1)}">${r.id}</text>`;
+      s+=`<rect class="gantt-track" x="${pl}" y="${(cy-6).toFixed(1)}" width="${(W-pl-pr).toFixed(1)}" height="12"/>`;
+      const bx=x(r.arr),bw=x(r.dep)-x(r.arr);
+      s+=`<rect class="gantt-bar${selected===r.id?' sel':''}" data-id="${r.id}" x="${bx.toFixed(1)}" y="${(cy-6).toFixed(1)}" width="${Math.max(2,bw).toFixed(1)}" height="12" rx="2" fill="${grpColor(r)}" opacity="${selected&&selected!==r.id?0.45:0.9}"/>`;
+    });
+    // milestone control
+    s+=`<line class="ms-line" x1="${x(I.controlMin).toFixed(1)}" y1="${padT}" x2="${x(I.controlMin).toFixed(1)}" y2="${padT+rows.length*rh}"/>`;
+    const svg=$('#gantt');svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.innerHTML=s;
+    svg.querySelectorAll('.gantt-bar').forEach(b=>b.addEventListener('click',()=>select(b.getAttribute('data-id'))));
+  }
+
+  // ---------- tabla comportamiento ----------
+  const COLS=[
+    {k:'id',l:'Recurso',fmt:r=>r.id,num:false},
+    {k:'dropCount',l:'Descargas',fmt:r=>fmt(r.dropCount)},
+    {k:'water',l:'Agua (L)',fmt:r=>fmt(r.water),cls:'v-fire'},
+    {k:'velMedia',l:'Vel. media (kt)',fmt:r=>fmt(r.velMedia)},
+    {k:'distKm',l:'Distancia (km)',fmt:r=>fmt(r.distKm)},
+    {k:'cycleMean',l:'Ciclo (min)',fmt:r=>fmt(r.cycleMean,1)},
+    {k:'dropsPerHour',l:'Desc./h',fmt:r=>fmt(r.dropsPerHour,1)},
+    {k:'tasa',l:'Tasa (L/h)',fmt:r=>fmt(r.tasa,0),cls:'v-hi'},
+    {k:'hours',l:'H activas',fmt:r=>fmt(r.hours,1)},
+    {k:'participacion',l:'Particip.',fmt:r=>fmt(r.participacion,0)+'%'},
+  ];
+  function drawTable(){
+    const thead=$('#tbl').querySelector('thead'),tbody=$('#tbl').querySelector('tbody');
+    thead.innerHTML='<tr>'+COLS.map(c=>`<th data-k="${c.k}">${c.l}${sortKey===c.k?`<span class="ar">${sortDir<0?'▼':'▲'}</span>`:''}</th>`).join('')+'</tr>';
+    let rows=droppers().slice().sort((a,b)=>{const va=a[sortKey],vb=b[sortKey];if(typeof va==='string')return va.localeCompare(vb)*sortDir;return(va-vb)*sortDir;});
+    tbody.innerHTML=rows.map(r=>`<tr data-id="${r.id}" aria-selected="${selected===r.id}">`+COLS.map(c=>`<td>${c.cls?`<span class="${c.cls}">${c.fmt(r)}</span>`:c.fmt(r)}</td>`).join('')+'</tr>').join('');
+    thead.querySelectorAll('th').forEach(th=>th.addEventListener('click',()=>{const k=th.getAttribute('data-k');if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=(k==='id')?1:-1;}drawTable();}));
+    tbody.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click',()=>select(tr.getAttribute('data-id'))));
+  }
+
+  // ---------- aporte ----------
+  function metricLabel(m,v){
+    switch(m){
+      case'water':return fmt(v)+' L';
+      case'dropCount':return fmt(v)+' descargas';
+      case'tasa':return fmt(v,0)+' L/h';
+      case'velMedia':return fmt(v)+' kt';
+      case'distKm':return fmt(v)+' km';
+      default:return fmt(v);
+    }
+  }
+  function drawBars(){
+    const list=droppers().slice().sort((a,b)=>(b[cmetric]||0)-(a[cmetric]||0));
+    const max=Math.max(1,...list.map(r=>r[cmetric]||0));
+    $('#bars').innerHTML=list.map(r=>{
+      const v=r[cmetric]||0,w=Math.round(v/max*100);
+      return `<div class="bar${selected===r.id?' sel':''}" data-id="${r.id}"><span class="bid">${r.id}</span><span class="track"><span class="fill" style="width:${w}%"></span></span><span class="bv">${metricLabel(cmetric,v)}</span></div>`;
+    }).join('');
+    $('#bars').querySelectorAll('.bar').forEach(b=>b.addEventListener('click',()=>select(b.getAttribute('data-id'))));
+  }
+
+  // ---------- composición ciclo ----------
+  function drawCyc(){
+    $('#cyc').innerHTML=droppers().map(r=>{
+      const u=r.util;
+      return `<div class="cyc-row${selected===r.id?' sel':''}" data-id="${r.id}">
+        <div class="top"><span class="id">${r.id}</span><span class="mm">ciclo ${fmt(r.cycleMean,1)} min</span></div>
+        <div class="cyc-bar">
+          <i class="seg-desc" style="width:${(u.descarga*100).toFixed(1)}%"></i>
+          <i class="seg-tran" style="width:${(u.transito*100).toFixed(1)}%"></i>
+          <i class="seg-rec" style="width:${(u.recarga*100).toFixed(1)}%"></i>
+          <i class="seg-esp" style="width:${(u.espera*100).toFixed(1)}%"></i>
+        </div></div>`;
+    }).join('');
+    $('#cyc').querySelectorAll('.cyc-row').forEach(b=>b.addEventListener('click',()=>select(b.getAttribute('data-id'))));
+  }
+
+  // ---------- detalle ----------
+  function sparkline(r,I){
+    const W=220,H=56,bw=20;const nb=Math.ceil(I.durMin/bw);const a=new Array(nb).fill(0);
+    r.drops.forEach(d=>{const k=Math.floor(d.t/bw);if(a[k]!=null)a[k]++;});
+    const max=Math.max(1,...a);let s='';
+    a.forEach((v,i)=>{const x=i/nb*W;const h=v/max*(H-10);s+=`<rect x="${x.toFixed(1)}" y="${(H-h).toFixed(1)}" width="${(W/nb-1.5).toFixed(1)}" height="${h.toFixed(1)}" fill="${v?'#34D6B6':'#1a2730'}"/>`;});
+    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="display:block">${s}</svg>`;
+  }
+  function drawDetail(){
+    const I=inc();const d=$('#detail');
+    if(!selected){d.innerHTML='<div class="muted" style="font-family:var(--mono);font-size:11.5px;padding:8px 0">Selecciona un recurso en la tabla, el gráfico de aporte, la composición de ciclo o la ventana de participación.</div>';return;}
+    const r=I.res.find(x=>x.id===selected);if(!r){d.innerHTML='';return;}
+    let cells=[];
+    cells.push(['Ventana',`${clockAt(I,r.arr)}–${clockAt(I,r.dep)}`,'']);
+    cells.push(['Horas activas',`${fmt(r.hours,1)}<span class="u">h</span>`,'']);
+    cells.push(['Participación',`${fmt(r.participacion!=null?r.participacion:r.activeMin/I.durMin*100,0)}<span class="u">%</span>`,'']);
+    cells.push(['Enlace',r.via||(isAereo(r)?'CEL':'SAT'),'']);
+    if(isDropper(r)){
+      cells.push(['Descargas',`${fmt(r.dropCount)}`,'']);
+      cells.push(['Agua lanzada',`${fmt(r.water)}<span class="u">L</span>`,'fire']);
+      cells.push(['Promedio',`${fmt(r.avgVol)}<span class="u">L/desc.</span>`,'']);
+      cells.push(['Llenado medio',`${fmt(r.fillPct,0)}<span class="u">%</span>`,'']);
+      cells.push(['Tasa de entrega',`${fmt(r.tasa,0)}<span class="u">L/h</span>`,'hi']);
+      cells.push(['Cadencia',`${fmt(r.dropsPerHour,1)}<span class="u">desc./h</span>`,'hi']);
+      cells.push(['Ciclo promedio',`${fmt(r.cycleMean,1)}<span class="u">min</span>`,'']);
+      cells.push(['Vel. media',`${fmt(r.velMedia)}<span class="u">kt</span>`,'']);
+      cells.push(['Vel. máxima',`${fmt(r.velMax)}<span class="u">kt</span>`,'']);
+      cells.push(['Altitud media',`${fmt(r.altMedia)}<span class="u">m</span>`,'']);
+      cells.push(['Distancia recorrida',`${fmt(r.distKm)}<span class="u">km</span>`,'hi']);
+      cells.push(['Dist. base–foco',`${fmt(r.ferryKm,1)}<span class="u">km</span>`,'']);
+      cells.push(['L por km',`${fmt(r.lPerKm,0)}<span class="u">L/km</span>`,'']);
+      cells.push(['Recargas',`${fmt(r.recargas)}`,'']);
+      cells.push(['Tránsito (ciclo)',`${fmt(r.util.transito*100,0)}<span class="u">%</span>`,'']);
+      cells.push(['Recarga (ciclo)',`${fmt(r.util.recarga*100,0)}<span class="u">%</span>`,'']);
+    }else if(r.grupo==='brigada'){
+      cells.push(['Dotación',`${r.personnel}<span class="u">pers.</span>`,'']);
+      cells.push(['Persona·hora',`${fmt(r.personaHoras,0)}<span class="u">p·h</span>`,'hi']);
+      cells.push(['Vel. marcha',`${fmt(r.velMedia,1)}<span class="u">km/h</span>`,'']);
+      cells.push(['Rol','perímetro / línea','']);
+      cells.push(['Tipo','terrestre','']);
+    }else if(r.grupo==='helicoptero'){
+      cells.push(['Rol','coordinación aérea','']);
+      cells.push(['Vel. media',`${fmt(r.velMedia)}<span class="u">kt</span>`,'']);
+      cells.push(['Vel. máxima',`${fmt(r.velMax)}<span class="u">kt</span>`,'']);
+      cells.push(['Altitud media',`${fmt(r.altMedia)}<span class="u">m</span>`,'']);
+      cells.push(['Tipo','aéreo (sin descarga)','']);
+    }else{
+      cells.push(['Viajes',`${fmt(r.trips||0)}`,'']);
+      cells.push(['Litros transportados',`${fmt(r.litros||0)}<span class="u">L</span>`,'hi']);
+      cells.push(['Distancia',`${fmt(r.km||0)}<span class="u">km</span>`,'']);
+      cells.push(['Vel. media',`${fmt(r.velMedia)}<span class="u">km/h</span>`,'']);
+      cells.push(['Tipo','apoyo terrestre','']);
+    }
+    const sharePct = I.totalWater? (r.water/I.totalWater*100):0;
+    let html=`<div class="det-head"><div class="who"><span class="cs">${r.id}</span><span class="ty">${r.alias} · ${r.tipo}</span></div><span class="ibadge" style="color:var(--muted);border-color:var(--line)">${grpLabel(r)}</span></div>`;
+    html+=`<div class="det-grid">`+cells.map(c=>`<div class="dcell"><div class="dk">${c[0]}</div><div class="dv ${c[2]}">${c[1]}</div></div>`).join('')+`</div>`;
+    html+=`<div class="det-foot">`;
+    if(isDropper(r)){
+      html+=`<div class="share"><div class="sl"><span>Aporte sobre el total de agua del incidente</span><span>${fmt(sharePct,1)}%</span></div><div class="sg"><i style="width:${sharePct.toFixed(1)}%"></i></div></div>`;
+      html+=`<div class="spark-wrap"><div class="lab">Cadencia de descargas en el tiempo</div>${sparkline(r,I)}</div>`;
+    }else{
+      html+=`<div class="share"><div class="sl"><span>Permanencia en el incidente</span><span>${fmt(r.activeMin/I.durMin*100,0)}%</span></div><div class="sg"><i style="width:${(r.activeMin/I.durMin*100).toFixed(1)}%"></i></div></div>`;
+    }
+    html+=`</div>`;
+    d.innerHTML=html;
+  }
+
+  // ---------- selection / switch ----------
+  function select(id){selected=id;drawTable();drawBars();drawCyc();drawGantt();drawIntensity();drawDetail();}
+  function renderAll(){drawTabs();drawHeader();drawHero();drawIntensity();drawGantt();drawTable();drawBars();drawCyc();drawDetail();}
+  function switchInc(i){cur=i;gen(inc());sortKey='water';sortDir=-1;
+    const top=droppers().slice().sort((a,b)=>b.water-a.water)[0];selected=top?top.id:null;renderAll();}
+
+  // boot
+  gen(inc());
+  const top=droppers().slice().sort((a,b)=>b.water-a.water)[0];selected=top?top.id:null;
+  renderAll();
+  document.querySelectorAll('#ctoggle button').forEach(btn=>btn.addEventListener('click',()=>{cmetric=btn.dataset.m;document.querySelectorAll('#ctoggle button').forEach(b=>b.setAttribute('aria-pressed',b===btn?'true':'false'));drawBars();}));
+})();
+</script>
+</body>
+</html>

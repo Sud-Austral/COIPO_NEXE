@@ -1,0 +1,150 @@
+.barra {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--surface) 55%, var(--bg-1)),
+    var(--bg-1)
+  );
+  border-bottom: 1px solid var(--line);
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-2) var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.marca {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  white-space: nowrap;
+}
+
+.submarca {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+}
+
+.indicadores {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 30px;
+  padding: 2px var(--sp-3);
+  background: color-mix(in srgb, var(--surface) 65%, transparent);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.etiqueta {
+  color: var(--text-muted);
+}
+
+.valor {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+}
+
+.conexion {
+  font-weight: 600;
+  font-size: 12.5px;
+}
+
+.ok {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: var(--accent-glow);
+}
+
+.alerta {
+  color: var(--state-ground);
+  border-color: color-mix(in srgb, var(--state-ground) 45%, transparent);
+}
+
+.peligro {
+  color: var(--state-stale);
+  border-color: color-mix(in srgb, var(--state-stale) 45%, transparent);
+}
+
+.neutro {
+  color: var(--text-muted);
+}
+
+.bannerSimulacion {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-4);
+  background: var(--ground-dim);
+  color: var(--state-ground);
+  border-top: 1px solid var(--line-soft);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.bannerAlerta,
+.bannerPeligro {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border-top: 1px solid var(--line-soft);
+  font-size: 13px;
+}
+
+.bannerAlerta {
+  background: var(--ground-dim);
+  color: var(--state-ground);
+  border-left: 3px solid var(--state-ground);
+}
+
+.bannerPeligro {
+  background: var(--stale-dim);
+  color: var(--state-stale);
+  border-left: 3px solid var(--state-stale);
+}
+
+.detalleTecnico {
+  margin-left: auto;
+  color: var(--text-muted);
+  max-width: 48ch;
+}
+
+.detalleTecnico summary {
+  cursor: pointer;
+  min-height: 24px;
+}
+
+.detalleTecnico pre {
+  margin: var(--sp-1) 0 0;
+  max-height: 200px;
+  overflow: auto;
+  background: var(--bg-0);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  padding: var(--sp-2);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Análisis de incidente · Feed de monitorización (demo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#090E13; --panel:#111A21; --panel-2:#0D151B; --inset:#0A1015;
+    --line:#1E2B34; --line-soft:#16212a;
+    --txt:#D7DFE5; --muted:#62737B; --muted-2:#445158;
+    --green:#46B96B; --amber:#E0B23C; --red:#E5564B;
+    --phos:#34D6B6; --phos-dim:rgba(52,214,182,.16);
+    --fire:#FF7A3C; --fire-2:#FFC24B; --fire-dim:rgba(255,122,60,.18);
+    --radius:3px;
+    --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --ui:'Chakra Petch',system-ui,-apple-system,Segoe UI,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--bg);color:var(--txt);font-family:var(--ui);font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100%}
+
+  /* ---------- header ---------- */
+  .head{border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0E161D,#0B1116)}
+  .head-top{padding:11px 20px 0;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between}
+  .brand{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .brand .k{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--phos)}
+  .brand h1{font-size:18px;font-weight:600;letter-spacing:.02em;margin:0;display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+  .brand .loc{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;margin-top:2px}
+  .demotag{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--amber);border:1px solid rgba(224,178,60,.4);border-radius:2px;padding:2px 6px;text-transform:uppercase}
+  .live{display:flex;align-items:center;gap:14px;font-family:var(--mono)}
+  .live .tag{display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.16em;color:var(--phos);text-transform:uppercase}
+  .live .tag .tick{width:8px;height:8px;border-radius:50%;background:var(--phos);animation:pulse 2.4s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,214,182,.45)}70%{box-shadow:0 0 0 9px rgba(52,214,182,0)}100%{box-shadow:0 0 0 0 rgba(52,214,182,0)}}
+  .live .clock{font-size:18px;letter-spacing:.06em;color:var(--phos)}
+
+  .ibadge{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:2px;border:1px solid}
+  .ibadge.ataque{color:var(--fire);border-color:rgba(255,122,60,.5);background:rgba(255,122,60,.09)}
+  .ibadge.contenido{color:var(--amber);border-color:rgba(224,178,60,.5);background:rgba(224,178,60,.09)}
+  .ibadge.controlado{color:var(--green);border-color:rgba(70,185,107,.5);background:rgba(70,185,107,.09)}
+
+  /* incident tabs */
+  .itabs{display:flex;gap:0;padding:10px 20px 0;overflow-x:auto}
+  .itab{flex:none;background:transparent;border:0;border-bottom:2px solid transparent;color:var(--muted);font:inherit;cursor:pointer;padding:7px 16px 9px;display:flex;align-items:center;gap:8px;transition:color .15s;white-space:nowrap}
+  .itab:hover{color:var(--txt)}
+  .itab[aria-selected="true"]{color:var(--txt);border-bottom-color:var(--phos)}
+  .itab .nm{font-size:13px;letter-spacing:.01em}
+  .itab .dot{width:7px;height:7px;border-radius:50%}
+  .itab:focus-visible{outline:2px solid var(--phos);outline-offset:-2px;border-radius:2px}
+
+  /* metric strip */
+  .metrics{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line);margin-top:10px}
+  .metric{flex:1 1 0;min-width:118px;padding:9px 18px;border-right:1px solid var(--line-soft);display:flex;flex-direction:column;gap:3px}
+  .metric:last-child{border-right:0}
+  .metric .mv{font-family:var(--mono);font-size:20px;line-height:1;letter-spacing:.02em}
+  .metric .mv .u{font-size:11px;color:var(--muted);margin-left:3px}
+  .metric .ml{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+  .metric.fire .mv{color:var(--fire)}
+  .metric.water .mv{color:var(--phos)}
+
+  /* ---------- layout ---------- */
+  .grid{display:grid;grid-template-columns:1fr 392px;gap:1px;background:var(--line);min-height:0;flex:1}
+  .panel{background:var(--panel);min-height:0;display:flex;flex-direction:column}
+  .panel > .ph{padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:10px;flex:none}
+  .ph .eyebrow{color:var(--phos)}
+
+  /* map */
+  .map-wrap{position:relative;flex:1;min-height:380px;background:radial-gradient(120% 100% at 50% 44%,#0C151B 0%,#070C10 100%)}
+  svg.map{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .ring{fill:none;stroke:rgba(255,255,255,.05);stroke-width:1;stroke-dasharray:2 6}
+  .ring-lbl{fill:#3A4750;font-family:var(--mono);font-size:11px;letter-spacing:.04em}
+  .vector{stroke-dasharray:4 5;stroke-width:1.2;opacity:.5;fill:none}
+  .vector.sel{opacity:.95;stroke-dasharray:none;stroke-width:1.6}
+  .trail{fill:none;stroke-width:1.4;stroke-linecap:round;opacity:.45}
+  .blip{cursor:pointer}
+  .blip .hit{fill:transparent}
+  .blip-lbl{font-family:var(--mono);font-size:11px;letter-spacing:.03em;paint-order:stroke;stroke:#070C10;stroke-width:3px;stroke-linejoin:round}
+  .sel-ring{fill:none;stroke:var(--phos);stroke-width:1.4}
+  .fire-glow{fill:var(--fire);opacity:.13}
+  .fire-perim{fill:rgba(255,122,60,.07);stroke:var(--fire);stroke-width:1.3;stroke-dasharray:3 4}
+  .fire-core{fill:var(--fire)}
+  .fire-pulse{fill:none;stroke:var(--fire);stroke-width:1.5}
+  .fire-lbl{fill:var(--fire-2);font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;paint-order:stroke;stroke:#070C10;stroke-width:3px;stroke-linejoin:round}
+  .scale-bar{stroke:var(--muted);stroke-width:1.4}
+  .scale-lbl{fill:var(--muted);font-family:var(--mono);font-size:10.5px;letter-spacing:.04em}
+  .compass{fill:var(--muted-2);font-family:var(--mono);font-size:12px}
+  .reduce .fire-pulse{display:none}
+
+  .map-legend{position:absolute;left:12px;bottom:12px;background:rgba(9,15,20,.78);border:1px solid var(--line);border-radius:var(--radius);padding:8px 11px;font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--muted);display:flex;gap:13px;flex-wrap:wrap;max-width:calc(100% - 24px);backdrop-filter:blur(3px)}
+  .map-legend span{display:flex;align-items:center;gap:6px}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex:none}
+  .dot.g{background:var(--green)} .dot.a{background:var(--amber)} .dot.r{background:var(--red)} .dot.f{background:var(--fire)}
+
+  /* side */
+  .side{display:flex;flex-direction:column;gap:1px;background:var(--line);min-height:0}
+  .side .roster{flex:1 1 auto;min-height:170px}
+  .side .detail{flex:none}
+
+  .filters{display:flex;gap:4px}
+  .filters button{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:2px;padding:3px 8px;cursor:pointer;transition:all .15s}
+  .filters button:hover{color:var(--txt);border-color:var(--muted-2)}
+  .filters button[aria-pressed="true"]{color:var(--bg);background:var(--phos);border-color:var(--phos);font-weight:700}
+
+  .list{overflow-y:auto;flex:1;min-height:0}
+  .group-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-2);padding:9px 14px 5px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between}
+  .row{width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line-soft);border-left:2px solid transparent;color:inherit;font:inherit;cursor:pointer;padding:8px 14px 8px 12px;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;transition:background .12s}
+  .row:hover{background:#0E171E}
+  .row:focus-visible{outline:2px solid var(--phos);outline-offset:-2px}
+  .row[aria-current="true"]{background:#0F1B22;border-left-color:var(--phos)}
+  .row .id{font-family:var(--mono);font-size:13px;letter-spacing:.02em;font-weight:500}
+  .row .meta{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .rt{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-family:var(--mono);font-size:10px;white-space:nowrap}
+  .row .rt .d{color:var(--txt)}
+  .row .rt .s{letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;gap:5px}
+  .s-g{color:var(--green)} .s-a{color:var(--amber)} .s-r{color:var(--red)}
+
+  /* detail */
+  .detail .body{padding:0}
+  .topline{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line)}
+  .topline .who{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .topline .cs{font-family:var(--mono);font-size:18px;letter-spacing:.04em;font-weight:700}
+  .topline .ty{font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.04em}
+  .badge{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:2px;white-space:nowrap;border:1px solid}
+  .badge.g{color:var(--green);border-color:rgba(70,185,107,.45);background:rgba(70,185,107,.08)}
+  .badge.a{color:var(--amber);border-color:rgba(224,178,60,.45);background:rgba(224,178,60,.08)}
+  .badge.r{color:var(--red);border-color:rgba(229,86,75,.45);background:rgba(229,86,75,.08)}
+  .readout{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft)}
+  .cell{background:var(--panel-2);padding:9px 12px;min-width:0}
+  .cell.full{grid-column:1/-1}
+  .cell.hl{background:#0B1820}
+  .cell .ck{font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+  .cell .cv{font-family:var(--mono);font-size:14px;letter-spacing:.02em}
+  .cell .cv .u{color:var(--muted);font-size:11px;margin-left:3px}
+  .cell .cv.fire{color:var(--fire)} .cell .cv.hi{color:var(--phos)}
+  .gauge{height:4px;border-radius:2px;background:#0A1116;margin-top:7px;overflow:hidden;border:1px solid var(--line-soft)}
+  .gauge>i{display:block;height:100%;background:var(--phos);transition:width .5s ease}
+  .empty{padding:34px 16px;text-align:center;color:var(--muted-2);font-family:var(--mono);font-size:11px;letter-spacing:.06em;line-height:1.7}
+
+  /* ---------- bottom row ---------- */
+  .bottom{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border-top:1px solid var(--line)}
+  .contrib{max-height:240px}
+  .ctoggle{display:flex;gap:4px}
+  .ctoggle button{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:2px;padding:3px 7px;cursor:pointer}
+  .ctoggle button[aria-pressed="true"]{color:var(--bg);background:var(--phos);border-color:var(--phos);font-weight:700}
+  .bars{padding:10px 14px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+  .bar{cursor:pointer;display:grid;grid-template-columns:84px 1fr auto;gap:10px;align-items:center}
+  .bar .bid{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;color:var(--txt)}
+  .bar .track{height:16px;background:#0A1116;border:1px solid var(--line-soft);border-radius:2px;overflow:hidden;position:relative}
+  .bar .fill{height:100%;background:linear-gradient(90deg,#1E6F5C,#34D6B6);transition:width .5s ease}
+  .bar.sel .fill{background:linear-gradient(90deg,#9A4A1E,#FF7A3C)}
+  .bar .bv{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;min-width:74px;text-align:right}
+  .bar.sel .bid{color:var(--phos)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;padding:2px 14px 12px}
+  .chip{font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--muted);border:1px solid var(--line);border-radius:2px;padding:5px 9px;display:flex;gap:7px;align-items:center}
+  .chip b{color:var(--txt);font-weight:500}
+
+  .log-panel{max-height:240px}
+  .log{overflow-y:auto;font-family:var(--mono);font-size:11.5px}
+  .ev{display:grid;grid-template-columns:62px 92px 1fr auto;gap:12px;padding:6px 14px;border-bottom:1px solid var(--line-soft);align-items:center;animation:flash .9s ease-out}
+  @keyframes flash{from{background:rgba(52,214,182,.10)}to{background:transparent}}
+  .reduce .ev{animation:none}
+  .ev .ts{color:var(--muted)} .ev .src{color:var(--txt);letter-spacing:.02em} .ev .msg{color:var(--muted)} .ev .msg b{color:var(--phos);font-weight:500} .ev .val{color:var(--txt);text-align:right;white-space:nowrap}
+  .ev.fire .msg b{color:var(--fire)}
+
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-track{background:var(--inset)}
+  ::-webkit-scrollbar-thumb{background:#22313A;border-radius:5px;border:2px solid var(--inset)}
+  ::-webkit-scrollbar-thumb:hover{background:#2D3F49}
+
+  @media (max-width:900px){
+    .grid{grid-template-columns:1fr}
+    .side{order:2}
+    .map-wrap{min-height:320px}
+    .side .roster{min-height:220px}
+    .bottom{grid-template-columns:1fr}
+  }
+  @media (max-width:560px){
+    .metric{min-width:50%;flex:1 1 40%}
+    .ev{grid-template-columns:54px 1fr auto;gap:8px}
+    .ev .src{display:none}
+    .live .clock{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){ .live .tag .tick{animation:none} }
+</style>
+</head>
+<body>
+  <header class="head">
+    <div class="head-top">
+      <div class="brand">
+        <span class="k">Análisis de incidente</span>
+        <h1><span id="incName">—</span> <span class="ibadge ataque" id="incBadge">—</span> <span class="demotag">datos de demostración</span></h1>
+        <span class="loc" id="incLoc">—</span>
+      </div>
+      <div class="live">
+        <span class="tag"><span class="tick" aria-hidden="true"></span>En vivo</span>
+        <span class="clock" id="clock">--:--:--</span>
+      </div>
+    </div>
+    <div class="itabs" id="itabs" role="tablist" aria-label="Seleccionar incendio"></div>
+    <div class="metrics" id="metrics"></div>
+  </header>
+
+  <main class="grid">
+    <section class="panel map-panel">
+      <div class="ph"><span><span class="eyebrow">DESPLIEGUE</span> · vista centrada en el foco</span><span id="mapscope">—</span></div>
+      <div class="map-wrap">
+        <svg class="map" id="map" viewBox="0 0 1000 680" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Mapa del incidente">
+          <g id="layer-rings"></g>
+          <g id="layer-fire"></g>
+          <g id="layer-vectors"></g>
+          <g id="layer-trails"></g>
+          <g id="layer-blips"></g>
+          <g id="layer-scale"></g>
+        </svg>
+        <div class="map-legend">
+          <span><span class="dot f"></span>foco</span>
+          <span><span class="dot g"></span>actuando</span>
+          <span><span class="dot a"></span>en camino</span>
+          <span style="color:var(--muted-2)">◆ avión · ● helicóptero · ■ terrestre</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="side">
+      <section class="panel roster">
+        <div class="ph">
+          <span><span class="eyebrow">RECURSOS ASIGNADOS</span></span>
+          <div class="filters" id="filters" role="group" aria-label="Filtrar">
+            <button data-f="todos" aria-pressed="true">Todos</button>
+            <button data-f="aereo" aria-pressed="false">Aéreo</button>
+            <button data-f="terrestre" aria-pressed="false">Terrestre</button>
+          </div>
+        </div>
+        <div class="list" id="list" role="listbox" aria-label="Recursos del incidente"></div>
+      </section>
+      <section class="panel detail">
+        <div class="ph"><span class="eyebrow">RECURSO SELECCIONADO</span></div>
+        <div class="body" id="detail"><div class="empty">Selecciona un recurso en el mapa, la lista o el gráfico de aporte.</div></div>
+      </section>
+    </div>
+  </main>
+
+  <section class="bottom">
+    <div class="panel contrib">
+      <div class="ph">
+        <span><span class="eyebrow">APORTE POR RECURSO AÉREO</span></span>
+        <div class="ctoggle" id="ctoggle" role="group" aria-label="Métrica">
+          <button data-m="agua" aria-pressed="true">Agua</button>
+          <button data-m="descargas" aria-pressed="false">Descargas</button>
+        </div>
+      </div>
+      <div class="bars" id="bars"></div>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="panel log-panel">
+      <div class="ph"><span><span class="eyebrow">REGISTRO DEL INCIDENTE</span></span><span id="logcount">0</span></div>
+      <div class="log" id="log"></div>
+    </div>
+  </section>
+
+<script>
+"use strict";
+(function(){
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce) document.body.classList.add('reduce');
+  const fmt=(n,d=0)=>Number(n).toLocaleString('es-CL',{minimumFractionDigits:d,maximumFractionDigits:d});
+  const pad2=n=>String(n).padStart(2,'0');
+
+  // grupos: avion/helicoptero = aéreo ; camion/camioneta/brigada = terrestre
+  // estado: ataque | perimetro | aproximacion | transito | recarga | base
+  function mk(o){return o;}
+  const INCIDENTS=[
+    {
+      id:'INC-2025-0412', name:'Incendio Quebrada Escalonada', loc:'Olmué · Región de Valparaíso',
+      foco:{lat:-33.000,lon:-71.100}, estado:'ataque', superficie:412, activeMin:260,
+      res:[
+        mk({id:'CC-PZJ',grupo:'avion',tipo:'Dromader PZL M18B',alias:'TANKER 31',estado:'ataque',lat:-33.012,lon:-71.090,alt:1180,vel:108,rumbo:135,cap:2500,agua:2500,drops:14,water:33000,timeMin:212,via:'CEL'}),
+        mk({id:'CC-PZM',grupo:'avion',tipo:'Dromader PZL M18B',alias:'TANKER 32',estado:'aproximacion',lat:-32.945,lon:-71.300,alt:1320,vel:124,rumbo:120,cap:2500,agua:2500,drops:9,water:21500,timeMin:188,via:'CEL'}),
+        mk({id:'CC-DLW',grupo:'avion',tipo:'Air Tractor 802A',alias:'TANKER 42',estado:'recarga',lat:-33.080,lon:-71.045,alt:760,vel:118,rumbo:300,cap:3100,agua:0,drops:11,water:33800,timeMin:166,via:'CEL'}),
+        mk({id:'CC-COA',grupo:'helicoptero',tipo:'Helicóptero de coordinación',alias:'COORDINADOR AÉREO',estado:'ataque',lat:-32.992,lon:-71.108,alt:1500,vel:70,rumbo:20,cap:0,agua:0,drops:0,water:0,timeMin:230,via:'CEL'}),
+        mk({id:'BRIG-OLMUE-2',grupo:'brigada',tipo:'Brigada terrestre · Spot Gen 4',alias:'Jefe cuadrilla',estado:'perimetro',lat:-33.005,lon:-71.106,vel:3,rumbo:200,personnel:6,via:'SAT'}),
+        mk({id:'BRIG-GRANIZO-1',grupo:'brigada',tipo:'Brigada terrestre · Spot Gen 3',alias:'Línea sur',estado:'perimetro',lat:-32.993,lon:-71.112,vel:2,rumbo:90,personnel:5,via:'SAT'}),
+        mk({id:'ALJIBE-05',grupo:'camion',tipo:'Camión aljibe',alias:'Abastecimiento V',estado:'transito',lat:-33.075,lon:-71.200,vel:54,rumbo:78,personnel:2,via:'SAT'}),
+        mk({id:'APOYO-12',grupo:'camioneta',tipo:'Camioneta de apoyo · repuestos',alias:'Logística RM',estado:'transito',lat:-33.150,lon:-71.140,vel:62,rumbo:30,personnel:2,via:'SAT'}),
+      ]
+    },
+    {
+      id:'INC-2025-0388', name:'Incendio Las Trancas', loc:'Pinto · Región de Ñuble',
+      foco:{lat:-35.550,lon:-71.920}, estado:'ataque', superficie:187, activeMin:125,
+      res:[
+        mk({id:'CC-PZT',grupo:'avion',tipo:'Dromader PZL M18B',alias:'TANKER 33',estado:'ataque',lat:-35.541,lon:-71.911,alt:980,vel:104,rumbo:222,cap:2500,agua:2500,drops:12,water:29000,timeMin:118,via:'CEL'}),
+        mk({id:'CC-HBQ',grupo:'helicoptero',tipo:'Helicóptero (arrendado) · Bambi Bucket',alias:'HALCÓN 2',estado:'ataque',lat:-35.560,lon:-71.930,alt:640,vel:84,rumbo:10,cap:1200,agua:1200,drops:22,water:25000,timeMin:121,via:'CEL'}),
+        mk({id:'BRIG-MAQUI-1',grupo:'brigada',tipo:'Brigada terrestre · Spot Gen 4',alias:'Jefe cuadrilla',estado:'perimetro',lat:-35.552,lon:-71.926,vel:4,rumbo:210,personnel:6,via:'SAT'}),
+        mk({id:'ALJIBE-07',grupo:'camion',tipo:'Camión aljibe',alias:'Abast. Maule',estado:'transito',lat:-35.480,lon:-71.800,vel:58,rumbo:235,personnel:2,via:'SAT'}),
+        mk({id:'CISTERNA-03',grupo:'camion',tipo:'Camión cisterna',alias:'Abast. Ñuble',estado:'transito',lat:-35.600,lon:-71.990,vel:46,rumbo:40,personnel:2,via:'SAT'}),
+      ]
+    },
+    {
+      id:'INC-2025-0401', name:'Incendio Nahuelbuta', loc:'Cañete · Región del Biobío',
+      foco:{lat:-37.000,lon:-72.950}, estado:'contenido', superficie:63, activeMin:48,
+      res:[
+        mk({id:'CC-APH',grupo:'avion',tipo:'Air Tractor 802',alias:'TANKER 41',estado:'ataque',lat:-36.991,lon:-72.941,alt:1080,vel:128,rumbo:300,cap:3100,agua:3100,drops:8,water:24000,timeMin:44,via:'CEL'}),
+        mk({id:'CC-ARY',grupo:'avion',tipo:'Air Tractor 802A',alias:'TANKER 43',estado:'aproximacion',lat:-36.520,lon:-72.700,alt:1600,vel:132,rumbo:200,cap:3100,agua:3100,drops:0,water:0,timeMin:12,via:'CEL'}),
+        mk({id:'BRIG-PINO-1',grupo:'brigada',tipo:'Brigada terrestre · Spot Gen 4',alias:'Jefe cuadrilla',estado:'perimetro',lat:-37.005,lon:-72.955,vel:3,rumbo:120,personnel:5,via:'SAT'}),
+        mk({id:'ALJIBE-11',grupo:'camion',tipo:'Camión aljibe',alias:'Abast. Biobío',estado:'transito',lat:-36.920,lon:-72.880,vel:50,rumbo:225,personnel:2,via:'SAT'}),
+      ]
+    },
+  ];
+  INCIDENTS.forEach(inc=>{ inc.start=Date.now()-inc.activeMin*60000; inc.res.forEach(r=>{r.trail=[];}); });
+
+  const isAereo=r=>r.grupo==='avion'||r.grupo==='helicoptero';
+  const dropsCapable=r=>r.cap>0;
+  const groupOf=r=> isAereo(r)?'Ataque aéreo': r.grupo==='brigada'?'Brigadas en terreno':'Apoyo logístico';
+  const stClass=e=>(e==='ataque'||e==='perimetro')?'g':(e==='base')?'r':'a';
+  const stLabel=r=>{switch(r.estado){case'ataque':return isAereo(r)?'en ataque':'en faena';case'perimetro':return'en perímetro';case'aproximacion':return'en aproximación';case'transito':return'en tránsito';case'recarga':return'recargando';default:return'en base';}};
+  const colorOf=r=>{const c=stClass(r.estado);return c==='g'?'#46B96B':c==='a'?'#E0B23C':'#E5564B';};
+
+  let cur=0, selected=null, filter='todos', cmetric='agua', evCount=0;
+  const incident=()=>INCIDENTS[cur];
+
+  // ----- geo (local, centrado en foco) -----
+  let flat,flon,kmLon,kmLat,viewR,RPX,CXp,CYp,ringStep;
+  const VB={w:1000,h:680}, MPAD=46;
+  function setupView(){
+    const inc=incident(); flat=inc.foco.lat; flon=inc.foco.lon;
+    kmLon=111.32*Math.cos(flat*Math.PI/180); kmLat=110.57;
+    let maxd=8; inc.res.forEach(r=>{maxd=Math.max(maxd,distKm(r.lat,r.lon));});
+    viewR=Math.min(70,Math.max(10,maxd*1.18));
+    CXp=VB.w/2; CYp=VB.h/2; RPX=Math.min(VB.w,VB.h)/2 - MPAD;
+    ringStep=niceStep(viewR/3.2);
+  }
+  function niceStep(x){const p=Math.pow(10,Math.floor(Math.log10(x)));const f=x/p;const n=f<1.5?1:f<3.5?2:f<7.5?5:10;return n*p;}
+  function distKm(lat,lon){const dx=(lon-flon)*kmLon,dy=(lat-flat)*kmLat;return Math.hypot(dx,dy);}
+  function toXY(lat,lon){const dx=(lon-flon)*kmLon,dy=(lat-flat)*kmLat;return{x:CXp+dx/viewR*RPX,y:CYp-dy/viewR*RPX};}
+
+  const $=s=>document.querySelector(s);
+  const NS='http://www.w3.org/2000/svg';
+  const el=(t,a={})=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+  const L={rings:$('#layer-rings'),fire:$('#layer-fire'),vectors:$('#layer-vectors'),trails:$('#layer-trails'),blips:$('#layer-blips'),scale:$('#layer-scale')};
+
+  // ----- incident tabs -----
+  function drawTabs(){
+    const t=$('#itabs'); t.innerHTML='';
+    INCIDENTS.forEach((inc,i)=>{
+      const b=document.createElement('button'); b.className='itab'; b.setAttribute('role','tab');
+      b.setAttribute('aria-selected', i===cur?'true':'false');
+      const col=inc.estado==='ataque'?'var(--fire)':inc.estado==='contenido'?'var(--amber)':'var(--green)';
+      b.innerHTML=`<span class="dot" style="background:${col}"></span><span class="nm">${inc.name.replace('Incendio ','')}</span>`;
+      b.addEventListener('click',()=>switchIncident(i));
+      t.appendChild(b);
+    });
+  }
+
+  // ----- header + metrics -----
+  function agg(){
+    const inc=incident(); let drops=0,water=0,brig=0,aer=0,ter=0,camiones=0;
+    inc.res.forEach(r=>{ drops+=(r.drops||0); water+=(r.water||0); if(r.grupo==='brigada')brig+=(r.personnel||0); if(isAereo(r))aer++;else ter++; if(r.grupo==='camion'||r.grupo==='camioneta')camiones++; });
+    return {drops,water,brig,aer,ter,camiones,total:inc.res.length};
+  }
+  function drawHeader(){
+    const inc=incident(); const a=agg();
+    $('#incName').textContent=inc.name;
+    $('#incLoc').textContent=inc.loc+' · '+inc.id;
+    const badge=$('#incBadge'); const stx=inc.estado;
+    badge.className='ibadge '+stx; badge.textContent= stx==='ataque'?'En ataque':stx==='contenido'?'Contenido':'Controlado';
+    const ms=Date.now()-inc.start; const h=Math.floor(ms/3600000), m=Math.floor(ms%3600000/60000);
+    $('#metrics').innerHTML=
+      `<div class="metric fire"><span class="mv">${fmt(inc.superficie)}<span class="u">ha</span></span><span class="ml">Superficie afectada</span></div>
+       <div class="metric"><span class="mv">${h}h ${pad2(m)}m</span><span class="ml">Tiempo activo</span></div>
+       <div class="metric"><span class="mv">${a.total}<span class="u">· ${a.aer} aéreo / ${a.ter} terrestre</span></span><span class="ml">Recursos asignados</span></div>
+       <div class="metric"><span class="mv">${a.brig}</span><span class="ml">Brigadistas en terreno</span></div>
+       <div class="metric"><span class="mv">${fmt(a.drops)}</span><span class="ml">Descargas acumuladas</span></div>
+       <div class="metric water"><span class="mv">${fmt(a.water)}<span class="u">L</span></span><span class="ml">Agua / retardante lanzado</span></div>`;
+  }
+
+  // ----- map -----
+  function drawStatic(){
+    L.rings.innerHTML=''; L.scale.innerHTML='';
+    for(let r=ringStep;r<=viewR*1.02;r+=ringStep){
+      const px=r/viewR*RPX;
+      L.rings.appendChild(el('circle',{class:'ring',cx:CXp,cy:CYp,r:px}));
+      const lb=el('text',{class:'ring-lbl',x:CXp+px+4,y:CYp-3}); lb.textContent=fmt(r)+' km'; L.rings.appendChild(lb);
+    }
+    // scale bar
+    const sx=24, sy=VB.h-26, slen=ringStep/viewR*RPX;
+    L.scale.appendChild(el('line',{class:'scale-bar',x1:sx,y1:sy,x2:sx+slen,y2:sy}));
+    L.scale.appendChild(el('line',{class:'scale-bar',x1:sx,y1:sy-4,x2:sx,y2:sy+4}));
+    L.scale.appendChild(el('line',{class:'scale-bar',x1:sx+slen,y1:sy-4,x2:sx+slen,y2:sy+4}));
+    const sl=el('text',{class:'scale-lbl',x:sx,y:sy-9}); sl.textContent=fmt(ringStep)+' km'; L.scale.appendChild(sl);
+    const cp=el('text',{class:'compass',x:VB.w-30,y:34,'text-anchor':'middle'}); cp.textContent='N'; L.scale.appendChild(cp);
+    L.scale.appendChild(el('line',{class:'scale-bar',x1:VB.w-30,y1:38,x2:VB.w-30,y2:54}));
+  }
+  function drawFire(){
+    L.fire.innerHTML='';
+    const inc=incident(); const c=toXY(inc.foco.lat,inc.foco.lon);
+    const perimKm=Math.sqrt(inc.superficie*10000/Math.PI)/1000; // radio en km
+    const perimPx=Math.max(7,perimKm/viewR*RPX);
+    L.fire.appendChild(el('circle',{class:'fire-glow',cx:c.x,cy:c.y,r:perimPx*2.4}));
+    L.fire.appendChild(el('circle',{class:'fire-perim',cx:c.x,cy:c.y,r:perimPx}));
+    if(!reduce){const pulse=el('circle',{class:'fire-pulse',cx:c.x,cy:c.y,r:perimPx});
+      const an=el('animate',{attributeName:'r',from:perimPx,to:perimPx*2.2,dur:'2.6s',repeatCount:'indefinite'});
+      const ao=el('animate',{attributeName:'opacity',from:'.7',to:'0',dur:'2.6s',repeatCount:'indefinite'});
+      pulse.appendChild(an);pulse.appendChild(ao);L.fire.appendChild(pulse);}
+    L.fire.appendChild(el('path',{class:'fire-core',d:`M ${c.x} ${c.y-7} C ${c.x+5} ${c.y-2}, ${c.x+4} ${c.y+4}, ${c.x} ${c.y+5} C ${c.x-4} ${c.y+4}, ${c.x-5} ${c.y-2}, ${c.x} ${c.y-7} Z`}));
+    const t=el('text',{class:'fire-lbl',x:c.x+10,y:c.y+4}); t.textContent='FOCO'; L.fire.appendChild(t);
+  }
+  function blipShape(r,p,color){
+    const g=el('g',{});
+    if(r.grupo==='avion'){
+      g.appendChild(el('path',{d:`M ${p.x} ${p.y-7} L ${p.x+6} ${p.y} L ${p.x} ${p.y+7} L ${p.x-6} ${p.y} Z`,fill:color,stroke:'#06100E','stroke-width':1}));
+      if(r.estado!=='base'){const rad=(r.rumbo-90)*Math.PI/180;g.appendChild(el('line',{x1:p.x,y1:p.y,x2:p.x+13*Math.cos(rad),y2:p.y+13*Math.sin(rad),stroke:color,'stroke-width':1.6}));}
+    }else if(r.grupo==='helicoptero'){
+      g.appendChild(el('circle',{cx:p.x,cy:p.y,r:6,fill:color,stroke:'#06100E','stroke-width':1}));
+      if(r.estado!=='base'){const rad=(r.rumbo-90)*Math.PI/180;g.appendChild(el('line',{x1:p.x,y1:p.y,x2:p.x+12*Math.cos(rad),y2:p.y+12*Math.sin(rad),stroke:color,'stroke-width':1.6}));}
+    }else{
+      g.appendChild(el('rect',{x:p.x-5,y:p.y-5,width:10,height:10,fill:color,stroke:'#06100E','stroke-width':1}));
+    }
+    return g;
+  }
+  function drawBlips(){
+    L.blips.innerHTML=''; L.vectors.innerHTML=''; L.trails.innerHTML='';
+    const inc=incident(); const fc=toXY(inc.foco.lat,inc.foco.lon);
+    inc.res.forEach(r=>{
+      const p=toXY(r.lat,r.lon); const color=colorOf(r); const moving=(r.estado==='aproximacion'||r.estado==='transito'||r.estado==='recarga');
+      if(moving){const sel=selected===r.id; L.vectors.appendChild(el('line',{class:'vector'+(sel?' sel':''),x1:p.x,y1:p.y,x2:fc.x,y2:fc.y,stroke:color}));}
+      if(r.trail.length>1){let d='M '+r.trail.map(t=>{const q=toXY(t.lat,t.lon);return q.x.toFixed(1)+' '+q.y.toFixed(1);}).join(' L ');L.trails.appendChild(el('path',{class:'trail',d,stroke:color}));}
+      const g=el('g',{class:'blip','data-id':r.id});
+      if(selected===r.id)g.appendChild(el('circle',{class:'sel-ring',cx:p.x,cy:p.y,r:13}));
+      g.appendChild(blipShape(r,p,color));
+      const lbl=el('text',{class:'blip-lbl',x:p.x+11,y:p.y-9,fill:color}); lbl.textContent=r.id; g.appendChild(lbl);
+      g.appendChild(el('circle',{class:'hit',cx:p.x,cy:p.y,r:16}));
+      g.addEventListener('click',()=>select(r.id));
+      L.blips.appendChild(g);
+    });
+    $('#mapscope').textContent='radio '+fmt(viewR)+' km';
+  }
+
+  // ----- roster -----
+  function drawList(){
+    const inc=incident();
+    const rows=inc.res.filter(r=> filter==='todos'||(filter==='aereo'?isAereo(r):!isAereo(r)));
+    const order=['Ataque aéreo','Brigadas en terreno','Apoyo logístico'];
+    const list=$('#list'); list.innerHTML='';
+    order.forEach(gn=>{
+      const grp=rows.filter(r=>groupOf(r)===gn); if(!grp.length)return;
+      const gh=document.createElement('div'); gh.className='group-h';
+      gh.innerHTML=`<span>${gn}</span><span>${grp.length}</span>`; list.appendChild(gh);
+      grp.forEach(r=>{
+        const d=distKm(r.lat,r.lon); const sc=stClass(r.estado);
+        const b=document.createElement('button'); b.className='row'; b.setAttribute('role','option');
+        b.setAttribute('aria-current', selected===r.id?'true':'false');
+        const sub = r.grupo==='brigada'? `${r.personnel} brigadistas`: r.alias;
+        b.innerHTML=`<span class="id">${r.id}</span>
+          <span class="meta">${sub} · ${r.via}</span>
+          <span class="rt"><span class="d">${fmt(d,1)} km</span><span class="s s-${sc}"><span class="dot ${sc}"></span>${stLabel(r)}</span></span>`;
+        b.addEventListener('click',()=>select(r.id));
+        list.appendChild(b);
+      });
+    });
+  }
+
+  // ----- detail -----
+  function speedKmh(r){return isAereo(r)?r.vel*1.852:r.vel;}
+  function etaMin(r){const v=speedKmh(r);if(v<1)return null;return distKm(r.lat,r.lon)/v*60;}
+  function drawDetail(){
+    const d=$('#detail');
+    if(!selected){d.innerHTML='<div class="empty">Selecciona un recurso en el mapa, la lista o el gráfico de aporte.</div>';return;}
+    const r=incident().res.find(x=>x.id===selected); if(!r){d.innerHTML='';return;}
+    const sc=stClass(r.estado); const dist=distKm(r.lat,r.lon); const eta=etaMin(r);
+    const onFire=(r.estado==='ataque'||r.estado==='perimetro');
+    const cells=[];
+    cells.push(['Distancia al foco',`${fmt(dist,1)}<span class="u">km</span>`,'hl fire']);
+    cells.push(['ETA al foco', onFire? (r.grupo==='brigada'?'en perímetro':'sobre el foco') : (eta!=null?`${fmt(eta,0)}<span class="u">min</span>`:'—'),'hl']);
+    if(dropsCapable(r)){
+      cells.push(['Descargas sobre el foco',`${r.drops}`]);
+      cells.push(['Agua sobre el foco',`${fmt(r.water)}<span class="u">L</span>`,'','fire']);
+      const pct=r.cap?Math.round(r.agua/r.cap*100):0;
+      cells.push(['Carga actual',`${fmt(r.agua)} / ${fmt(r.cap)}<span class="u">L</span>`,'full',false,pct]);
+      cells.push(['Altitud',`${fmt(r.alt)}<span class="u">m</span>`]);
+      cells.push(['Velocidad',`${fmt(r.vel)}<span class="u">kt</span>`]);
+    }else if(r.grupo==='helicoptero'){
+      cells.push(['Descargas sobre el foco',`${r.drops}`]);
+      cells.push(['Agua sobre el foco',`${fmt(r.water)}<span class="u">L</span>`,'','fire']);
+      cells.push(['Altitud',`${fmt(r.alt)}<span class="u">m</span>`]);
+      cells.push(['Velocidad',`${fmt(r.vel)}<span class="u">kt</span>`]);
+    }else if(r.grupo==='brigada'){
+      cells.push(['Dotación',`${r.personnel}<span class="u">pers.</span>`]);
+      cells.push(['Velocidad',`${fmt(r.vel)}<span class="u">km/h</span>`]);
+    }else{
+      cells.push(['Tripulación',`${r.personnel}<span class="u">pers.</span>`]);
+      cells.push(['Velocidad',`${fmt(r.vel)}<span class="u">km/h</span>`]);
+    }
+    cells.push(['Tiempo en incidente',`${fmt(r.timeMin||0)}<span class="u">min</span>`]);
+    cells.push(['Posición',`${r.lat.toFixed(4)}, ${r.lon.toFixed(4)}`,'full']);
+    cells.push(['Enlace', r.via==='SAT'?'satélite Iridium':'red celular']);
+
+    let html=`<div class="topline"><div class="who"><span class="cs">${r.id}</span><span class="ty">${r.alias} · ${r.tipo}</span></div><span class="badge ${sc}">${stLabel(r)}</span></div><div class="readout">`;
+    cells.forEach(c=>{const[k,v,cls='',vc='',gauge=null]=c;html+=`<div class="cell ${cls}"><div class="ck">${k}</div><div class="cv ${vc}">${v}</div>`;if(gauge!==null)html+=`<div class="gauge"><i style="width:${gauge}%"></i></div>`;html+=`</div>`;});
+    html+=`</div>`; d.innerHTML=html;
+  }
+
+  // ----- aporte (bars) + chips -----
+  function drawBars(){
+    const inc=incident();
+    const aircraft=inc.res.filter(r=>dropsCapable(r)||r.grupo==='helicoptero');
+    const key=cmetric==='agua'?'water':'drops';
+    const max=Math.max(1,...aircraft.map(r=>r[key]||0));
+    const sorted=[...aircraft].sort((a,b)=>(b[key]||0)-(a[key]||0));
+    const bars=$('#bars'); bars.innerHTML='';
+    sorted.forEach(r=>{
+      const val=r[key]||0; const w=Math.round(val/max*100);
+      const row=document.createElement('div'); row.className='bar'+(selected===r.id?' sel':'');
+      const lbl = cmetric==='agua'? fmt(val)+' L' : val+' descargas';
+      row.innerHTML=`<span class="bid">${r.id}</span><span class="track"><span class="fill" style="width:${w}%"></span></span><span class="bv">${lbl}</span>`;
+      row.addEventListener('click',()=>select(r.id));
+      bars.appendChild(row);
+    });
+    const a=agg();
+    $('#chips').innerHTML=
+      `<span class="chip">Brigadistas <b>${a.brig}</b></span>
+       <span class="chip">Camiones <b>${a.camiones}</b></span>
+       <span class="chip">Total descargas <b>${fmt(a.drops)}</b></span>
+       <span class="chip">Total agua <b>${fmt(a.water)} L</b></span>`;
+  }
+
+  // ----- event log -----
+  function now(){const d=new Date();return pad2(d.getHours())+':'+pad2(d.getMinutes())+':'+pad2(d.getSeconds());}
+  function logEvent(src,msg,val='',fire=false){
+    evCount++; $('#logcount').textContent=evCount;
+    const row=document.createElement('div'); row.className='ev'+(fire?' fire':'');
+    row.innerHTML=`<span class="ts">${now()}</span><span class="src">${src}</span><span class="msg">${msg}</span><span class="val">${val}</span>`;
+    $('#log').prepend(row); while($('#log').children.length>40)$('#log').removeChild($('#log').lastChild);
+  }
+
+  // ----- selection / switching -----
+  function select(id){selected=id;drawBlips();drawList();drawDetail();drawBars();}
+  function switchIncident(i){
+    cur=i; selected=null; evCount=0; $('#log').innerHTML=''; $('#logcount').textContent='0';
+    setupView();
+    const first=incident().res.find(r=>r.estado==='ataque')||incident().res[0];
+    selected=first?first.id:null;
+    drawTabs(); drawHeader(); drawStatic(); drawFire(); drawBlips(); drawList(); drawDetail(); drawBars();
+    seedLog();
+  }
+  function seedLog(){
+    const inc=incident();
+    logEvent(inc.id,'Incidente en seguimiento · '+inc.res.length+' recursos','');
+    const a=inc.res.filter(r=>dropsCapable(r)||r.grupo==='helicoptero');
+    if(a[0])logEvent(a[0].id,'Descarga sobre el foco',fmt(a[0].cap||1180)+' L',true);
+    const br=inc.res.find(r=>r.grupo==='brigada'); if(br)logEvent(br.id,'Control de perímetro · sector activo','vía SAT');
+  }
+
+  // ----- simulation -----
+  function step(){
+    const inc=incident(); const f=inc.foco;
+    inc.res.forEach(r=>{
+      const moving=(r.estado==='aproximacion'||r.estado==='transito'||r.estado==='recarga');
+      if(r.estado==='ataque'||r.estado==='perimetro'){
+        // jitter cerca del foco / perímetro
+        r.lat += (Math.random()-0.5)*0.004; r.lon += (Math.random()-0.5)*0.004;
+        if(isAereo(r))r.rumbo=(r.rumbo+Math.random()*30-15+360)%360;
+        if(r.timeMin!=null)r.timeMin+=0.025;
+        r.trail.push({lat:r.lat,lon:r.lon}); if(r.trail.length>10)r.trail.shift();
+      }else if(moving){
+        // avanzar hacia el foco (o alejarse si recarga aún con agua 0)
+        const target = (r.estado==='recarga'&&r.agua===0) ? {lat:r.lat+(r.lat-f.lat)*0.15,lon:r.lon+(r.lon-f.lon)*0.15} : f;
+        const dx=target.lon-r.lon, dy=target.lat-r.lat; const dd=Math.hypot(dx*kmLon,dy*kmLat)||1;
+        const stepKm=speedKmh(r)*(1.5/3600); // por tick (1.5s)
+        const frac=Math.min(1, stepKm/dd);
+        r.lon+=dx*frac*(isAereo(r)?1:1); r.lat+=dy*frac;
+        r.rumbo=(Math.atan2(dx*kmLon, dy*kmLat)*180/Math.PI+360)%360;
+        if(r.timeMin!=null)r.timeMin+=0.025;
+        r.trail.push({lat:r.lat,lon:r.lon}); if(r.trail.length>10)r.trail.shift();
+        if(r.estado==='recarga'&&r.agua===0 && Math.random()<0.25){r.agua=r.cap; r.estado='aproximacion'; logEvent(r.id,'Recarga completa · regresando',fmt(r.cap)+' L');}
+        else if(distKm(r.lat,r.lon) < (isAereo(r)?1.4:0.5)){
+          if(isAereo(r)){r.estado='ataque'; logEvent(r.id,'En zona de descarga','');}
+          else{r.estado='perimetro'; logEvent(r.id,'Arribo al perímetro','');}
+        }
+      }
+    });
+    // descargas
+    if(Math.random()<0.6){
+      const droppers=inc.res.filter(r=>r.estado==='ataque'&&(dropsCapable(r)||r.grupo==='helicoptero')&&r.agua>0);
+      const r=droppers[Math.floor(Math.random()*droppers.length)];
+      if(r){const v=r.agua; r.drops++; r.water+=v; r.agua=0; inc.superficie=Math.max(0, inc.superficie + (Math.random()*0.6-0.9)); logEvent(r.id,'Descarga sobre el foco',fmt(v)+' L',true);
+        r.estado='recarga';}
+    }
+    // crecimiento del foco (atenuado por agua acumulada)
+    const a=agg();
+    if(inc.estado==='ataque'){ inc.superficie += Math.max(0, 0.5 - a.water/600000); if(a.water>140000 && inc.superficie>0){inc.estado='contenido'; logEvent(inc.id,'Incendio CONTENIDO','',true);} }
+    if(Math.random()<0.1){const br=inc.res.filter(r=>r.estado==='perimetro'); const r=br[Math.floor(Math.random()*br.length)]; if(r)logEvent(r.id, Math.random()<0.5?'Avance de línea de control':'Control de perímetro','vía SAT');}
+
+    drawHeader(); drawBlips(); drawList(); drawBars(); if(selected)drawDetail();
+  }
+
+  function clock(){const d=new Date();$('#clock').textContent=pad2(d.getHours())+':'+pad2(d.getMinutes())+':'+pad2(d.getSeconds());}
+
+  // ----- controls -----
+  document.querySelectorAll('#filters button').forEach(btn=>btn.addEventListener('click',()=>{filter=btn.dataset.f;document.querySelectorAll('#filters button').forEach(b=>b.setAttribute('aria-pressed',b===btn?'true':'false'));drawList();}));
+  document.querySelectorAll('#ctoggle button').forEach(btn=>btn.addEventListener('click',()=>{cmetric=btn.dataset.m;document.querySelectorAll('#ctoggle button').forEach(b=>b.setAttribute('aria-pressed',b===btn?'true':'false'));drawBars();}));
+
+  // ----- boot -----
+  setupView(); drawTabs(); drawHeader(); drawStatic(); drawFire(); drawBlips(); drawList();
+  const first=incident().res.find(r=>r.estado==='ataque')||incident().res[0]; selected=first?first.id:null;
+  drawDetail(); drawBars(); seedLog(); clock();
+  setInterval(clock,1000);
+  setInterval(step,1500);
+})();
+</script>
+</body>
+</html>

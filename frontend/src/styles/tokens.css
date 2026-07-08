@@ -1,0 +1,61 @@
+/**
+ * Design tokens semánticos (CLAUDE.md §10.1).
+ * ÚNICO lugar del frontend donde se permiten valores hex crudos:
+ * los componentes consumen exclusivamente estas variables.
+ */
+:root {
+  /* superficies */
+  --bg-0: #081120; /* fondo app */
+  --bg-1: #0d1b2e; /* paneles */
+  --surface: #12233a; /* tarjetas */
+  --line: #1e3a55; /* bordes y divisores */
+
+  /* texto */
+  --text: #e8f0fa; /* primario (contraste ≥ 4.5:1 sobre --bg-*) */
+  --text-muted: #93a8c4; /* secundario (contraste ≥ 3:1) */
+
+  /* marca / acción */
+  --accent: #2dd4bf; /* teal — acción primaria, foco, "en ruta" */
+  --accent-strong: #14b8a6;
+
+  /* estados de navegación (hgNavstate) — SIEMPRE acompañados de ícono + texto */
+  --state-enroute: #2dd4bf; /* 5 · En ruta */
+  --state-ground: #f5a524; /* 4 · Emitiendo en tierra */
+  --state-stopped: #7c8da6; /* 2 · Parado */
+  --state-stale: #ef4444; /* sin señal reciente */
+
+  /* foco accesible */
+  --focus-ring: 0 0 0 3px rgba(45, 212, 191, 0.55);
+
+  /* tipografía */
+  --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Mono', Consolas, monospace;
+
+  /* ritmo de espaciado 4/8 (§10.3) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-12: 48px;
+
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --radius-l: 12px;
+
+  /* elevación (sombras sobre fondo oscuro) */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 10px rgba(0, 0, 0, 0.28);
+  --shadow-2: 0 4px 14px rgba(0, 0, 0, 0.42), 0 14px 36px rgba(0, 0, 0, 0.35);
+
+  /* variantes translúcidas para banners, pills y controles del mapa */
+  --overlay-bg: color-mix(in srgb, var(--bg-0) 88%, transparent);
+  --glass: color-mix(in srgb, var(--bg-1) 80%, transparent);
+  --line-soft: color-mix(in srgb, var(--line) 60%, transparent);
+  --accent-dim: color-mix(in srgb, var(--accent) 18%, transparent);
+  --ground-dim: color-mix(in srgb, var(--state-ground) 18%, transparent);
+  --stopped-dim: color-mix(in srgb, var(--state-stopped) 18%, transparent);
+  --stale-dim: color-mix(in srgb, var(--state-stale) 18%, transparent);
+  --accent-glow: 0 0 14px rgba(45, 212, 191, 0.25);
+}
