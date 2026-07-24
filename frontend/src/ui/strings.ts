@@ -96,7 +96,37 @@ export const STRINGS = {
     titulo: 'Rango',
     ultimas2h: 'Últimas 2 h',
     ultimas6h: 'Últimas 6 h',
-    historicoProximamente: 'Rango libre (histórico) — Fase 2',
+    desde: 'Desde',
+    hasta: 'Hasta',
+    consultar: 'Consultar histórico',
+    consultando: 'Consultando…',
+    volverEnVivo: 'Volver a en vivo',
+    horaLocalNota: 'Fechas en hora de Chile',
+    rangoInvalido: 'El inicio del rango debe ser anterior al fin.',
+  },
+
+  historico: {
+    banner: (desde: string, hasta: string, n: number) =>
+      `MODO HISTÓRICO — ${desde} → ${hasta} · ${n} posiciones`,
+    truncado: (paginas: number) =>
+      `Rango muy denso: se cargaron las primeras ${paginas} páginas (~${paginas * 1000} posiciones). Acota el rango para ver todo.`,
+    vacio: 'Sin posiciones en ese rango. Prueba con otras fechas.',
+    error: 'La consulta histórica falló. Reintenta o acota el rango.',
+  },
+
+  exportar: {
+    titulo: 'Exportar',
+    geojson: 'GeoJSON',
+    csv: 'CSV',
+    ayudaGeojson: 'Descargar lo visible como GeoJSON (QGIS, kepler.gl)',
+    ayudaCsv: 'Descargar lo visible como CSV',
+  },
+
+  alertas: {
+    tituloRegion: 'Alertas de la flota',
+    sinSenal: (label: string) => `${label} perdió señal (> 5 min sin reportar)`,
+    recuperado: (label: string) => `${label} recuperó señal`,
+    cerrar: 'Descartar alerta',
   },
 
   mapa: {

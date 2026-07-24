@@ -90,6 +90,23 @@
   color: var(--text-muted);
 }
 
+.historicoPill {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.bannerHistorico {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-4);
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-top: 1px solid var(--line-soft);
+  font-size: 13px;
+  font-weight: 500;
+}
+
 .bannerSimulacion {
   display: flex;
   align-items: center;
@@ -133,7 +150,10 @@
 
 .detalleTecnico summary {
   cursor: pointer;
-  min-height: 24px;
+  /* target táctil ≥ 44 px (§10.3) */
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 
 .detalleTecnico pre {

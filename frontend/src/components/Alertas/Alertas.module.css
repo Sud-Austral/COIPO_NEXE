@@ -1,0 +1,80 @@
+.pila {
+  position: absolute;
+  right: var(--sp-3);
+  bottom: var(--sp-12);
+  z-index: 1100; /* sobre los controles de Leaflet */
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  max-width: 360px;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-3);
+  background: var(--glass);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-left-width: 3px;
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-2);
+  font-size: 13px;
+  animation: entrada 0.25s ease-out;
+}
+
+@keyframes entrada {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.corte {
+  border-left-color: var(--state-stale);
+  color: var(--state-stale);
+}
+
+.recupero {
+  border-left-color: var(--accent);
+  color: var(--accent);
+}
+
+.mensaje {
+  flex: 1;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  text-align: left;
+  color: var(--text);
+}
+
+.mensaje:hover {
+  color: var(--accent);
+}
+
+.hora {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.cerrar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  min-height: 44px;
+  color: var(--text-muted);
+  border-radius: var(--radius-s);
+}
+
+.cerrar:hover {
+  color: var(--text);
+}

@@ -6,7 +6,7 @@
 import { useMemo, useState, type CSSProperties } from 'react'
 import { AlertTriangle, Route, Search } from 'lucide-react'
 import type { FleetResource } from '../../domain/types'
-import { haceCuanto } from '../../lib/format'
+import { haceCuanto, utcCrudo } from '../../lib/format'
 import {
   COLOR_ESTADO,
   ICONO_ESTADO,
@@ -25,6 +25,8 @@ interface Props {
   onAlternarTrail: (esn: string) => void
   onAlternarTodas: () => void
   todasActivas: boolean
+  /** true durante la carga inicial: el vacío es "conectando", no "sin datos" */
+  cargando?: boolean
 }
 
 const TILES: Array<{ clave: EstadoVisual; etiqueta: string }> = [
@@ -42,6 +44,7 @@ export function FleetPanel({
   onAlternarTrail,
   onAlternarTodas,
   todasActivas,
+  cargando = false,
 }: Props) {
   const [filtro, setFiltro] = useState('')
   const [filtroEstado, setFiltroEstado] = useState<EstadoVisual | null>(null)
@@ -127,7 +130,9 @@ export function FleetPanel({
       </div>
 
       {recursos.length === 0 ? (
-        <p className={styles.vacio}>{t.vacio}</p>
+        <p className={styles.vacio} role="status">
+          {cargando ? STRINGS.conexion.cargando : t.vacio}
+        </p>
       ) : filtrados.length === 0 ? (
         <p className={styles.vacio}>
           {filtroEstado !== null && filtro.trim() === ''
@@ -165,7 +170,12 @@ export function FleetPanel({
                       <EstadoChip recurso={recurso} compacto />
                     </span>
                     <span className={styles.frescura}>
-                      <span className={styles.tiempo}>
+                      {/* frescura con texto accesible, no solo el color del punto (§10.3) */}
+                      <span
+                        className={styles.tiempo}
+                        title={`${STRINGS.frescura[recurso.freshness]} — ${utcCrudo(recurso.last.posTime)}`}
+                        aria-label={`${STRINGS.frescura[recurso.freshness]}, ${haceCuanto(recurso.staleSeconds)}`}
+                      >
                         <span
                           className={`${styles.punto} ${styles[`punto_${recurso.freshness}`]}`}
                           aria-hidden="true"

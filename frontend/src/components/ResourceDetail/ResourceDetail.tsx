@@ -18,15 +18,36 @@ import {
 import { COLOR_ESTADO, estadoVisual } from '../../ui/estadoVisual'
 import { STRINGS } from '../../ui/strings'
 import { EstadoChip } from '../EstadoChip/EstadoChip'
+import { MiniGrafico, type PuntoSerie } from './MiniGrafico'
 import styles from './ResourceDetail.module.css'
+
+const KN_A_KMH = 1.852
 
 interface Props {
   recurso: FleetResource
 }
 
+/** Serie temporal de una medida de la trail (solo puntos con el dato). */
+function serie(
+  recurso: FleetResource,
+  valor: (p: FleetResource['trail'][number]) => number | undefined,
+): PuntoSerie[] {
+  const puntos: PuntoSerie[] = []
+  for (const p of recurso.trail) {
+    const v = valor(p)
+    if (v !== undefined) puntos.push({ t: Date.parse(p.posTime), v })
+  }
+  return puntos
+}
+
 export function ResourceDetail({ recurso }: Props) {
   const { last } = recurso
   const t = STRINGS.detalle
+
+  const serieVelocidad = serie(recurso, (p) =>
+    p.speed === undefined ? undefined : p.speed * KN_A_KMH,
+  )
+  const serieAltitud = serie(recurso, (p) => p.altitude)
 
   const identidad: Array<[string, string]> = [
     [t.modelo, last.hgAssetModel ?? '—'],
@@ -74,6 +95,17 @@ export function ResourceDetail({ recurso }: Props) {
           </div>
         ))}
       </div>
+
+      {(serieVelocidad.length >= 2 || serieAltitud.length >= 2) && (
+        <div className={styles.graficos}>
+          <MiniGrafico
+            titulo={`${t.velocidad} (km/h)`}
+            unidad="km/h"
+            puntos={serieVelocidad}
+          />
+          <MiniGrafico titulo={`${t.altitud} (m)`} unidad="m" puntos={serieAltitud} />
+        </div>
+      )}
 
       <dl className={styles.identidadLista}>
         {identidad.map(([etiqueta, valor]) => (

@@ -1,0 +1,68 @@
+.grafico {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  background: color-mix(in srgb, var(--bg-1) 70%, transparent);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-m);
+  display: grid;
+  gap: var(--sp-1);
+}
+
+.cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.titulo {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.valorActual {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text);
+}
+
+.lienzo {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.grilla {
+  stroke: var(--line-soft);
+  stroke-width: 1;
+}
+
+.area {
+  fill: color-mix(in srgb, var(--serie) 14%, transparent);
+  stroke: none;
+}
+
+.linea {
+  fill: none;
+  stroke: var(--serie);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.punto {
+  fill: var(--serie);
+  stroke: var(--bg-0);
+  stroke-width: 1;
+}
+
+.rango {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}

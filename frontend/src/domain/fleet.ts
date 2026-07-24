@@ -17,6 +17,14 @@ function claveDedupe(p: NexePosition): string {
   return `${p.esn}|${p.posTime}`
 }
 
+export interface OpcionesMerge {
+  /**
+   * false = modo histórico: NO se aplica la ventana de 6 h (el rango lo fija
+   * el usuario); el tope de 1000 puntos por ESN sigue vigente.
+   */
+  limitarVentana?: boolean
+}
+
 /**
  * Fusiona posiciones nuevas en el store. Dedupe por (esn, posTime) — el
  * solapamiento de rangos produce duplicados esperables. Devuelve un Map nuevo
@@ -25,7 +33,9 @@ function claveDedupe(p: NexePosition): string {
 export function mergePositions(
   store: FleetStore,
   nuevas: NexePosition[],
+  opciones: OpcionesMerge = {},
 ): { store: FleetStore; agregadas: number } {
+  const limitarVentana = opciones.limitarVentana ?? true
   if (nuevas.length === 0) return { store, agregadas: 0 }
 
   const resultado: FleetStore = new Map(store)
@@ -56,18 +66,19 @@ export function mergePositions(
   for (const esn of tocados) {
     const trail = resultado.get(esn)!
     trail.sort((a, b) => Date.parse(a.posTime) - Date.parse(b.posTime))
-    resultado.set(esn, aplicarTope(trail))
+    resultado.set(esn, aplicarTope(trail, limitarVentana))
   }
 
   return { store: resultado, agregadas }
 }
 
 /** Tope de memoria: últimas 6 h (respecto del punto más nuevo) o 1000 puntos. */
-function aplicarTope(trailOrdenada: NexePosition[]): NexePosition[] {
+function aplicarTope(trailOrdenada: NexePosition[], limitarVentana: boolean): NexePosition[] {
   let recortada = trailOrdenada
   if (recortada.length > MAX_TRAIL_PUNTOS) {
     recortada = recortada.slice(recortada.length - MAX_TRAIL_PUNTOS)
   }
+  if (!limitarVentana) return recortada
   const masNuevo = Date.parse(recortada[recortada.length - 1]!.posTime)
   const limite = masNuevo - MAX_TRAIL_MS
   const primerVigente = recortada.findIndex((p) => Date.parse(p.posTime) >= limite)

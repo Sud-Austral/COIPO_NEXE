@@ -5,7 +5,8 @@
  * en monoespaciada (el color queda reservado al estado).
  */
 import { useEffect, useState } from 'react'
-import { AlertTriangle, FlaskConical, RefreshCw, Wifi, WifiOff } from 'lucide-react'
+import { AlertTriangle, FlaskConical, History, RefreshCw, Wifi, WifiOff } from 'lucide-react'
+import type { EstadoHistorico } from '../../hooks/useHistorico'
 import type { EstadoPolling } from '../../hooks/usePolling'
 import { fechaHoraChile, haceCuanto, utcCrudo } from '../../lib/format'
 import { STRINGS } from '../../ui/strings'
@@ -14,6 +15,8 @@ import styles from './StatusBar.module.css'
 interface Props {
   estado: EstadoPolling
   simulacion: boolean
+  /** presente = modo histórico activo: el polling está detenido */
+  historico?: EstadoHistorico | null
 }
 
 /** Segundos que faltan para `timestamp`, refrescado cada segundo. */
@@ -32,8 +35,9 @@ function useCuentaRegresiva(timestamp: number | null): number | null {
   return restante
 }
 
-export function StatusBar({ estado, simulacion }: Props) {
+export function StatusBar({ estado, simulacion, historico = null }: Props) {
   const restante = useCuentaRegresiva(estado.proximoPollMs)
+  const enHistorico = historico !== null
 
   const masFresco = estado.fleet.length
     ? Math.min(...estado.fleet.map((r) => r.staleSeconds))
@@ -57,36 +61,47 @@ export function StatusBar({ estado, simulacion }: Props) {
         </h1>
 
         <div className={styles.indicadores}>
-          <span className={`${styles.pill} ${styles.conexion} ${conexion.clase}`}>
-            <conexion.Icono size={14} strokeWidth={2.25} aria-hidden="true" />
-            {conexion.texto}
-          </span>
-
-          <span className={styles.pill}>
-            <span className={styles.etiqueta}>{STRINGS.statusBar.ultimoDato}</span>
-            <span className={styles.valor}>
-              {masFresco === null ? STRINGS.statusBar.sinDatos : haceCuanto(masFresco)}
+          {enHistorico ? (
+            <span className={`${styles.pill} ${styles.conexion} ${styles.historicoPill}`}>
+              <History size={14} strokeWidth={2.25} aria-hidden="true" />
+              {historico.fase === 'cargando'
+                ? STRINGS.rango.consultando
+                : STRINGS.rango.titulo + ' histórico'}
             </span>
-          </span>
+          ) : (
+            <>
+              <span className={`${styles.pill} ${styles.conexion} ${conexion.clase}`}>
+                <conexion.Icono size={14} strokeWidth={2.25} aria-hidden="true" />
+                {conexion.texto}
+              </span>
 
-          {restante !== null && estado.fase !== 'detenido' && (
-            <span className={styles.pill}>
-              <span className={styles.etiqueta}>{STRINGS.statusBar.proximoPoll}</span>
-              <span className={styles.valor}>{restante} s</span>
-            </span>
+              <span className={styles.pill}>
+                <span className={styles.etiqueta}>{STRINGS.statusBar.ultimoDato}</span>
+                <span className={styles.valor}>
+                  {masFresco === null ? STRINGS.statusBar.sinDatos : haceCuanto(masFresco)}
+                </span>
+              </span>
+
+              {restante !== null && estado.fase !== 'detenido' && (
+                <span className={styles.pill}>
+                  <span className={styles.etiqueta}>{STRINGS.statusBar.proximoPoll}</span>
+                  <span className={styles.valor}>{restante} s</span>
+                </span>
+              )}
+
+              {estado.cursor && (
+                <span className={styles.pill} title={utcCrudo(estado.cursor)}>
+                  <span className={styles.etiqueta}>{STRINGS.statusBar.cursor}</span>
+                  <span className={styles.valor}>{fechaHoraChile(estado.cursor)}</span>
+                </span>
+              )}
+
+              <span className={styles.pill}>
+                <span className={styles.etiqueta}>{STRINGS.statusBar.polls}</span>
+                <span className={styles.valor}>{estado.contadorPolls}</span>
+              </span>
+            </>
           )}
-
-          {estado.cursor && (
-            <span className={styles.pill} title={utcCrudo(estado.cursor)}>
-              <span className={styles.etiqueta}>{STRINGS.statusBar.cursor}</span>
-              <span className={styles.valor}>{fechaHoraChile(estado.cursor)}</span>
-            </span>
-          )}
-
-          <span className={styles.pill}>
-            <span className={styles.etiqueta}>{STRINGS.statusBar.polls}</span>
-            <span className={styles.valor}>{estado.contadorPolls}</span>
-          </span>
         </div>
       </div>
 
@@ -97,7 +112,23 @@ export function StatusBar({ estado, simulacion }: Props) {
         </p>
       )}
 
-      {estado.error && (
+      {enHistorico && historico.desdeIso && historico.hastaIso && (
+        <p className={styles.bannerHistorico} role="status">
+          <History size={15} strokeWidth={2.25} aria-hidden="true" />
+          {historico.fase === 'cargando' && STRINGS.rango.consultando}
+          {historico.fase === 'ok' &&
+            STRINGS.historico.banner(
+              fechaHoraChile(historico.desdeIso),
+              fechaHoraChile(historico.hastaIso),
+              historico.posiciones,
+            )}
+          {historico.fase === 'vacio' && STRINGS.historico.vacio}
+          {historico.fase === 'error' && STRINGS.historico.error}
+          {historico.truncado && ` — ${STRINGS.historico.truncado(historico.paginasCargadas)}`}
+        </p>
+      )}
+
+      {!enHistorico && estado.error && (
         <div
           className={
             estado.error.tipo === 'red' ? styles.bannerAlerta : styles.bannerPeligro

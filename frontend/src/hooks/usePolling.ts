@@ -65,7 +65,11 @@ const ESTADO_INICIAL: EstadoPolling = {
   contadorPolls: 0,
 }
 
-export function usePolling(rangoHoras: number = 2, intervaloMs: number = POLL_INTERVAL_MS) {
+export function usePolling(
+  rangoHoras: number = 2,
+  intervaloMs: number = POLL_INTERVAL_MS,
+  activo: boolean = true, // false = modo histórico: polling completamente detenido
+) {
   const intervaloSeguro = Math.max(intervaloMs, POLL_INTERVAL_MS)
 
   const [estado, setEstado] = useState<EstadoPolling>(ESTADO_INICIAL)
@@ -204,6 +208,12 @@ export function usePolling(rangoHoras: number = 2, intervaloMs: number = POLL_IN
 
   useEffect(() => {
     generacionRef.current += 1
+    if (!activo) {
+      // modo histórico: sin timers, sin llamadas; al volver, recarga fresca
+      detenidoRef.current = true
+      limpiarTimer()
+      return
+    }
     const generacion = generacionRef.current
     detenidoRef.current = false
     enVueloRef.current = false
@@ -253,7 +263,7 @@ export function usePolling(rangoHoras: number = 2, intervaloMs: number = POLL_IN
       clearInterval(tick)
       document.removeEventListener('visibilitychange', alCambiarVisibilidad)
     }
-  }, [rangoHoras, poll, refrescarLastPositions])
+  }, [rangoHoras, poll, refrescarLastPositions, activo])
 
   return estado
 }

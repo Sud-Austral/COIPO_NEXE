@@ -15,7 +15,7 @@ import {
   ZoomControl,
 } from 'react-leaflet'
 import type { FleetResource } from '../../domain/types'
-import { estadoVisual, type EstadoVisual } from '../../ui/estadoVisual'
+import { estadoVisual, TEXTO_ESTADO, type EstadoVisual } from '../../ui/estadoVisual'
 import { STRINGS } from '../../ui/strings'
 import { ResourceDetail } from '../ResourceDetail/ResourceDetail'
 import { iconoRecurso } from './marcador'
@@ -111,7 +111,8 @@ export function MapView({ recursos, seleccionado, onSeleccionar, trailsVisibles 
           icon={iconoRecurso(recurso, recurso.esn === seleccionado)}
           eventHandlers={{ click: () => onSeleccionar(recurso.esn) }}
         >
-          {/* alias flotante: al pasar el mouse, y fijo para el seleccionado */}
+          {/* alias + estado en texto (§10.3: nunca solo color): al pasar el
+              mouse, y fijo para el seleccionado */}
           <Tooltip
             className="mk-etiqueta"
             direction="top"
@@ -119,7 +120,7 @@ export function MapView({ recursos, seleccionado, onSeleccionar, trailsVisibles 
             opacity={1}
             permanent={recurso.esn === seleccionado}
           >
-            {recurso.label}
+            {recurso.label} · {TEXTO_ESTADO[estadoVisual(recurso)]}
           </Tooltip>
           <Popup>
             <ResourceDetail recurso={recurso} />

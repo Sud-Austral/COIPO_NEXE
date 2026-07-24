@@ -1,12 +1,17 @@
 /**
  * Composición de la app (layout de CLAUDE.md §10.2):
  * StatusBar arriba · FleetPanel a la izquierda (drawer inferior bajo 900 px)
- * · MapView al centro · TimeRangeBar abajo.
+ * · MapView al centro · TimeRangeBar abajo (presets en vivo + rango histórico
+ * + export) · Alertas flotantes sobre el mapa.
  */
 import { useMemo, useState } from 'react'
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
-import { usePolling } from './hooks/usePolling'
+import { usePolling, POLL_INTERVAL_MS } from './hooks/usePolling'
+import { useHistorico } from './hooks/useHistorico'
+import { useAlertas } from './hooks/useAlertas'
+import { aCSV, aGeoJSON, descargar, nombreArchivo } from './lib/exportar'
 import { STRINGS } from './ui/strings'
+import { Alertas } from './components/Alertas/Alertas'
 import { FleetPanel } from './components/FleetPanel/FleetPanel'
 import { MapView } from './components/MapView/MapView'
 import { StatusBar } from './components/StatusBar/StatusBar'
@@ -15,7 +20,14 @@ import styles from './App.module.css'
 
 export default function App() {
   const [rangoHoras, setRangoHoras] = useState(2)
-  const estado = usePolling(rangoHoras)
+  const [modo, setModo] = useState<'vivo' | 'historico'>('vivo')
+  const enHistorico = modo === 'historico'
+
+  const estadoVivo = usePolling(rangoHoras, POLL_INTERVAL_MS, !enHistorico)
+  const { estado: historico, consultar, limpiar } = useHistorico()
+  const fleet = enHistorico ? historico.fleet : estadoVivo.fleet
+
+  const { alertas, descartar } = useAlertas(estadoVivo.fleet, !enHistorico)
 
   const [seleccionado, setSeleccionado] = useState<string | null>(null)
   const [panelAbierto, setPanelAbierto] = useState(true)
@@ -25,13 +37,13 @@ export default function App() {
   const [trailsPorEsn, setTrailsPorEsn] = useState<ReadonlySet<string>>(new Set())
 
   const trailsVisibles = useMemo<ReadonlySet<string>>(
-    () => (trailsTodas ? new Set(estado.fleet.map((r) => r.esn)) : trailsPorEsn),
-    [trailsTodas, trailsPorEsn, estado.fleet],
+    () => (trailsTodas ? new Set(fleet.map((r) => r.esn)) : trailsPorEsn),
+    [trailsTodas, trailsPorEsn, fleet],
   )
 
   const alternarTrail = (esn: string) => {
     if (trailsTodas) {
-      const conjunto = new Set(estado.fleet.map((r) => r.esn))
+      const conjunto = new Set(fleet.map((r) => r.esn))
       conjunto.delete(esn)
       setTrailsTodas(false)
       setTrailsPorEsn(conjunto)
@@ -48,30 +60,61 @@ export default function App() {
     setTrailsPorEsn(new Set())
   }
 
-  const simulacion = estado.fleet.some((r) => r.last.hgCompany === 'SIMULADO')
+  const consultarHistorico = (desdeIso: string, hastaIso: string) => {
+    setModo('historico')
+    void consultar(desdeIso, hastaIso)
+  }
+
+  const volverEnVivo = () => {
+    limpiar()
+    setModo('vivo')
+  }
+
+  const alCambiarRango = (horas: number) => {
+    setRangoHoras(horas)
+    if (enHistorico) volverEnVivo()
+  }
+
+  const exportar = (formato: 'geojson' | 'csv') => {
+    if (fleet.length === 0) return
+    if (formato === 'geojson') {
+      descargar(nombreArchivo('geojson', enHistorico), aGeoJSON(fleet), 'application/geo+json')
+    } else {
+      descargar(nombreArchivo('csv', enHistorico), aCSV(fleet), 'text/csv')
+    }
+  }
+
+  const simulacion = fleet.some((r) => r.last.hgCompany === 'SIMULADO')
 
   return (
     <div className={styles.app}>
-      <StatusBar estado={estado} simulacion={simulacion} />
+      <StatusBar
+        estado={estadoVivo}
+        simulacion={simulacion}
+        historico={enHistorico ? historico : null}
+      />
 
       <div className={styles.cuerpo}>
         <aside
           className={panelAbierto ? styles.panel : `${styles.panel} ${styles.panelCerrado}`}
         >
           <FleetPanel
-            recursos={estado.fleet}
+            recursos={fleet}
             seleccionado={seleccionado}
             onSeleccionar={setSeleccionado}
             trailsVisibles={trailsVisibles}
             onAlternarTrail={alternarTrail}
             onAlternarTodas={alternarTodas}
             todasActivas={trailsTodas}
+            cargando={
+              enHistorico ? historico.fase === 'cargando' : estadoVivo.fase === 'cargando'
+            }
           />
         </aside>
 
         <main className={styles.mapa}>
           <MapView
-            recursos={estado.fleet}
+            recursos={fleet}
             seleccionado={seleccionado}
             onSeleccionar={setSeleccionado}
             trailsVisibles={trailsVisibles}
@@ -91,10 +134,20 @@ export default function App() {
               <PanelLeftOpen size={18} strokeWidth={2.25} aria-hidden="true" />
             )}
           </button>
+          <Alertas alertas={alertas} onDescartar={descartar} onSeleccionar={setSeleccionado} />
         </main>
       </div>
 
-      <TimeRangeBar rangoHoras={rangoHoras} onCambiarRango={setRangoHoras} />
+      <TimeRangeBar
+        modo={modo}
+        rangoHoras={rangoHoras}
+        consultando={enHistorico && historico.fase === 'cargando'}
+        exportarDeshabilitado={fleet.length === 0}
+        onCambiarRango={alCambiarRango}
+        onConsultarHistorico={consultarHistorico}
+        onVolverEnVivo={volverEnVivo}
+        onExportar={exportar}
+      />
     </div>
   )
 }

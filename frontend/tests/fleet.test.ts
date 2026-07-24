@@ -65,6 +65,13 @@ describe('mergePositions — dedupe y orden (§8.3)', () => {
     expect(store.get('A')).toHaveLength(1)
     expect(store.get('A')![0]!.posTime).toBe(nueva.posTime)
   })
+
+  it('modo histórico (limitarVentana: false): conserva rangos más largos que 6 h', () => {
+    const vieja = posicion('A', 0)
+    const nueva = posicion('A', 7 * 3600)
+    const { store } = mergePositions(new Map(), [vieja, nueva], { limitarVentana: false })
+    expect(store.get('A')).toHaveLength(2)
+  })
 })
 
 describe('computeFreshness — umbrales (§8.4)', () => {

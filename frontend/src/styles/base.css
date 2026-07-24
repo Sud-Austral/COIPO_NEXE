@@ -132,7 +132,17 @@ input {
 
 .leaflet-container a.leaflet-popup-close-button {
   color: var(--text-muted);
-  padding: var(--sp-1);
+  /* target táctil ≥ 44×44 px (§10.3) */
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  padding: 0;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: var(--text);
 }
 
 .leaflet-bar {
@@ -147,6 +157,11 @@ input {
   backdrop-filter: blur(8px);
   color: var(--text);
   border-bottom: 1px solid var(--line-soft);
+  /* targets táctiles ≥ 44×44 px (§10.3) — Leaflet trae 30×30 */
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+  font-size: 18px;
 }
 
 .leaflet-bar a:hover,

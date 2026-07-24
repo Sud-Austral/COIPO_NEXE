@@ -34,9 +34,21 @@ export class NexeUpstreamError extends Error {
 
 const API_BASE: string = import.meta.env.VITE_API_BASE ?? '/api/nexe'
 
+/**
+ * Modo demo (GitHub Pages): sin proxy disponible y con Nexe sin CORS, las
+ * peticiones se atienden con el simulador EN el navegador — cero red, cero
+ * key en el bundle (CLAUDE.md §3). Se fija en build con VITE_DEMO=1.
+ */
+const MODO_DEMO = import.meta.env.VITE_DEMO === '1'
+
 export type RutaNexe = 'get' | 'lastpositions'
 
 export async function postNexe(ruta: RutaNexe, body: NexeRequest): Promise<unknown> {
+  if (MODO_DEMO) {
+    const { manejarSimulacion } = await import('../demo/simuladorNexe')
+    return manejarSimulacion(ruta, body)
+  }
+
   let respuesta: Response
   try {
     respuesta = await fetch(`${API_BASE}/${ruta}`, {

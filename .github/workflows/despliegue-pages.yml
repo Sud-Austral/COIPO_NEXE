@@ -1,0 +1,60 @@
+# Despliegue del visor en GitHub Pages — MODO DEMO (CLAUDE.md §3):
+# el build lleva VITE_DEMO=1, así que la app corre con el simulador en el
+# navegador. La API key de Nexe NO existe en este flujo ni en el bundle
+# (Nexe no implementa CORS: el navegador no puede llamarle directo).
+name: Desplegar demo en GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Tests
+        run: npm test
+
+      - name: Build (demo estático)
+        run: npm run build
+        env:
+          VITE_DEMO: "1"
+          VITE_BASE: /COIPO_NEXE/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v4
