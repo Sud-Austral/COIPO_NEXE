@@ -55,15 +55,21 @@ export function haceCuanto(segundos: number): string {
 }
 
 /**
- * `spd` → "124 km/h (67 kn)". Unidades siempre visibles (§10.3).
- * Hipótesis de trabajo: spd viene en NUDOS (convención AFF/aeronáutica);
- * m/s quedó descartado con datos reales (67 en una furgoneta). Confirmar
- * con Nexe — si fuera km/h, corregir SOLO aquí (CLAUDE.md §2 PENDIENTE).
+ * `spd` → "173 km/h (93 kn)". Unidades siempre visibles (§10.3).
+ *
+ * spd viene en METROS POR SEGUNDO — CONFIRMADO empíricamente (30-jul-2026)
+ * comparando 1.287 pares de posiciones consecutivas reales contra la distancia
+ * haversine recorrida: la mediana del ratio (m/s real / spd) dio 0,90 y los
+ * tramos de 30 s ~1,00. Nudos habría dado 0,51 y km/h 0,28.
  */
-export function velocidad(nudos?: number): string {
-  if (nudos === undefined) return '—'
-  const kmh = Math.round(nudos * 1.852)
-  return `${kmh} km/h (${Math.round(nudos)} kn)`
+export const MS_A_KMH = 3.6
+const MS_A_NUDOS = 1.943844
+
+export function velocidad(metrosPorSegundo?: number): string {
+  if (metrosPorSegundo === undefined) return '—'
+  const kmh = Math.round(metrosPorSegundo * MS_A_KMH)
+  const nudos = Math.round(metrosPorSegundo * MS_A_NUDOS)
+  return `${kmh} km/h (${nudos} kn)`
 }
 
 /** "832 m". */

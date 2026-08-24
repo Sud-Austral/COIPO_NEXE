@@ -1,20 +1,20 @@
 /**
- * Modo histórico (CLAUDE.md §11 Fase 2-7): consulta única a /get por un rango
- * libre [desde, hasta], SIN polling. Pagina por dataCtrTime igual que el modo
- * vivo (límite real 1000, filtro estrictamente `>`), y filtra por posTime al
- * rango pedido — los "históricos rezagados" con posTime fuera del rango se
- * descartan. La frescura/staleness se calcula respecto de `hasta`.
+ * Modo histórico (CLAUDE.md §11 Fase 2-7): una sola consulta a NUESTRO backend
+ * por un rango libre, SIN polling.
+ *
+ * Antes esto paginaba Nexe hasta 30 veces desde el navegador y filtraba por
+ * posTime en el cliente. Ahora el backend resuelve el rango con una consulta SQL
+ * indexada, así que aquí solo queda pedir y pintar. La frescura se calcula
+ * respecto del FIN del rango (qué recursos estaban activos en ese momento).
  */
 import { useCallback, useRef, useState } from 'react'
-import { buildGetBody } from '../api/contract'
-import { postNexe } from '../api/client'
+import { getApi } from '../api/client'
 import { parsePositions } from '../api/parse'
-import { buildFleet, maxDataCtrTime, mergePositions, type FleetStore } from '../domain/fleet'
+import { buildFleet, mergePositions, type FleetStore } from '../domain/fleet'
 import type { FleetResource } from '../domain/types'
 
-const UMBRAL_PAGINA_LLENA = 900
-export const MAX_PAGINAS_HISTORICO = 30 // ~30.000 posiciones; suficiente y acotado
-const MARGEN_REZAGADOS_MS = 25 * 60_000 // llegadas tardías después del fin del rango
+/** Tope del backend para /api/posiciones; si se alcanza, la respuesta viene truncada. */
+export const LIMITE_HISTORICO = 20000
 
 export type FaseHistorico = 'inactivo' | 'cargando' | 'ok' | 'vacio' | 'error'
 
@@ -24,7 +24,6 @@ export interface EstadoHistorico {
   desdeIso: string | null
   hastaIso: string | null
   posiciones: number
-  paginasCargadas: number
   truncado: boolean
 }
 
@@ -34,8 +33,15 @@ const ESTADO_INICIAL: EstadoHistorico = {
   desdeIso: null,
   hastaIso: null,
   posiciones: 0,
-  paginasCargadas: 0,
   truncado: false,
+}
+
+function vieneTruncado(cruda: unknown): boolean {
+  return (
+    typeof cruda === 'object' &&
+    cruda !== null &&
+    (cruda as Record<string, unknown>).truncado === true
+  )
 }
 
 export function useHistorico() {
@@ -50,59 +56,31 @@ export function useHistorico() {
   const consultar = useCallback(async (desdeIso: string, hastaIso: string) => {
     generacionRef.current += 1
     const generacion = generacionRef.current
-    const desdeMs = Date.parse(desdeIso)
-    const hastaMs = Date.parse(hastaIso)
 
-    setEstado({
-      ...ESTADO_INICIAL,
-      fase: 'cargando',
-      desdeIso,
-      hastaIso,
-    })
-
-    let store: FleetStore = new Map()
-    let cursor = desdeIso
-    let paginas = 0
-    let acumuladas = 0
-    let truncado = false
+    setEstado({ ...ESTADO_INICIAL, fase: 'cargando', desdeIso, hastaIso })
 
     try {
-      while (paginas < MAX_PAGINAS_HISTORICO) {
-        const cruda = await postNexe('get', buildGetBody(cursor))
-        if (generacion !== generacionRef.current) return
-        const { posiciones } = parsePositions(cruda)
-        paginas += 1
-
-        const enRango = posiciones.filter((p) => {
-          const t = Date.parse(p.posTime)
-          return t >= desdeMs && t <= hastaMs
-        })
-        if (enRango.length > 0) {
-          const resultado = mergePositions(store, enRango, { limitarVentana: false })
-          store = resultado.store
-          acumuladas += resultado.agregadas
-        }
-
-        // avanzar el cursor; sin avance posible → fin
-        const candidato = maxDataCtrTime(posiciones)
-        if (candidato === null || Date.parse(candidato) <= Date.parse(cursor)) break
-        cursor = candidato
-
-        // página corta = no hay más datos; o ya pasamos el fin del rango
-        if (posiciones.length < UMBRAL_PAGINA_LLENA) break
-        if (Date.parse(cursor) > hastaMs + MARGEN_REZAGADOS_MS) break
-      }
-      truncado = paginas >= MAX_PAGINAS_HISTORICO
-
+      const cruda = await getApi('posiciones', {
+        desde: desdeIso,
+        hasta: hastaIso,
+        limite: LIMITE_HISTORICO,
+      })
       if (generacion !== generacionRef.current) return
+      const { posiciones } = parsePositions(cruda)
+
+      let store: FleetStore = new Map()
+      if (posiciones.length > 0) {
+        // Sin la ventana de 6 h del modo vivo: el rango lo fija el usuario.
+        store = mergePositions(store, posiciones, { limitarVentana: false }).store
+      }
+
       setEstado({
-        fase: acumuladas === 0 ? 'vacio' : 'ok',
-        fleet: buildFleet(store, hastaMs), // staleness relativo al FIN del rango
+        fase: posiciones.length === 0 ? 'vacio' : 'ok',
+        fleet: buildFleet(store, Date.parse(hastaIso)),
         desdeIso,
         hastaIso,
-        posiciones: acumuladas,
-        paginasCargadas: paginas,
-        truncado,
+        posiciones: posiciones.length,
+        truncado: vieneTruncado(cruda),
       })
     } catch {
       if (generacion !== generacionRef.current) return

@@ -11,6 +11,7 @@ import {
   altitud,
   coordenadas,
   fechaHoraChile,
+  MS_A_KMH,
   rumbo,
   utcCrudo,
   velocidad,
@@ -21,7 +22,7 @@ import { EstadoChip } from '../EstadoChip/EstadoChip'
 import { MiniGrafico, type PuntoSerie } from './MiniGrafico'
 import styles from './ResourceDetail.module.css'
 
-const KN_A_KMH = 1.852
+// `spd` viene en m/s (confirmado con datos reales, ver lib/format.ts).
 
 interface Props {
   recurso: FleetResource
@@ -45,7 +46,7 @@ export function ResourceDetail({ recurso }: Props) {
   const t = STRINGS.detalle
 
   const serieVelocidad = serie(recurso, (p) =>
-    p.speed === undefined ? undefined : p.speed * KN_A_KMH,
+    p.speed === undefined ? undefined : p.speed * MS_A_KMH,
   )
   const serieAltitud = serie(recurso, (p) => p.altitude)
 

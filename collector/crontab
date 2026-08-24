@@ -1,0 +1,9 @@
+# Horario del collector, empaquetado en la imagen (nunca el cron del servidor): así
+# viaja con el despliegue y no depende de la configuración de la máquina.
+# Lo ejecuta supercronic, que loguea cada corrida a stdout (docker compose logs collector).
+#
+# Cada minuto: el estándar AFF pide polling >= 30 s y las unidades reportan cada ~2 min.
+# La cadencia solo afecta la LATENCIA, nunca la completitud — el cursor por dataCtrTime
+# no pierde nada entre corridas. Para ~30 s: COLLECTOR_PASADAS_POR_MINUTO=2 en el .env
+# (dos pasadas dentro del mismo minuto), sin tocar este archivo.
+* * * * * cd /app/collector && python ingesta.py

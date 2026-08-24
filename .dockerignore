@@ -1,0 +1,22 @@
+# Nunca al contexto de build: secretos, dependencias y datos locales.
+.env
+.env.*
+!.env.example
+
+node_modules
+frontend/node_modules
+frontend/dist
+
+datos_historicos
+__pycache__
+**/__pycache__
+*.pyc
+.pytest_cache
+.venv
+
+.git
+.github
+INSUMO
+INSUMO_PRODUCCION
+*.md
+!README.md

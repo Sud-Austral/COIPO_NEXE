@@ -1,63 +1,72 @@
 /**
- * Cliente HTTP hacia el proxy propio (/api/nexe/*). Errores tipados para que
- * usePolling decida: detenerse (401/422) o reintentar con backoff (5xx/red).
+ * Cliente HTTP hacia NUESTRO backend (`/api/*`), no hacia Nexe.
+ *
+ * El navegador ya no arma el body AFF ni pagina: eso lo hace el collector contra
+ * Nexe, y el backend sirve desde la base propia. Aquí solo quedan GET con query
+ * params y errores tipados para que los hooks decidan reintentar o detenerse.
+ *
+ * La respuesta mantiene la forma GeoJSON FeatureCollection con el vocabulario de
+ * Nexe, así que `parse.ts` la consume sin cambios.
  */
-import type { NexeRequest } from './contract'
 
-export class NexeAuthError extends Error {
-  constructor(public detalle: unknown) {
-    super('Credenciales inválidas contra Nexe (401)')
-    this.name = 'NexeAuthError'
+export class ApiRequestError extends Error {
+  constructor(
+    public status: number,
+    public detalle: unknown,
+  ) {
+    super(`El backend rechazó la consulta (${status})`)
+    this.name = 'ApiRequestError'
   }
 }
 
-export class NexeContractError extends Error {
-  constructor(public detalle: unknown) {
-    super('El servidor Nexe rechazó el body (422): contrato desalineado')
-    this.name = 'NexeContractError'
-  }
-}
-
-export class NexeUpstreamError extends Error {
+export class ApiNoDisponibleError extends Error {
   constructor(
     public status: number | null,
     public detalle?: unknown,
   ) {
     super(
       status === null
-        ? 'Sin conexión con el proxy'
-        : `Error ${status} consultando Nexe`,
+        ? 'Sin conexión con el servidor del visor'
+        : `El servidor del visor respondió ${status}`,
     )
-    this.name = 'NexeUpstreamError'
+    this.name = 'ApiNoDisponibleError'
   }
 }
 
-const API_BASE: string = import.meta.env.VITE_API_BASE ?? '/api/nexe'
+const API_BASE: string = import.meta.env.VITE_API_BASE ?? '/api'
 
 /**
- * Modo demo (GitHub Pages): sin proxy disponible y con Nexe sin CORS, las
- * peticiones se atienden con el simulador EN el navegador — cero red, cero
- * key en el bundle (CLAUDE.md §3). Se fija en build con VITE_DEMO=1.
+ * Modo demo (GitHub Pages): sin backend ni base de datos, las consultas se
+ * atienden con el simulador EN el navegador — cero red, cero secretos en el
+ * bundle (CLAUDE.md §3). Se fija en build con VITE_DEMO=1.
  */
 const MODO_DEMO = import.meta.env.VITE_DEMO === '1'
 
-export type RutaNexe = 'get' | 'lastpositions'
+export type RutaApi =
+  | 'posiciones/incremental'
+  | 'posiciones'
+  | 'recursos'
+  | 'estado-ingesta'
 
-export async function postNexe(ruta: RutaNexe, body: NexeRequest): Promise<unknown> {
+export type Parametros = Record<string, string | number | undefined>
+
+export async function getApi(ruta: RutaApi, parametros: Parametros = {}): Promise<unknown> {
   if (MODO_DEMO) {
     const { manejarSimulacion } = await import('../demo/simuladorNexe')
-    return manejarSimulacion(ruta, body)
+    return manejarSimulacion(ruta, parametros)
   }
+
+  const query = new URLSearchParams()
+  for (const [clave, valor] of Object.entries(parametros)) {
+    if (valor !== undefined) query.set(clave, String(valor))
+  }
+  const sufijo = query.toString() ? `?${query}` : ''
 
   let respuesta: Response
   try {
-    respuesta = await fetch(`${API_BASE}/${ruta}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
+    respuesta = await fetch(`${API_BASE}/${ruta}${sufijo}`)
   } catch {
-    throw new NexeUpstreamError(null)
+    throw new ApiNoDisponibleError(null)
   }
 
   const texto = await respuesta.text()
@@ -65,11 +74,13 @@ export async function postNexe(ruta: RutaNexe, body: NexeRequest): Promise<unkno
   try {
     cuerpo = JSON.parse(texto)
   } catch {
-    // el body puede venir como texto plano (p. ej. "Internal Server Error")
+    // puede venir texto plano (p. ej. un error de nginx)
   }
 
   if (respuesta.ok) return cuerpo
-  if (respuesta.status === 401) throw new NexeAuthError(cuerpo)
-  if (respuesta.status === 422) throw new NexeContractError(cuerpo)
-  throw new NexeUpstreamError(respuesta.status, cuerpo)
+  // 4xx (menos 429) es un error nuestro de programación: reintentar no ayuda.
+  if (respuesta.status >= 400 && respuesta.status < 500 && respuesta.status !== 429) {
+    throw new ApiRequestError(respuesta.status, cuerpo)
+  }
+  throw new ApiNoDisponibleError(respuesta.status, cuerpo)
 }

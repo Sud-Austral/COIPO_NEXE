@@ -1,2 +1,18 @@
+# Secretos server-side: el .env real lo crea el bootstrap del servidor y NUNCA
+# se commitea. Solo la plantilla viaja al repo.
+.env
+.env.*
+!.env.example
+
 # Descargas del extractor histórico (descargar_historico_nexe.py) — datos, no código
 datos_historicos/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Node (el frontend tiene su propio .gitignore, esto cubre la raíz)
+node_modules/

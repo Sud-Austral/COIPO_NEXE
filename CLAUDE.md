@@ -55,26 +55,42 @@ siguió en las últimas horas?*
 | Soporte | `soporte.monitor@heligrafics.net` (detalle de la incidencia + ejemplo claro). **No hay** endpoint de heartbeat |
 | CORS | **El servidor NO implementa CORS** (verificado 8-jul: `OPTIONS` → 405 y las respuestas no traen `Access-Control-Allow-Origin`). ⇒ El navegador **no puede** llamar a Nexe directamente aunque tuviera la key: el proxy server-side no es opcional |
 
+### RESUELTO con datos reales (30-jul-2026, tras ingerir 17.649 posiciones)
+
+1. **Campo de altitud: EXISTE y se llama `alt`, en metros.** No se había visto porque los
+   recursos observados en julio eran medios terrestres y aviones en tierra. Confirmado con el
+   Air Tractor **AT-802F "AC-02"** en vuelo: `alt` de 194 a 1.311 m en una misma salida. No
+   todas las balizas lo emiten (los Star Connect GPS no lo mandan), así que el campo sigue
+   siendo opcional y el parser lo busca tolerante (`alt`/`altitude` y la 3ª coordenada GeoJSON).
+
+2. **Unidad de `spd`: METROS POR SEGUNDO.** La hipótesis anterior (nudos) era **incorrecta** y
+   la UI mostraba velocidades 1,9× más bajas. Método de confirmación —independiente de cualquier
+   supuesto—: se comparó el `spd` reportado contra la velocidad REAL calculada por distancia
+   haversine entre posiciones consecutivas, en 1.287 pares:
+
+   | Si `spd` fuera… | ratio esperado (m/s real / spd) | observado |
+   |---|---|---|
+   | m/s | 1,00 | **mediana 0,90; tramos de 30 s ~1,00** ✔ |
+   | nudos | 0,51 | descartado |
+   | km/h | 0,28 | descartado |
+
+   (La mediana baja levemente de 1,00 porque en los tramos de 120 s la línea recta entre dos
+   puntos subestima el trayecto real curvo.) La conversión vive en `frontend/src/lib/format.ts`
+   (`MS_A_KMH`), con test de regresión en `frontend/tests/format.test.ts`. **La base guarda el
+   valor CRUDO**: si Nexe alguna vez aclara otra cosa, se corrige la presentación sin remigrar.
+
 ### PENDIENTE de confirmar
 
-1. **Campo de altitud** — no observado en NINGUNA corrida real (7-jul: 3.000 posiciones
-   revisadas, 0 con `alt`/`altitude`; eran medios terrestres y aviones en tierra). Confirmar
-   nombre y unidad con una aeronave en vuelo; el parser lo busca tolerante (`alt`/`altitude`,
-   y la 3ª coordenada GeoJSON si viniera).
-2. **Unidades de `spd`** — **m/s DESCARTADO** con datos reales (furgonetas con `spd` 33–67:
-   241 km/h es imposible). Hipótesis de trabajo: **nudos** (convención AFF/aeronáutica); la UI
-   convierte kn → km/h en `src/lib/format.ts` (único lugar a corregir si fuera km/h).
-   Preguntar a Nexe.
-3. **Bug del `domain`** — forma confirmada (lista en el ítem de `msgRequest`) pero staging
+1. **Bug del `domain`** — forma confirmada (lista en el ítem de `msgRequest`) pero staging
    devuelve 500 con valores válidos. Reportar a `soporte.monitor@heligrafics.net` con el
    ejemplo: body oficial + `"domain": ["ground"]` → `{"detail": "Internal Server Error"}`.
-4. **Vigencia de la key** — la key del correo del 3-jul devolvió **401** el 6-jul y **200**
-   el 7-jul (¿activación tardía? ¿intermitencia?). Si vuelve el 401, pedir key vigente a
-   José C. La key vive en `frontend/.env` (`NEXE_API_KEY`), jamás al repo.
-
-**Cómo resolver los pendientes:** una corrida `/get` con una aeronave en vuelo (altitud +
-velocidad conocida) cierra 1 y 2; el 3 es de Nexe. El Swagger
-`https://staging.nexe.online/api/v1/monitor/docs` puede adelantar el esquema exacto.
+   **Ya no bloquea**: el filtro por familia lo resuelve nuestra API (`/api/recursos?familia=`).
+2. **Vigencia de la key** — la key del correo del 3-jul devolvió **401** el 6-jul y **200**
+   desde el 7-jul. Si vuelve el 401, pedir key vigente a José C. El collector lo tolera sin
+   corromper el cursor y lo deja visible en `/api/estado-ingesta`.
+3. **Metadatos incompletos en staging** — `get_lastpositions` devolvió 4 recursos de los 12 que
+   sí aparecen en `/get` (30-jul). Los 8 restantes quedan sin patente ni modelo y la UI los
+   muestra por su ESN. Verificar en producción antes de darlo por normal.
 
 ### Volcar el esquema OpenAPI al repo (2 minutos; elimina casi todos los PENDIENTE)
 
@@ -102,43 +118,54 @@ parser de `src/api/parse.ts` con el esquema de respuesta real, y (c) actualiza l
 
 ## 3. Arquitectura — regla innegociable
 
-**El frontend NUNCA llama a Nexe directamente.** Dos razones: la API key no puede viajar en el
-bundle del navegador (secreto server-side), y el navegador chocaría con CORS. La arquitectura es:
+**El navegador NUNCA llama a Nexe.** Dos razones: la API key no puede viajar en el bundle
+(secreto server-side) y Nexe **no implementa CORS** (verificado). Desde jul-2026 hay una razón
+más: los datos ya no se piden a Nexe en tiempo de visualización, sino a **nuestra propia base**.
 
 ```
-┌────────────────┐     /api/nexe/*      ┌──────────────────┐   api-key inyectada   ┌─────────────────┐
-│  React (Vite)  │ ───────────────────▶ │  Proxy backend    │ ────────────────────▶ │  Nexe (staging/ │
-│  navegador     │ ◀─────────────────── │  Node + Express   │ ◀──────────────────── │  producción)    │
-└────────────────┘      JSON            └──────────────────┘                        └─────────────────┘
+   collector (1×/min) ──► Nexe (AFF JSON) ──► PostgreSQL 17 compartido
+                                                      ▲
+   navegador ──► nginx ("app") ──► FastAPI ("backend") ┘
+                 sirve el build     lee la base; NUNCA llama a Nexe
+                 y proxea /api
 ```
 
-Reglas del proxy (`server/`):
-- Expone **solo** dos rutas: `POST /api/nexe/get` y `POST /api/nexe/lastpositions`
-  (allowlist; nada de proxy genérico).
-- Inyecta el header `api-key` desde `process.env.NEXE_API_KEY`. La key **jamás** se loguea,
-  jamás se devuelve al cliente, jamás aparece en errores.
-- Reenvía el body JSON tal cual lo arma el frontend (el contrato del body vive en un módulo
-  compartido, ver §8.1).
-- Timeout 30 s hacia Nexe; ante error de red devuelve `502` con `{error: "upstream_unreachable"}`.
-- Propaga status y body de Nexe en 4xx/5xx para que el frontend pueda diagnosticar (los 422 de
-  Nexe son informativos y valiosos).
-- Rate-limit defensivo: máximo 4 req/s hacia Nexe (el estándar AFF pide polling ≥ 30 s; ver §8.3).
-- En desarrollo, Vite proxya `/api` → `http://localhost:3001` (config en `vite.config.ts`).
+**Nexe tiene un solo consumidor en toda la infraestructura: el `collector`.** De ahí salen las
+tres ganancias frente al proxy anterior: historial propio ilimitado (ya no dependemos de la
+ventana móvil de ~1 semana de staging), consultas históricas instantáneas sin paginar en el
+navegador, y el visor sigue pintando la flota aunque Nexe se caiga.
+
+Los tres servicios (estándar CONAF, ver `INSUMO_PRODUCCION/DOCKER.md`):
+
+| Servicio | Qué es | Puerto |
+|---|---|---|
+| `backend` | FastAPI + uvicorn. Sirve `/api/*` y `/health` desde Postgres. | **ninguno** (solo red interna) |
+| `collector` | Python + supercronic. Ingiere Nexe cada minuto; único que conoce la api-key. | **ninguno** |
+| `app` | nginx: build de React + proxy de `/api` a `backend:8000`. | **`${APP_PORT}:8000`** — el único publicado |
+
+Reglas que se mantienen:
+- La `api-key` se lee de `NEXE_API_KEY` en el proceso del collector. **Jamás** se loguea, se
+  devuelve al cliente ni aparece en un mensaje de error (solo la *clase* de la excepción).
+- El body de Nexe se arma en **un solo lugar**: `backend/app/nexe/cliente.py` (§8.1).
+- Polling ≥ 30 s hacia Nexe; cursor por `dataCtrTime`; el cursor nunca retrocede.
+- Sin CORS: nginx sirve frontend y API en el mismo origen. Si algún día otra app CONAF consume
+  esta API desde un navegador, agregar una lista explícita de dominios — nunca `*` ni una IP.
+- En desarrollo, Vite proxya `/api` → `http://localhost:8000` (config en `vite.config.ts`).
 
 ### Despliegue estático (GitHub Pages) — solo modo demo
 
-GitHub Pages no ejecuta servidores, y Nexe no implementa CORS (§2), así que un despliegue
-estático **no puede** mostrar datos reales llamando a Nexe — ni siquiera embebiendo la key
-(el navegador aborta en el preflight; además la key en un repo público expondría el rastreo
-de la flota). Por eso:
+GitHub Pages no ejecuta servidores ni base de datos, así que ahí la app corre con
+`VITE_DEMO=1`: `getApi()` atiende las consultas con el simulador (`src/demo/simuladorNexe.ts`)
+**dentro del navegador**, con las mismas rutas y la misma forma de respuesta que el backend
+real — cero red, cero secretos, banner "MODO SIMULACIÓN" visible.
 
-- El workflow `.github/workflows/despliegue-pages.yml` construye con **`VITE_DEMO=1`**:
-  `postNexe()` atiende las peticiones con el simulador compartido
-  (`src/demo/simuladorNexe.ts`) **dentro del navegador** — cero red, cero key, banner
-  "MODO SIMULACIÓN" visible. `VITE_BASE=/COIPO_NEXE/` fija la subruta de Pages.
-- Para datos reales en un hosting estático: desplegar `server/index.ts` en un servicio con
-  entorno server-side (Cloud Run, Render, etc.) con `NEXE_API_KEY` como variable de entorno,
-  y construir el frontend con `VITE_API_BASE=https://<proxy>/api/nexe`. La key jamás al bundle.
+El workflow `.github/workflows/despliegue-pages.yml` construye con `VITE_DEMO=1` y
+`VITE_BASE=/<nombre-del-repo>/`. Convive sin conflicto con el deploy de producción
+(`deploy-prod.yml`): ambos disparan en push a `main` y hacen cosas distintas.
+
+Un despliegue estático **no puede** mostrar datos reales aunque se embebiera la key: el
+navegador aborta en el preflight de CORS, y la key en un repo público expondría el rastreo de
+la flota. Para datos reales fuera del servidor CONAF hay que desplegar los tres contenedores.
 
 ---
 
@@ -151,37 +178,56 @@ de la flota). Por eso:
 | Estado | Hooks + Context (o Zustand si crece) | No Redux. |
 | Estilos | CSS Modules **o** Tailwind — elegir UNO y ser consistente | Tokens semánticos en `:root` (§10.1); **prohibido hex crudo en componentes**. |
 | Íconos | **lucide-react** | Una sola familia. **Prohibido usar emojis como íconos.** |
-| Fechas | `date-fns` (con `date-fns-tz` si hace falta) | Todo el intercambio con la API en **UTC**; presentación en hora de Chile (`America/Santiago`). |
-| Backend proxy | **Node 20 + Express 4** | Un solo archivo `server/index.ts` está bien. |
-| Tests | **Vitest** (+ Testing Library para componentes clave) | Ver §12. |
-| Lint/format | ESLint + Prettier configuración estándar | |
+| Fechas | `Intl` nativo | Todo el intercambio con la API en **UTC**; presentación en hora de Chile (`America/Santiago`). |
+| Backend | **Python 3.12 + FastAPI + uvicorn** | Estándar CONAF. SQL explícito con SQLAlchemy Core, sin ORM (§8.5). |
+| Base de datos | **PostgreSQL 17 compartido** (172.31.2.40) | La administra TI; este repo solo se conecta y aplica `db/schema.sql`. |
+| Ingesta | **Python + supercronic** en su propio contenedor | Cron empaquetado en la imagen, nunca del host. |
+| Tests | **Vitest** (frontend) + **pytest** (backend) | Ver §12. |
+| Lint/format | oxlint | |
 
-Estructura de carpetas REAL (la app vive en `frontend/`; actualizada jul-2026):
+Estructura de carpetas REAL (actualizada jul-2026):
 
 ```
 /
 ├── CLAUDE.md                       ← este archivo
-├── descargar_historico_nexe.py    ← extractor batch diario → datos_historicos/*.csv (análisis)
-├── datos_historicos/               ← CSVs descargados (en .gitignore, no se commitean)
-├── .github/workflows/despliegue-pages.yml  ← demo estática en GitHub Pages (VITE_DEMO=1, §3)
+├── db/schema.sql                   ← ÚNICA fuente de verdad del DDL (idempotente)
+├── docker-compose.yml              ← backend + collector + app (producción)
+├── docker-compose.dev.yml          ← override: Postgres desechable + puerto del backend
+├── .env.example                    ← plantilla del .env de producción (§6)
+├── descargar_historico_nexe.py     ← extractor batch a CSV para análisis (usa backend/app/nexe)
+├── datos_historicos/               ← CSVs descargados (en .gitignore)
+├── .github/workflows/
+│   ├── deploy-prod.yml             ← 11 líneas: llama al workflow reusable de infra-docker-base
+│   └── despliegue-pages.yml        ← demo estática (VITE_DEMO=1, §3)
+├── backend/
+│   ├── Dockerfile · requirements.txt · pytest.ini
+│   ├── app/
+│   │   ├── main.py                 ← FastAPI + lifespan (valida config, aplica esquema)
+│   │   ├── config.py               ← pydantic-settings; validar_para_produccion()
+│   │   ├── nexe/                   ← ÚNICO lugar donde se arma el body y se pagina Nexe
+│   │   │   ├── cliente.py          ← POST + api-key + paginación + errores tipados
+│   │   │   └── aplanado.py         ← FeatureCollection → filas (equivale a parse.ts)
+│   │   ├── db/{session,bootstrap,consultas}.py
+│   │   ├── routers/{salud,posiciones,recursos,exportar,estado,comun}.py
+│   │   └── servicios/{geojson,tabular}.py  ← filas → FeatureCollection / CSV
+│   └── tests/                      ← 55 tests pytest (contrato, aplanado, paginación)
+├── collector/
+│   ├── Dockerfile · crontab · docker-entrypoint.sh
+│   └── ingesta.py                  ← cursor persistido, upserts, salud de la ingesta
 └── frontend/
-    ├── server/
-    │   ├── index.ts               ← proxy Express (allowlist, api-key, timeouts)
-    │   ├── mock.ts                ← servidor simulado HTTP (§9; usa src/demo/simuladorNexe)
-    │   └── validacionNexe.ts      ← validación 422/500 estilo Pydantic (compartida, testeada)
+    ├── Dockerfile · nginx.conf     ← build de Vite servido por nginx + proxy /api
     ├── src/
     │   ├── api/
-    │   │   ├── contract.ts        ← builders del body (ÚNICO lugar donde se arma)
-    │   │   ├── client.ts          ← fetch al proxy, errores tipados; modo demo (VITE_DEMO)
-    │   │   └── parse.ts           ← parser FeatureCollection + fallbacks (§8.2)
-    │   ├── demo/simuladorNexe.ts  ← generador de flota ficticia (mock HTTP + demo navegador)
+    │   │   ├── client.ts           ← GET a NUESTRA API; modo demo (VITE_DEMO)
+    │   │   └── parse.ts            ← parser FeatureCollection + fallbacks (§8.2)
+    │   ├── demo/simuladorNexe.ts   ← flota ficticia con la forma REST del backend
     │   ├── domain/
     │   │   ├── types.ts           ← tipos (§8.4)
     │   │   ├── fleet.ts           ← agregación por ESN, dedupe, staleness, fusión hg*
     │   │   └── alertas.ts         ← transiciones de señal (puro, testeado)
     │   ├── hooks/
-    │   │   ├── usePolling.ts      ← ciclo vivo con cursor + paginación (§8.3); pausable
-    │   │   ├── useHistorico.ts    ← consulta única por rango libre (§11 Fase 2-7)
+    │   │   ├── usePolling.ts      ← ciclo vivo con cursor servido por el backend (§8.3)
+    │   │   ├── useHistorico.ts    ← una consulta por rango libre (§11 Fase 2-7)
     │   │   └── useAlertas.ts      ← toasts de pérdida/recuperación de señal
     │   ├── components/
     │   │   ├── MapView/           ← mapa, marcadores (marcador.ts + marcadores.css), trails
@@ -192,7 +238,7 @@ Estructura de carpetas REAL (la app vive en `frontend/`; actualizada jul-2026):
     │   │   ├── Alertas/           ← toasts flotantes sobre el mapa
     │   │   └── EstadoChip/        ← color + ícono + texto del estado (compartido)
     │   ├── lib/
-    │   │   ├── format.ts          ← hora Chile/UTC, km/h desde nudos, "hace X"
+    │   │   ├── format.ts          ← hora Chile/UTC, km/h desde m/s (§2), "hace X"
     │   │   └── exportar.ts        ← GeoJSON + CSV RFC 4180 de lo visible
     │   ├── ui/
     │   │   ├── strings.ts         ← TODOS los textos (español, §13)
@@ -200,9 +246,8 @@ Estructura de carpetas REAL (la app vive en `frontend/`; actualizada jul-2026):
     │   ├── styles/tokens.css      ← design tokens (§10.1) + extensiones (§10.4)
     │   ├── styles/base.css        ← reset, foco, reduced-motion, overrides Leaflet
     │   └── main.tsx / App.tsx
-    ├── tests/                     ← 66 tests Vitest + fixtures reales (§12)
-    ├── .env.example               ← plantilla (NUNCA commitear .env real)
-    └── vite.config.ts             ← proxy /api→3001; base configurable (VITE_BASE)
+    ├── tests/                     ← 71 tests Vitest + fixtures reales (§12)
+    └── vite.config.ts             ← proxy /api→8000; base configurable (VITE_BASE)
 ```
 
 ---
@@ -210,32 +255,45 @@ Estructura de carpetas REAL (la app vive en `frontend/`; actualizada jul-2026):
 ## 5. Comandos
 
 ```bash
+# ── Todo junto en Docker (lo más parecido a producción) ─────────────────────
+docker compose --env-file .env up --build -d          # los 3 contenedores
+docker compose -f docker-compose.yml -f docker-compose.dev.yml \
+  --env-file .env.dev up --build                      # con Postgres desechable
+docker compose logs -f collector                      # cada corrida de supercronic
+
+# ── Frontend ────────────────────────────────────────────────────────────────
+cd frontend
 npm install
-npm run dev            # Vite (frontend) + proxy Express en paralelo (usar concurrently)
-npm run dev:mock       # igual, pero el proxy apunta al servidor simulado local (§9) — sin key
-npm run build          # build de producción del frontend
-npm run server         # solo el proxy Express
-npm run test           # vitest
-npm run lint           # eslint
+npm run dev            # Vite; proxya /api al backend en :8000
+npm run dev:demo       # simulador en el navegador, sin backend ni base
+npm run build && npm run test && npm run typecheck
+
+# ── Backend / collector sin Docker ──────────────────────────────────────────
+cd backend && pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000              # API
+pytest                                                 # tests del backend
+PYTHONPATH=backend python collector/ingesta.py         # una corrida de ingesta
 ```
 
 ---
 
 ## 6. Variables de entorno y seguridad
 
-`.env` (server-side, **fuera del repo**, listado en `.gitignore`):
+Un solo `.env` en la raíz (server-side, **fuera del repo**, en `.gitignore`); lo consumen
+`backend` y `collector` vía `env_file`. La plantilla completa está en **`.env.example`**:
 
 ```bash
+DATABASE_HOST=172.31.2.40      # Postgres 17 compartido, administrado por TI
+DATABASE_PORT=5432
+DATABASE_USER= / DATABASE_PASSWORD= / DATABASE_NAME=
+APP_PORT=                      # el ÚNICO puerto publicado (lo asigna TI)
 NEXE_BASE_URL=https://staging.nexe.online/api/v1/monitor
-NEXE_API_KEY=<key del correo de Nexe — pedir al equipo; es la del servidor de PRUEBAS>
-PORT=3001
+NEXE_API_KEY=                  # la usa SOLO el collector
+APP_ENV=production             # en "production" el backend valida que no queden defaults
 ```
 
-Frontend (`.env` de Vite, sin secretos):
-
-```bash
-VITE_API_BASE=/api/nexe
-```
+El frontend no necesita variables en producción (nginx sirve `/api` en el mismo origen).
+`VITE_API_BASE` solo se usa si algún día se sirve el frontend desde otro dominio.
 
 Reglas de seguridad:
 - La API key es **solo de servidor**. Ninguna variable `VITE_*` puede contenerla
@@ -339,14 +397,14 @@ Ambos endpoints devuelven **GeoJSON FeatureCollection**:
 | `posTime` | datetime UTC | Hora del reporte GPS (hora de la **posición**) |
 | `dataCtrTime` | datetime UTC | Llegada al servidor Nexe (clave del polling, §7.4) — trae microsegundos |
 | `cog` | int | Course over ground: rumbo 0–359° desde el norte verdadero — rotar el marcador |
-| `spd` | int | Velocidad (**PENDIENTE unidad** — m/s descartado con datos reales; hipótesis nudos) |
+| `spd` | int | Velocidad en **METROS POR SEGUNDO** (confirmado empíricamente, §2). Se guarda crudo |
 | `fix` | string | `3D`/`2D` — **configuración de la baliza**, no calidad puntual: no descartar 2D |
 | `src` | string | Fuente de la posición (p. ej. `"GPS"`) |
 | `pdop` / `hdop` | int | Calidad de la posición (ambos observados en corridas reales del 7-jul) |
 | `unitId` | string | Identificador de unidad (también viene en `/get`, observado 7-jul) |
 | `atu` | object | Eventos (p. ej. `{events:{aircraft:{power:"off"}}}`) — también en `/get` |
-| `hgExtName` | string | Alias del recurso (único campo `hg*` presente en `/get`) |
-| altitud | ? | **No observada aún** (3.000 posiciones reales revisadas sin `alt`) — parser tolerante |
+| `hgExtName` | string | Alias del recurso (único campo `hg*` presente en `/get`; a veces `null`) |
+| `alt` | int | **Altitud en metros.** Solo la emiten algunas balizas (§2): confirmada con el AT-802F "AC-02" entre 194 y 1.311 m en vuelo |
 
 **`properties` adicionales SOLO en `get_lastpositions`** (metadatos del recurso):
 
@@ -392,85 +450,90 @@ Datos operativos del estándar AFF útiles para la UX:
 
 ## 8. Implementación del cliente de datos
 
-### 8.1 `src/api/contract.ts` — único lugar donde se arma el body
+### 8.1 `backend/app/nexe/cliente.py` — único lugar donde se arma el body
 
-```ts
-// Refleja el ejemplo oficial de Nexe (correo 3-jul-2026). Los "string" son
-// placeholders literales del ejemplo que el servidor acepta (PENDIENTE §2.1
-// probar si pueden omitirse; hasta entonces, imitar el ejemplo exacto).
-export const NEXE_TYPE = "dataRequest" as const;
+Refleja el ejemplo oficial de Nexe (correo 3-jul-2026). Los `"string"` son placeholders
+literales que el servidor acepta, y los cinco son **obligatorios** (omitirlos da 422).
 
-function dataCenterItem(): DataCenterItem {
-  return { affVer: "string", name: "string", reqTime: new Date().toISOString() };
-}
-
-// /position/affjson/get — posiciones llegadas al servidor DESPUÉS (>) de fromIsoUtc
-export function buildGetBody(fromIsoUtc: string): NexeRequest {
-  return {
-    type: NEXE_TYPE,
-    dataCenter: [dataCenterItem()],
-    msgRequest: [{ to: "string", from: "string", msgType: "string", dataCtrTime: fromIsoUtc }],
-  };
-}
-
-// /position/affjson/get_lastpositions — `domain` va como LISTA y SOLO si se filtra.
-// OJO: hoy staging devuelve 500 al usarlo (bug escalado a Nexe) — la app no lo envía.
-export function buildLastPositionsBody(fromIsoUtc: string, domain?: FamilyType): NexeRequest {
-  const msg: MsgRequestItem = { to: "string", from: "string", msgType: "string", dataCtrTime: fromIsoUtc };
-  if (domain) msg.domain = [domain]; // si no se filtra, el parámetro NO va en la llamada
-  return { type: NEXE_TYPE, dataCenter: [dataCenterItem()], msgRequest: [msg] };
-}
+```python
+def cuerpo_data_request(data_ctr_time, *, domain=None, ahora=None) -> dict:
+    msg = {"to": "string", "from": "string", "msgType": "string",
+           "dataCtrTime": iso_utc(data_ctr_time)}
+    if domain:
+        msg["domain"] = list(domain)   # LISTA; hoy staging responde 500 — no se usa
+    return {
+        "type": "dataRequest",
+        "dataCenter": [{"affVer": "string", "name": "string",
+                        "reqTime": iso_utc(ahora or datetime.now(timezone.utc))}],
+        "msgRequest": [msg],
+    }
 ```
 
-Si el servidor responde 422 a estos bodies, el mensaje `detail[]` dice exactamente qué corregir:
-corrige **aquí** (y solo aquí), y anota el cambio en la sección 2 de este archivo.
+`ClienteNexe` agrega la `api-key`, pagina con `paginas_desde()` hasta que llegue una tanda
+corta, y distingue tres fallos: `ClaveRechazada` (401, arreglo humano — no se reintenta),
+`ContratoRechazado` (422, con el `detail` para corregir **aquí** y anotar en §2) y
+`NexeNoDisponible` (5xx/red tras backoff 5→10→20 s).
 
-### 8.2 `src/api/parse.ts` — parser congelado a FeatureCollection, con fallback tolerante
+`iso_utc()` trunca los microsegundos **hacia abajo**: puede repetir la última posición de la
+tanda anterior (el dedupe la descarta), pero nunca saltarse un registro.
 
-La respuesta real es GeoJSON (§7.3). El parser debe:
+### 8.2 Parsers: `backend/app/nexe/aplanado.py` y `frontend/src/api/parse.ts`
 
-1. **Camino principal (congelado):** objeto con `features: []` → aplanar cada feature:
+Los dos hacen lo mismo en distinto lenguaje, sobre el mismo GeoJSON (§7.3): el de Python para
+ingerir a la base, el de TypeScript para pintar lo que devuelve nuestra API. Comparten las
+mismas fixtures reales (`frontend/tests/fixtures/`), así que un cambio de contrato en Nexe
+rompe ambos a la vez.
+
+1. **Camino principal:** objeto con `features: []` → aplanar cada feature:
    `{...properties, latitude: coordinates[1], longitude: coordinates[0]}` (¡GeoJSON es [lon, lat]!).
-2. Mapear nombres reales: `cog` → heading, `spd` → speed, `fix` → fixType, `hgNavstate` string →
-   number. Tolerancia de mayúsculas y alias se mantiene (`lat`/`latitude`, `alt`/`altitude`…)
-   porque la altitud aún no se ha observado (§2 PENDIENTE).
-3. Detectar error disfrazado: un objeto `{detail: ...}` y nada más **no es data**, es un error
-   FastAPI — propagar como error tipado.
+2. Mapear nombres reales: `cog` → heading/rumbo, `spd` → speed/velocidad, `fix` → fixType,
+   `alt` → altitude/altitud, `hgNavstate` string → number.
+3. Detectar error disfrazado: un objeto `{detail: ...}` y nada más **no es data** — error tipado.
 4. **Fallbacks** (por si el contrato evoluciona): lista directa de objetos; u objeto con la
    primera propiedad que sea lista de objetos (`positions`, `data`, `items`, `results`,
    `reports`, `affjson`).
-5. Fixtures reales (del correo 3-jul-2026, anonimizadas) en `tests/fixtures/`.
+5. Descartar (contándolo) lo que no tenga esn, posTime y coordenadas.
 
-### 8.3 `src/hooks/usePolling.ts` — ciclo de tiempo real
+### 8.3 Los dos ciclos: ingesta (servidor) y visualización (navegador)
+
+**`collector/ingesta.py` — contra Nexe, cada minuto (supercronic):**
 
 ```
-estado inicial:
-  cursor = ahora_UTC − 2 horas          // primera carga: últimas 2 h de historia
-loop cada POLL_INTERVAL (default 30 s, mínimo permitido 30 s — estándar AFF):
-  // 1) trazas: /get paginado (límite ~1000 por respuesta, filtro estrictamente >)
-  repetir (máx. ~8 páginas por ciclo):
-      resp = POST /api/nexe/get con buildGetBody(cursor)
-      posiciones = parse(resp)
-      si hay posiciones:
-          cursor = max(dataCtrTime de la tanda)   // ← nunca retroceder el cursor
-          merge en el store con dedupe por (esn, posTime)
-      hasta que la tanda venga "corta" (< ~900 → ya no hay más páginas)
-  // 2) metadatos + última posición por recurso: los hg* SOLO vienen aquí (§7.3)
-  resp = POST /api/nexe/lastpositions (sin domain)
-  merge de posiciones + fusión de metadatos por ESN (no mueve el cursor)
-  actualizar staleness de cada recurso: ahora − max(posTime del recurso)
+cursor = SELECT cursor_data_ctr_time FROM estado_ingesta   // NULL -> ahora − 14 días
+para cada página de /get desde el cursor (máx. 20 por corrida):
+    INSERT ... ON CONFLICT (esn, pos_time) DO NOTHING      // el dedupe es la PK
+    UPDATE estado_ingesta SET cursor = GREATEST(cursor, max(dataCtrTime))
+    COMMIT                                                  // por página: nada se pierde
+    parar cuando la tanda venga corta (< 900 features)
+get_lastpositions (lookback 14 días) -> upsert de metadatos hg* (NO mueve el cursor)
+UPDATE estado_ingesta con el resultado (o la clase del error, nunca el mensaje crudo)
+```
+
+401 → no toca el cursor y lo deja visible en `/api/estado-ingesta`: al reponer la key, la
+ingesta retoma sola. La cadencia afecta la **latencia**, nunca la completitud.
+
+**`frontend/src/hooks/usePolling.ts` — contra nuestra API, cada 30 s:**
+
+```
+cursor = ahora_UTC − 2 horas
+loop cada 30 s:
+    GET /api/posiciones/incremental?cursor=<cursor>
+    merge con dedupe por (esn, posTime)
+    cursor = siguienteCursor de la respuesta        // ← el backend lo calcula; nunca retrocede
+    si hayMas: repetir de inmediato (máx. 8 tandas)
+    GET /api/recursos  -> fusión de metadatos hg* por ESN (no mueve el cursor)
 manejo de fallos:
-  401 → banner "credenciales inválidas" + detener polling (no reintentar en loop)
-  422 → banner técnico con el detail (indica contrato desalineado) + detener
-  5xx / red → reintentos con backoff exponencial 5 s → 10 s → 20 s → 40 s (tope 60 s),
-              banner "reintentando conexión con Nexe", NO resetear el cursor
-visibilidad: pausar el polling cuando document.hidden; al volver, poll inmediato.
+  4xx  → banner técnico + detener (frontend y backend no coinciden: reintentar no ayuda)
+  5xx/red → backoff 5 → 10 → 20 → 40 s (tope 60 s), NO resetear el cursor
+visibilidad: pausar cuando document.hidden; al volver, poll inmediato.
 ```
 
 Reglas de datos:
-- **Dedupe** por `(esn, posTime)` — el solapamiento de rangos produce duplicados esperables.
-- **Buffer de trazas**: conservar en memoria como máximo las últimas **6 horas** o **1.000
-  posiciones por ESN** (lo que ocurra primero); descartar lo más antiguo.
+- **Dedupe** por `(esn, posTime)` — en la base es la PK de `posicion`; en el navegador, el
+  buffer en memoria. El solapamiento produce duplicados esperables.
+- **Buffer de trazas del navegador**: máximo las últimas **6 horas** o **1.000 posiciones por
+  ESN** (lo que ocurra primero). En modo histórico la ventana de 6 h **no** aplica (el rango lo
+  fija el usuario); el tope de 1.000 sí.
 - Ordenar cada traza por `posTime` ascendente (no por orden de llegada — los históricos llegan
   desordenados).
 - `fix` refleja la **configuración de la baliza** (3D/2D): **no descartar 2D**. Solo si llegara
@@ -491,8 +554,8 @@ export interface NexePosition {
   dataCtrTime: string;    // ISO UTC (con microsegundos en el real)
   latitude: number;       // desde geometry.coordinates[1]
   longitude: number;      // desde geometry.coordinates[0]
-  altitude?: number;      // m MSL — aún no observado en el real (§2 PENDIENTE)
-  speed?: number;         // `spd` — hipótesis m/s (§2 PENDIENTE)
+  altitude?: number;      // `alt` en metros — solo algunas balizas lo emiten (§2)
+  speed?: number;         // `spd` en METROS POR SEGUNDO, valor crudo (§2)
   heading?: number;       // `cog`, grados 0–359
   fixType?: "3D" | "2D" | "Invalid";  // `fix`: configuración de la baliza
   src?: string;           // fuente de la posición ("GPS")
@@ -521,30 +584,49 @@ export interface FleetResource {
 }
 ```
 
+### 8.5 Nuestra API (`backend/app/routers/`) — la que consume el visor
+
+Devuelve **GeoJSON FeatureCollection con el vocabulario de Nexe** (`esn`, `posTime`,
+`dataCtrTime`, `cog`, `spd`, `fix`, `alt`, `hg*`). Esa decisión es deliberada: `parse.ts` y sus
+tests siguen valiendo sin tocar una línea, y el export GeoJSON es la misma carga útil. Lo que
+**no** se conserva es el contrato de la petición: aquí son GET con query params, sin el body
+`dataRequest` (eso solo existe entre el collector y Nexe).
+
+| Ruta | Params | Devuelve |
+|---|---|---|
+| `GET /health` | — | `{status}`; **503 `degraded`** si la base no responde o el esquema no se aplicó |
+| `GET /api/posiciones/incremental` | `cursor` (ISO, obligatorio), `limite` (≤5000) | FeatureCollection + `siguienteCursor` + `hayMas` — **modo vivo** |
+| `GET /api/posiciones` | `desde`, `hasta`, `esn`, `limite` (≤20000) | FeatureCollection + `truncado` — **modo histórico**, filtra por `posTime` |
+| `GET /api/recursos` | `familia` | 1 feature por ESN con última posición + `hg*` (DISTINCT ON) |
+| `GET /api/recursos/{esn}` | — | Feature única |
+| `GET /api/exportar` | `desde`, `hasta`, `esn`, `formato=geojson\|csv` | lo mismo + `Content-Disposition` |
+| `GET /api/estado-ingesta` | — | cursor, última corrida OK, `ingestaDetenida`, fallos, acumulado |
+
+`/api/estado-ingesta` existe para distinguir "la flota está detenida" de "la ingesta está
+caída" — sin él, una key rotada se ve igual que una tarde tranquila.
+
+**Sin ORM a propósito** (`backend/app/db/consultas.py`): `db/schema.sql` es la única autoridad
+del esquema; un modelo declarativo sería una segunda definición que puede desincronizarse.
+
 ---
 
-## 9. Servidor simulado para desarrollo (`server/mock.ts`)
+## 9. Modo simulación (`frontend/src/demo/simuladorNexe.ts`)
 
-Para desarrollar sin key ni dependencia de staging, el repo incluye un mock Express que replica
-el contrato **confirmado** (POST, header `api-key`, 422 estilo Pydantic si el body no cumple,
-500 si las listas van vacías) y sirve posiciones ficticias.
+Para desarrollar o demostrar sin backend, sin base y sin key: con `VITE_DEMO=1` el cliente
+(`getApi`) resuelve las consultas con un generador de flota ficticia **dentro del navegador**,
+respondiendo las MISMAS rutas y la MISMA forma que el backend real (incluidos
+`siguienteCursor`/`hayMas` y el filtro por familia). Es lo que se publica en GitHub Pages.
 
-Comportamiento requerido del mock:
-- Valida header `api-key` (cualquier valor no vacío) → si falta, 401 idéntico al real.
-- Valida forma del body (§7.2) devolviendo 422 con `detail[]` idéntico al real; listas vacías → 500.
-- **Responde en el formato real**: GeoJSON FeatureCollection con `dataInfo` y `features`
-  (`geometry.coordinates` en [lon, lat]; propiedades `cog`/`spd`/`fix`/`pdop`; `hgNavstate`
-  como string). Los `hg*` completos van **solo** en `get_lastpositions`; `/get` solo lleva
-  telemetría + `hgExtName` — igual que el servidor real.
-- `/get`: filtro estrictamente `>` por `dataCtrTime` y **límite 1000** por respuesta (para
-  ejercitar la paginación). Posiciones cada ~120 s de tiempo simulado sobre trayectorias
-  sintéticas en la zona centro-sur de Chile (lat −33 a −38, lon −73 a −70), con `hgNavstate`
-  variando, `dataCtrTime` avanzando e históricos rezagados ocasionales.
-- `/get_lastpositions`: última posición de cada medio ficticio (aeronaves + al menos un medio
-  terrestre `hgFamilyType: "ground"`, como en staging); soporta el filtro `domain`.
-- Flags por env: `MOCK_FAIL_RATE=0.1` (probabilidad de 500), `MOCK_LATENCY_MS=800`.
-- Los datos ficticios se marcan con `hgCompany: "SIMULADO"` — la UI muestra un banner
+- 5 medios ficticios sobre trayectorias sintéticas en la zona centro-sur de Chile
+  (lat −33 a −38, lon −73 a −70): dos en vuelo, uno emitiendo en tierra, uno parado y uno que
+  perdió señal — así se ven los cuatro estados sin esperar a que ocurran.
+- Posiciones cada ~120 s de tiempo simulado, con `dataCtrTime` avanzando e históricos
+  rezagados ocasionales. Determinista: la misma `(esn, posTime)` da siempre la misma posición,
+  para que el dedupe se comporte como con datos reales.
+- Los datos ficticios llevan `hgCompany: "SIMULADO"` — la UI muestra el banner
   "MODO SIMULACIÓN" cuando detecta ese valor.
+
+Comando: `npm run dev:demo` (o el build de Pages con `VITE_DEMO=1`).
 
 ---
 
@@ -627,8 +709,9 @@ completa detrás. Sin scroll horizontal en ningún breakpoint.
 - Targets táctiles ≥ 44×44 px; foco de teclado visible en todo elemento interactivo
   (`--focus-ring`); orden de tabulación = orden visual.
 - Micro-interacciones 150–300 ms; `prefers-reduced-motion` respetado globalmente.
-- Estados de carga y error con dirección, no con disculpas: "Sin conexión con Nexe —
-  reintentando en 20 s", "El contrato del body cambió: revisar §8.1 (detalle técnico abajo)".
+- Estados de carga y error con dirección, no con disculpas: "Sin conexión con el servidor del
+  visor — reintentando en 20 s", "El servidor rechazó la consulta: frontend y backend no
+  coinciden (detalle técnico abajo)".
 - Estados vacíos accionables: "Aún no llegan posiciones para este rango. Amplía el rango o
   verifica que la flota esté operando."
 - Espaciado en ritmo de 4/8 px; jerarquía vertical 16/24/32/48.
@@ -665,22 +748,22 @@ Decisiones de diseño ya construidas — mantener coherencia al extender:
 
 ## 11. Alcance funcional
 
-### MVP (entregar primero, en este orden)
+### MVP — IMPLEMENTADO
 
-1. Proxy Express + cliente de datos + parser tolerante + polling con cursor `dataCtrTime`.
-2. Mapa con la flota en vivo: marcadores rotados por `heading`, color/ícono por `hgNavstate`,
+1. ✔ Cliente de datos + parser + polling con cursor `dataCtrTime`.
+2. ✔ Mapa con la flota en vivo: marcadores rotados por `heading`, color/ícono por `hgNavstate`,
    pulso de frescura, popup con telemetría resumida.
-3. FleetPanel: lista de recursos ordenada por frescura, con búsqueda por alias/patente y clic →
-   centra el mapa en el recurso.
-4. Trazas (trail) por recurso, activables por recurso o "todas", con tope de memoria (§8.3).
-5. StatusBar con estado de conexión, cursor actual y cuenta regresiva del próximo poll.
-6. Modo simulación contra `server/mock.ts` (banner visible).
+3. ✔ FleetPanel: lista ordenada por frescura, KPIs por estado que filtran, búsqueda por
+   alias/patente y clic → centra el mapa en el recurso.
+4. ✔ Trazas (trail) por recurso, activables por recurso o "todas", con tope de memoria (§8.3).
+5. ✔ StatusBar con estado de conexión, cursor actual y cuenta regresiva del próximo poll.
+6. ✔ Modo simulación en el navegador con banner visible (§9).
 
 ### Fase 2 — IMPLEMENTADA (jul-2026)
 
-7. ✔ Modo histórico: TimeRangeBar con rango libre (consulta única paginada a `/get`, sin
-   polling; máx. 30 páginas con aviso de truncamiento; staleness relativo al fin del rango;
-   sin la ventana de 6 h del buffer vivo). Hook: `src/hooks/useHistorico.ts`.
+7. ✔ Modo histórico: TimeRangeBar con rango libre (UNA consulta a `/api/posiciones`, sin
+   polling ni paginación en el navegador; aviso de truncamiento; staleness relativo al fin del
+   rango; sin la ventana de 6 h del buffer vivo). Hook: `src/hooks/useHistorico.ts`.
 8. ✔ Export de lo visible: **GeoJSON** (FeatureCollection de Points con todas las propiedades)
    y **CSV** RFC 4180 con BOM — compatibles con QGIS y kepler.gl. `src/lib/exportar.ts`,
    botones en la TimeRangeBar.
@@ -692,30 +775,48 @@ Decisiones de diseño ya construidas — mantener coherencia al extender:
     `src/hooks/useAlertas.ts`. El caso "FixType degradado sostenido" quedó fuera: `fix` es
     configuración de la baliza, no calidad puntual (§7.3).
 
+### Fase 3 — IMPLEMENTADA (jul-2026): backend, persistencia y despliegue
+
+11. ✔ Backend FastAPI + PostgreSQL compartido + collector (§3, §8.5, §17). La persistencia
+    **entró al alcance**: es lo que da historial propio ilimitado, consultas instantáneas y
+    resiliencia a caídas de Nexe.
+12. ✔ Despliegue automático al servidor CONAF con `git push` a `main` (§17).
+
 ### Fuera de alcance (no construir)
 
 - Autenticación de usuarios de la app (se resuelve institucionalmente después).
-- Persistencia en base de datos (todo en memoria del cliente por ahora).
 - Edición/escritura hacia Nexe (la API es de solo lectura).
+- Purga de datos: se guarda todo. A ~3.200 posiciones/día son ~1,2 M filas/año, trivial para
+  Postgres. Si aparece una política institucional de retención, se agrega un job al `crontab`.
 
 ---
 
 ## 12. Testing
 
-Con Vitest, como mínimo:
+**Backend (`cd backend && pytest`) — 55 tests:**
 
-- `parse.ts`: fixtures de (a) lista directa, (b) objeto con `positions`, (c) objeto con clave
-  desconocida que contiene la lista, (d) error `{detail: ...}` → debe lanzar error tipado,
-  (e) respuesta del mock.
-- `fleet.ts`: dedupe por `(esn, posTime)`; orden de trail por `posTime` con llegada desordenada;
-  tope de buffer; cálculo de `freshness` en los tres umbrales.
-- `usePolling`: el cursor avanza al `max(dataCtrTime)` y **nunca retrocede**; backoff ante 5xx;
-  detención ante 401/422.
-- `contract.ts`: los builders nunca producen listas vacías (regresión directa del 500 real).
-- Componentes: FleetPanel renderiza los 3 estados + stale con ícono y texto (no solo color).
+- `test_contrato_nexe.py`: el body lleva los 3 campos raíz y los 5 placeholders obligatorios;
+  nunca listas vacías (regresión directa del 500 real); `reqTime` en ISO con ms y Z; `domain`
+  solo cuando se filtra y **como lista**.
+- `test_aplanado.py`: sobre las fixtures reales — coordenadas [lon,lat] invertidas,
+  `cog`/`spd`/`fix`/`alt` traducidos, microsegundos del `dataCtrTime` conservados (el cursor
+  depende de ellos), `hgNavstate` `"2"` → `2`, descartes contados.
+- `test_paginacion.py`: página llena → pide la siguiente; cursor que no avanza no provoca
+  bucle infinito; 401 y 422 no se reintentan; 5xx sí, con backoff 5/10/20.
 
-Fixtures en `tests/fixtures/`. Cuando exista la primera respuesta real de staging, guardarla
-(anonimizada si hiciera falta) como fixture canónico.
+**Frontend (`cd frontend && npm test`) — 71 tests:**
+
+- `parse.test.ts`: FeatureCollection real + fallbacks + error `{detail}` tipado.
+- `fleet.test.ts`: dedupe por `(esn, posTime)`; orden por `posTime` con llegada desordenada;
+  tope de buffer; `freshness` en los tres umbrales; ventana de 6 h desactivable (histórico).
+- `usePolling.test.ts`: adopta `siguienteCursor` y **nunca retrocede**; encadena tandas con
+  `hayMas`; backoff ante 5xx; detención ante 4xx.
+- `useHistorico.test.ts`: UNA sola consulta; conserva rangos > 6 h; frescura relativa al fin
+  del rango.
+- `format.test.ts`: velocidad en m/s (regresión de la hipótesis equivocada, §2).
+- `exportar.test.ts`, `alertas.test.ts`, `FleetPanel.test.tsx` (los 4 estados con ícono y texto).
+
+Fixtures reales anonimizadas en `frontend/tests/fixtures/`, compartidas por ambos lados.
 
 ---
 
@@ -723,25 +824,31 @@ Fixtures en `tests/fixtures/`. Cuando exista la primera respuesta real de stagin
 
 - TypeScript estricto (`strict: true`); prohibido `any` (usar `unknown` + narrowing en el parser).
 - Componentes funcionales con hooks; nada de clases.
+- Python: type hints, `from __future__ import annotations`, sin ORM (SQL explícito, §8.5).
+  Nombres de módulos, funciones y columnas en español; los términos del contrato de Nexe
+  (`dataCtrTime`, `hgNavstate`) se conservan tal cual.
 - Nombres de dominio en español (`FleetPanel` ok como componente, pero `freshness`, `trail` y
   demás términos técnicos pueden quedar en inglés — consistencia ante todo). Textos de UI
   **siempre** en español, centralizados en `src/ui/strings.ts`.
 - Commits convencionales (`feat:`, `fix:`, `docs:`...), mensajes en español.
-- Un cambio de contrato de la API = un commit propio que toca `contract.ts` + este archivo.
+- Un cambio de contrato de la API = un commit propio que toca `backend/app/nexe/cliente.py` +
+  este archivo.
 
 ---
 
 ## 14. Reglas duras para la IA (resumen ejecutivo)
 
-1. **Nunca** llamar a Nexe desde el navegador. **Nunca** exponer la API key al cliente ni
-   loguearla.
+1. **Solo el `collector` habla con Nexe.** Ni el navegador ni el backend. **Nunca** exponer la
+   API key al cliente ni loguearla (en los errores va la *clase* de la excepción, no el mensaje).
 2. **Nunca** enviar `dataCenter` o `msgRequest` como listas vacías (500 confirmado).
-3. `type` es exactamente `"dataRequest"`. El body se arma **solo** en `src/api/contract.ts`.
+3. `type` es exactamente `"dataRequest"`. El body se arma **solo** en
+   `backend/app/nexe/cliente.py`.
 4. Si `nexe_bodies_descubiertos.json` existe, su contenido manda sobre las hipótesis de este
    archivo.
-5. No fijar el parser de respuesta hasta ver un 200 real; mientras tanto, parser tolerante (§8.2).
-6. Ante 422 del servidor: leer `detail[]`, corregir `contract.ts`, actualizar §2 de este archivo.
-   Ante 500 persistente con forma válida: probar candidatos de `dataCenter` (§2) o escalar a Nexe.
+5. `db/schema.sql` es la ÚNICA autoridad del esquema: nada de `create_all()` ni de modelos
+   declarativos que dupliquen la definición.
+6. Ante 422 del servidor: leer `detail[]`, corregir `cliente.py`, actualizar §2 de este archivo.
+   Ante 401: pedir la key vigente — el cursor NO se toca y la ingesta retoma sola.
 7. Polling ≥ 30 s, cursor por `dataCtrTime`, dedupe por `(esn, posTime)`, cursor nunca retrocede.
 8. UI en español (Chile), tema oscuro navy/teal por tokens, estado siempre con color + ícono +
    texto, WCAG AA, sin emojis como íconos, `prefers-reduced-motion` respetado.
@@ -786,7 +893,51 @@ Fixtures en `tests/fixtures/`. Cuando exista la primera respuesta real de stagin
   request/response, semántica del filtro, límite ~1000, `domain`, respuestas a las 20 dudas).
 - Soporte/incidencias del servicio: `soporte.monitor@heligrafics.net` (incluir detalle y ejemplo
   del problema). No existe endpoint de heartbeat.
+- Insumos del despliegue CONAF: `INSUMO_PRODUCCION/` (DOCKER.md, fastapi-postgresql-conexion.md,
+  guía 6 del workflow por repo, guía 8 con el checklist pre-deploy, y un `nginx.conf` de ejemplo).
+- Apps CONAF de referencia con el mismo patrón, ya desplegadas: `COIPO_PRENSA2` (canónica) y
+  `COIPO_ENTREGA_PLANTA`.
 
+---
+
+## 17. Despliegue en producción
+
+Servidor self-hosted de CONAF (172.31.2.41) + PostgreSQL 17 compartido (172.31.2.40). El deploy
+es automático: **push a `main`** dispara `.github/workflows/deploy-prod.yml`, que llama al
+workflow reusable de `Sud-Austral/infra-docker-base` y hace el `docker compose build/up` en
+`/opt/apps/<nombre-del-repo>/`.
+
+**Antes del primer push** (una sola vez):
+
+1. **Renombrar el repo a minúsculas**: `gh repo rename coipo_nexe --repo Sud-Austral/COIPO_NEXE`.
+   El deploy arma la ruta del servidor con `${{ github.event.repository.name }}` y la convención
+   es minúsculas (guía 8 §1). El workflow de Pages toma la subruta del mismo nombre, así que
+   ambas cosas quedan alineadas solas.
+2. **Pedir a TI**: base y rol de Postgres (pueden NO llamarse como el repo), `APP_PORT` libre, y
+   el dominio (p. ej. `visor.conaf.cl`).
+3. **Crear el `.env` en el servidor** (`/opt/apps/coipo_nexe/.env`) a partir de `.env.example`,
+   con `APP_ENV=production`. Si quedan valores de desarrollo, el backend **se niega a arrancar**
+   con un mensaje explícito (`config.py::validar_para_produccion`).
+4. **Vhost de Nginx del servidor** apuntando el dominio a `127.0.0.1:${APP_PORT}`. Vive en el
+   servidor, **no en este repo** (ejemplo en `INSUMO_PRODUCCION/nginx.conf`).
+
+**Smoke test tras el deploy:**
+
+```bash
+docker ps                                   # los 3 contenedores arriba
+curl -s localhost:${APP_PORT}/health        # {"status":"ok","base":true}
+curl -s localhost:${APP_PORT}/api/estado-ingesta | jq   # ingestaDetenida:false
+docker compose logs -f collector            # una corrida por minuto
+```
+
+Si `/health` responde `503 degraded`, la causa está en el propio JSON (`problemas[]`): base
+inalcanzable o esquema sin aplicar. Tras corregirla, `docker compose restart backend` — el
+bootstrap del esquema no reintenta solo, por diseño.
+
+**Paso de staging a producción de Nexe:** cambiar únicamente `NEXE_BASE_URL` en el `.env`
+(confirmado por Nexe: mismos endpoints, mismo contrato, misma key).
+
+---
 
   # UI/UX Pro Max - Design Intelligence
 

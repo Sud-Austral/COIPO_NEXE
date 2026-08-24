@@ -1,46 +1,29 @@
 /**
- * Ciclo de polling contra el proxy (CLAUDE.md §8.3):
+ * Ciclo de tiempo real contra NUESTRO backend (CLAUDE.md §8.3).
  *
- * 1) /get paginado — el servidor limita a ~1000 posiciones por respuesta y el
- *    filtro es estrictamente `>` sobre dataCtrTime: se repite la llamada con
- *    el cursor avanzado hasta que la tanda venga corta. El cursor NUNCA
- *    retrocede. Dedupe por (esn, posTime).
- * 2) /lastpositions — los metadatos hg* (patente, modelo, navstate…) SOLO
- *    vienen aquí; se fusionan por ESN. No mueve el cursor. Best-effort.
+ * Antes el navegador paginaba Nexe (límite 1000 por respuesta) y calculaba el
+ * cursor. Ahora el collector hace eso contra Nexe y el backend devuelve el
+ * `siguienteCursor` ya calculado: aquí solo queda pedir "lo llegado desde X" y,
+ * si la tanda vino tope (`hayMas`), volver a pedir de inmediato.
  *
- * Fallos: 401/422/formato desconocido detienen el polling con banner; 5xx/red
- * reintenta con backoff exponencial sin resetear el cursor. Pestaña oculta
- * pausa; al volver, poll inmediato.
+ * El cursor sigue sin retroceder nunca, y el dedupe por (esn, posTime) se mantiene
+ * en el cliente porque el buffer de trazas vive en memoria.
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { buildGetBody, buildLastPositionsBody } from '../api/contract'
-import {
-  NexeAuthError,
-  NexeContractError,
-  NexeUpstreamError,
-  postNexe,
-} from '../api/client'
+import { ApiNoDisponibleError, ApiRequestError, getApi } from '../api/client'
 import { NexeRespuestaError, parsePositions } from '../api/parse'
-import { buildFleet, maxDataCtrTime, mergePositions, type FleetStore } from '../domain/fleet'
+import { buildFleet, mergePositions, type FleetStore } from '../domain/fleet'
 import type { FleetResource } from '../domain/types'
 
 export const POLL_INTERVAL_MS = 30_000 // mínimo permitido por el estándar AFF
 const BACKOFF_MS = [5_000, 10_000, 20_000, 40_000, 60_000] // tope 60 s
 const TICK_FRESCURA_MS = 5_000 // recomputar staleness aunque no lleguen datos
-
-// paginación del /get (límite real ~1000; "tanda corta" = ya no hay más páginas)
-const UMBRAL_PAGINA_LLENA = 900
-const MAX_PAGINAS_POR_CICLO = 8
-
-// lastpositions: ventana amplia hacia atrás para recuperar metadatos de toda la
-// flota (14 días = almacenamiento mínimo del estándar AFF; la copia de staging
-// puede quedar varios días detrás del presente)
-const LOOKBACK_LASTPOS_MS = 14 * 24 * 3600_000
+const MAX_TANDAS_POR_CICLO = 8 // cortafuegos si la base trae mucho atraso
 
 export type FasePolling = 'cargando' | 'ok' | 'reintentando' | 'detenido'
 
 export interface ErrorPolling {
-  tipo: 'auth' | 'contrato' | 'respuesta' | 'red'
+  tipo: 'consulta' | 'red'
   mensaje: string
   detalle?: unknown
 }
@@ -51,7 +34,7 @@ export interface EstadoPolling {
   fleet: FleetResource[]
   cursor: string | null
   ultimoPollMs: number | null
-  proximoPollMs: number | null // timestamp absoluto del próximo intento
+  proximoPollMs: number | null
   contadorPolls: number
 }
 
@@ -63,6 +46,23 @@ const ESTADO_INICIAL: EstadoPolling = {
   ultimoPollMs: null,
   proximoPollMs: null,
   contadorPolls: 0,
+}
+
+/** La respuesta del backend trae el cursor ya calculado. */
+function leerSiguienteCursor(cruda: unknown, porDefecto: string): string {
+  if (typeof cruda === 'object' && cruda !== null) {
+    const valor = (cruda as Record<string, unknown>).siguienteCursor
+    if (typeof valor === 'string' && valor !== '') return valor
+  }
+  return porDefecto
+}
+
+function hayMas(cruda: unknown): boolean {
+  return (
+    typeof cruda === 'object' &&
+    cruda !== null &&
+    (cruda as Record<string, unknown>).hayMas === true
+  )
 }
 
 export function usePolling(
@@ -80,7 +80,7 @@ export function usePolling(
   const backoffIndiceRef = useRef(0)
   const enVueloRef = useRef(false)
   const detenidoRef = useRef(false)
-  const generacionRef = useRef(0) // invalida callbacks de un ciclo anterior
+  const generacionRef = useRef(0)
 
   const limpiarTimer = () => {
     if (timerRef.current !== null) {
@@ -89,10 +89,9 @@ export function usePolling(
     }
   }
 
-  /** Fusiona metadatos/última posición desde lastpositions. No mueve el cursor. */
-  const refrescarLastPositions = useCallback(async () => {
-    const desde = new Date(Date.now() - LOOKBACK_LASTPOS_MS).toISOString()
-    const cruda = await postNexe('lastpositions', buildLastPositionsBody(desde))
+  /** Metadatos hg* + última posición de cada recurso, en una sola llamada. */
+  const refrescarRecursos = useCallback(async () => {
+    const cruda = await getApi('recursos')
     const { posiciones } = parsePositions(cruda)
     if (posiciones.length > 0) {
       storeRef.current = mergePositions(storeRef.current, posiciones).store
@@ -102,39 +101,31 @@ export function usePolling(
   const poll = useCallback(async () => {
     const generacion = generacionRef.current
     if (detenidoRef.current || enVueloRef.current) return
-    // pestaña oculta → pausar; visibilitychange reanuda con poll inmediato
     if (typeof document !== 'undefined' && document.hidden) return
 
     enVueloRef.current = true
     try {
-      // 1) trazas: /get paginado por dataCtrTime (límite ~1000, filtro >)
-      for (let pagina = 0; pagina < MAX_PAGINAS_POR_CICLO; pagina++) {
-        const cruda = await postNexe('get', buildGetBody(cursorRef.current))
+      // 1) trazas nuevas: se repite mientras el backend avise que hay más.
+      for (let tanda = 0; tanda < MAX_TANDAS_POR_CICLO; tanda++) {
+        const cruda = await getApi('posiciones/incremental', { cursor: cursorRef.current })
         if (generacion !== generacionRef.current) return
         const { posiciones } = parsePositions(cruda)
 
         if (posiciones.length > 0) {
           storeRef.current = mergePositions(storeRef.current, posiciones).store
-          const candidato = maxDataCtrTime(posiciones)
-          // el cursor NUNCA retrocede (§8.3)
-          if (candidato !== null && Date.parse(candidato) > Date.parse(cursorRef.current)) {
-            cursorRef.current = candidato
-          } else {
-            break // sin avance posible: evitar loop infinito de paginación
-          }
         }
-        if (posiciones.length < UMBRAL_PAGINA_LLENA) break // tanda corta: no hay más
+        const siguiente = leerSiguienteCursor(cruda, cursorRef.current)
+        // el cursor NUNCA retrocede
+        if (Date.parse(siguiente) > Date.parse(cursorRef.current)) {
+          cursorRef.current = siguiente
+        } else {
+          break
+        }
+        if (!hayMas(cruda)) break
       }
 
-      // 2) metadatos hg* + última posición por recurso (best-effort: un fallo
-      //    aquí no bota el ciclo, salvo auth/contrato que sí son fatales)
-      try {
-        await refrescarLastPositions()
-      } catch (errorMeta) {
-        if (errorMeta instanceof NexeAuthError || errorMeta instanceof NexeContractError) {
-          throw errorMeta
-        }
-      }
+      // 2) catálogo: los hg* completos solo existen aquí (no mueve el cursor).
+      await refrescarRecursos()
       if (generacion !== generacionRef.current) return
 
       backoffIndiceRef.current = 0
@@ -154,43 +145,28 @@ export function usePolling(
       if (generacion !== generacionRef.current) return
       const ahora = Date.now()
 
-      if (error instanceof NexeAuthError) {
+      // Una consulta mal formada o una respuesta irreconocible no se arregla
+      // reintentando: es un desajuste entre frontend y backend.
+      if (error instanceof ApiRequestError || error instanceof NexeRespuestaError) {
         detenidoRef.current = true
         setEstado((previo) => ({
           ...previo,
           fase: 'detenido',
           proximoPollMs: null,
-          error: { tipo: 'auth', mensaje: error.message, detalle: error.detalle },
-        }))
-        return
-      }
-      if (error instanceof NexeContractError) {
-        detenidoRef.current = true
-        setEstado((previo) => ({
-          ...previo,
-          fase: 'detenido',
-          proximoPollMs: null,
-          error: { tipo: 'contrato', mensaje: error.message, detalle: error.detalle },
-        }))
-        return
-      }
-      if (error instanceof NexeRespuestaError) {
-        detenidoRef.current = true
-        setEstado((previo) => ({
-          ...previo,
-          fase: 'detenido',
-          proximoPollMs: null,
-          error: { tipo: 'respuesta', mensaje: error.message, detalle: error.detalle },
+          error: {
+            tipo: 'consulta',
+            mensaje: error.message,
+            detalle: error instanceof ApiRequestError ? error.detalle : error.detalle,
+          },
         }))
         return
       }
 
-      // 5xx / red: backoff exponencial SIN resetear el cursor (§8.3)
+      // 5xx / red: backoff exponencial SIN resetear el cursor.
       const espera = BACKOFF_MS[Math.min(backoffIndiceRef.current, BACKOFF_MS.length - 1)]!
       backoffIndiceRef.current += 1
       limpiarTimer()
       timerRef.current = setTimeout(() => void poll(), espera)
-      const detalle = error instanceof NexeUpstreamError ? error.detalle : undefined
       setEstado((previo) => ({
         ...previo,
         fase: 'reintentando',
@@ -198,18 +174,17 @@ export function usePolling(
         error: {
           tipo: 'red',
           mensaje: error instanceof Error ? error.message : 'Error de red',
-          detalle,
+          detalle: error instanceof ApiNoDisponibleError ? error.detalle : undefined,
         },
       }))
     } finally {
       enVueloRef.current = false
     }
-  }, [intervaloSeguro, refrescarLastPositions])
+  }, [intervaloSeguro, refrescarRecursos])
 
   useEffect(() => {
     generacionRef.current += 1
     if (!activo) {
-      // modo histórico: sin timers, sin llamadas; al volver, recarga fresca
       detenidoRef.current = true
       limpiarTimer()
       return
@@ -222,20 +197,19 @@ export function usePolling(
     cursorRef.current = new Date(Date.now() - rangoHoras * 3600_000).toISOString()
     setEstado({ ...ESTADO_INICIAL, cursor: cursorRef.current })
 
-    // pintado inicial en 1 llamada (no fatal si falla); la historia la trae el primer /get
+    // Pintado inicial en una llamada; la historia la trae el primer incremental.
     void (async () => {
       try {
-        await refrescarLastPositions()
+        await refrescarRecursos()
         if (generacion !== generacionRef.current) return
         if (storeRef.current.size > 0) {
-          const ahora = Date.now()
           setEstado((previo) => ({
             ...previo,
-            fleet: buildFleet(storeRef.current, ahora),
+            fleet: buildFleet(storeRef.current, Date.now()),
           }))
         }
       } catch {
-        // silencioso: el poll inmediato siguiente informa cualquier error real
+        // silencioso: el poll inmediato siguiente informa el error real
       }
       if (generacion === generacionRef.current) void poll()
     })()
@@ -243,12 +217,11 @@ export function usePolling(
     const alCambiarVisibilidad = () => {
       if (!document.hidden && !detenidoRef.current) {
         limpiarTimer()
-        void poll() // al volver, poll inmediato (§8.3)
+        void poll()
       }
     }
     document.addEventListener('visibilitychange', alCambiarVisibilidad)
 
-    // tick de frescura: el staleness avanza aunque no lleguen posiciones
     const tick = setInterval(() => {
       setEstado((previo) =>
         previo.fleet.length === 0
@@ -263,7 +236,7 @@ export function usePolling(
       clearInterval(tick)
       document.removeEventListener('visibilitychange', alCambiarVisibilidad)
     }
-  }, [rangoHoras, poll, refrescarLastPositions, activo])
+  }, [rangoHoras, poll, refrescarRecursos, activo])
 
   return estado
 }

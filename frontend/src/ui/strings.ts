@@ -37,14 +37,10 @@ export const STRINGS = {
 
   banners: {
     reintentando: (segundos: number) =>
-      `Sin conexión con Nexe — reintentando en ${segundos} s`,
-    credencialesInvalidas:
-      'Credenciales inválidas — revisar NEXE_API_KEY del servidor. Polling detenido.',
-    contratoDesalineado:
-      'El contrato del body cambió: revisar §8.1 de CLAUDE.md (detalle técnico abajo).',
-    respuestaDesconocida:
-      'Nexe respondió con un formato inesperado: revisar §8.2 de CLAUDE.md (detalle técnico abajo).',
-    modoSimulacion: 'MODO SIMULACIÓN — datos ficticios del servidor local',
+      `Sin conexión con el servidor del visor — reintentando en ${segundos} s`,
+    consultaRechazada:
+      'El servidor rechazó la consulta: frontend y backend no coinciden. Actualización detenida (detalle técnico abajo).',
+    modoSimulacion: 'MODO SIMULACIÓN — datos ficticios generados en el navegador',
     verDetalle: 'Detalle técnico',
   },
 
@@ -108,8 +104,8 @@ export const STRINGS = {
   historico: {
     banner: (desde: string, hasta: string, n: number) =>
       `MODO HISTÓRICO — ${desde} → ${hasta} · ${n} posiciones`,
-    truncado: (paginas: number) =>
-      `Rango muy denso: se cargaron las primeras ${paginas} páginas (~${paginas * 1000} posiciones). Acota el rango para ver todo.`,
+    truncado: (posiciones: number) =>
+      `Rango muy denso: se muestran las primeras ${posiciones.toLocaleString('es-CL')} posiciones. Acota el rango para verlo completo.`,
     vacio: 'Sin posiciones en ese rango. Prueba con otras fechas.',
     error: 'La consulta histórica falló. Reintenta o acota el rango.',
   },

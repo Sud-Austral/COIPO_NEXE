@@ -1,0 +1,11 @@
+name: Deploy prod
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    uses: Sud-Austral/infra-docker-base/.github/workflows/deploy.yml@main
+    with:
+      app_name: ${{ github.event.repository.name }}

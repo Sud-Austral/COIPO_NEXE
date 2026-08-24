@@ -1,14 +1,11 @@
 {
   "name": "coipo-nexe-visor",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -k -n vite,proxy \"vite\" \"npm:server\"",
-    "dev:mock": "concurrently -k -n vite,proxy,mock \"vite\" \"npm:server:mock\" \"npm:mock\"",
-    "server": "tsx watch server/index.ts",
-    "server:mock": "cross-env NEXE_BASE_URL=http://localhost:3002/api/v1/monitor NEXE_API_KEY=clave-simulada tsx watch server/index.ts",
-    "mock": "tsx watch server/mock.ts",
+    "dev": "vite",
+    "dev:demo": "cross-env VITE_DEMO=1 vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -17,8 +14,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "express": "^4.21.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.525.0",
     "react": "^19.2.7",
@@ -28,17 +23,14 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
-    "@types/express": "^4.17.21",
     "@types/leaflet": "^1.9.20",
     "@types/node": "^22.15.0",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
-    "concurrently": "^9.1.2",
     "cross-env": "^7.0.3",
     "jsdom": "^26.1.0",
     "oxlint": "^1.71.0",
-    "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "vite": "^8.1.1",
     "vitest": "^3.2.4"
