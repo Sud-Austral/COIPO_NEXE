@@ -1,0 +1,5267 @@
+{
+  "metadata": {
+    "repository": "target",
+    "generated_at": "2026-08-31T19:17:13.982032",
+    "analyzer": "readme3",
+    "version": "2.0-evidence-first",
+    "file_count": 114
+  },
+  "policy": {
+    "purpose": "Repository evidence extraction for documentation generation.",
+    "important_rule": "Signals do not automatically represent confirmed product capabilities."
+  },
+  "files": [
+    {
+      "path": "descargar_historico_nexe.py",
+      "name": "descargar_historico_nexe.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 9547,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "docker-compose.dev.yml",
+      "name": "docker-compose.dev.yml",
+      "ext": ".yml",
+      "language": "YAML",
+      "size": 1229,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "CLAUDE.md",
+      "name": "CLAUDE.md",
+      "ext": ".md",
+      "language": "Markdown",
+      "size": 102721,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": ".gitignore",
+      "name": ".gitignore",
+      "ext": "",
+      "language": "Other",
+      "size": 406,
+      "text": false,
+      "important": false
+    },
+    {
+      "path": ".gitattributes",
+      "name": ".gitattributes",
+      "ext": "",
+      "language": "Other",
+      "size": 66,
+      "text": false,
+      "important": false
+    },
+    {
+      "path": "docker-compose.yml",
+      "name": "docker-compose.yml",
+      "ext": ".yml",
+      "language": "YAML",
+      "size": 1918,
+      "text": true,
+      "important": true
+    },
+    {
+      "path": "README.md",
+      "name": "README.md",
+      "ext": ".md",
+      "language": "Markdown",
+      "size": 14,
+      "text": true,
+      "important": true
+    },
+    {
+      "path": ".env.example",
+      "name": ".env.example",
+      "ext": ".example",
+      "language": "Other",
+      "size": 2488,
+      "text": false,
+      "important": true
+    },
+    {
+      "path": ".dockerignore",
+      "name": ".dockerignore",
+      "ext": "",
+      "language": "Other",
+      "size": 272,
+      "text": false,
+      "important": false
+    },
+    {
+      "path": "collector/crontab",
+      "name": "crontab",
+      "ext": "",
+      "language": "Other",
+      "size": 636,
+      "text": false,
+      "important": false
+    },
+    {
+      "path": "collector/docker-entrypoint.sh",
+      "name": "docker-entrypoint.sh",
+      "ext": ".sh",
+      "language": "Shell",
+      "size": 538,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "collector/Dockerfile",
+      "name": "Dockerfile",
+      "ext": "",
+      "language": "Other",
+      "size": 1555,
+      "text": false,
+      "important": true
+    },
+    {
+      "path": "collector/ingesta.py",
+      "name": "ingesta.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 10085,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/requirements.txt",
+      "name": "requirements.txt",
+      "ext": ".txt",
+      "language": "Text",
+      "size": 144,
+      "text": true,
+      "important": true
+    },
+    {
+      "path": "backend/Dockerfile",
+      "name": "Dockerfile",
+      "ext": "",
+      "language": "Other",
+      "size": 849,
+      "text": false,
+      "important": true
+    },
+    {
+      "path": "backend/pytest.ini",
+      "name": "pytest.ini",
+      "ext": ".ini",
+      "language": "INI",
+      "size": 42,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/__init__.py",
+      "name": "__init__.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 69,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/main.py",
+      "name": "main.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 2000,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/config.py",
+      "name": "config.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 3944,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/nexe/__init__.py",
+      "name": "__init__.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 1004,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/nexe/cliente.py",
+      "name": "cliente.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 9580,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/nexe/aplanado.py",
+      "name": "aplanado.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 7658,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/servicios/__init__.py",
+      "name": "__init__.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 66,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/servicios/geojson.py",
+      "name": "geojson.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 3505,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/servicios/tabular.py",
+      "name": "tabular.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 1837,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/db/__init__.py",
+      "name": "__init__.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 80,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/db/session.py",
+      "name": "session.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 900,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/db/bootstrap.py",
+      "name": "bootstrap.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 2361,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/db/consultas.py",
+      "name": "consultas.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 4735,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/routers/recursos.py",
+      "name": "recursos.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 1352,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/routers/__init__.py",
+      "name": "__init__.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 79,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/routers/salud.py",
+      "name": "salud.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 1270,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/routers/posiciones.py",
+      "name": "posiciones.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 2819,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/routers/estado.py",
+      "name": "estado.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 2198,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/routers/comun.py",
+      "name": "comun.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 902,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/app/routers/exportar.py",
+      "name": "exportar.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 2197,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/tests/test_contrato_nexe.py",
+      "name": "test_contrato_nexe.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 3637,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/tests/test_paginacion.py",
+      "name": "test_paginacion.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 9496,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "backend/tests/test_aplanado.py",
+      "name": "test_aplanado.py",
+      "ext": ".py",
+      "language": "Python",
+      "size": 7857,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": ".github/workflows/readme.yml",
+      "name": "readme.yml",
+      "ext": ".yml",
+      "language": "YAML",
+      "size": 223,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": ".github/workflows/despliegue-pages.yml",
+      "name": "despliegue-pages.yml",
+      "ext": ".yml",
+      "language": "YAML",
+      "size": 1531,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": ".github/workflows/deploy-prod.yml",
+      "name": "deploy-prod.yml",
+      "ext": ".yml",
+      "language": "YAML",
+      "size": 205,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "INSUMO/revision_postincidente_mock.html",
+      "name": "revision_postincidente_mock.html",
+      "ext": ".html",
+      "language": "HTML",
+      "size": 39418,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "INSUMO/revision_postincidente_mock_1.html",
+      "name": "revision_postincidente_mock_1.html",
+      "ext": ".html",
+      "language": "HTML",
+      "size": 39418,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "INSUMO/plataforma_monitorizacion_mock.html",
+      "name": "plataforma_monitorizacion_mock.html",
+      "ext": ".html",
+      "language": "HTML",
+      "size": 30612,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "INSUMO/flujo_datos_monitorizacion_conaf.mermaid",
+      "name": "flujo_datos_monitorizacion_conaf.mermaid",
+      "ext": ".mermaid",
+      "language": "Other",
+      "size": 2480,
+      "text": false,
+      "important": false
+    },
+    {
+      "path": "INSUMO/analisis_incidente_mock.html",
+      "name": "analisis_incidente_mock.html",
+      "ext": ".html",
+      "language": "HTML",
+      "size": 40775,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/index.html",
+      "name": "index.html",
+      "ext": ".html",
+      "language": "HTML",
+      "size": 897,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/.gitignore",
+      "name": ".gitignore",
+      "ext": "",
+      "language": "Other",
+      "size": 327,
+      "text": false,
+      "important": false
+    },
+    {
+      "path": "frontend/package.json",
+      "name": "package.json",
+      "ext": ".json",
+      "language": "JSON",
+      "size": 939,
+      "text": true,
+      "important": true
+    },
+    {
+      "path": "frontend/.oxlintrc.json",
+      "name": ".oxlintrc.json",
+      "ext": ".json",
+      "language": "JSON",
+      "size": 231,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/package-lock.json",
+      "name": "package-lock.json",
+      "ext": ".json",
+      "language": "JSON",
+      "size": 129816,
+      "text": true,
+      "important": true
+    },
+    {
+      "path": "frontend/README.md",
+      "name": "README.md",
+      "ext": ".md",
+      "language": "Markdown",
+      "size": 1009,
+      "text": true,
+      "important": true
+    },
+    {
+      "path": "frontend/.env.example",
+      "name": ".env.example",
+      "ext": ".example",
+      "language": "Other",
+      "size": 770,
+      "text": false,
+      "important": true
+    },
+    {
+      "path": "frontend/tsconfig.json",
+      "name": "tsconfig.json",
+      "ext": ".json",
+      "language": "JSON",
+      "size": 571,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/Dockerfile",
+      "name": "Dockerfile",
+      "ext": "",
+      "language": "Other",
+      "size": 844,
+      "text": false,
+      "important": true
+    },
+    {
+      "path": "frontend/nginx.conf",
+      "name": "nginx.conf",
+      "ext": ".conf",
+      "language": "Other",
+      "size": 1514,
+      "text": false,
+      "important": false
+    },
+    {
+      "path": "frontend/vite.config.ts",
+      "name": "vite.config.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 741,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/public/favicon.svg",
+      "name": "favicon.svg",
+      "ext": ".svg",
+      "language": "Other",
+      "size": 9522,
+      "text": false,
+      "important": false
+    },
+    {
+      "path": "frontend/src/main.tsx",
+      "name": "main.tsx",
+      "ext": ".tsx",
+      "language": "React+TS",
+      "size": 295,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/App.module.css",
+      "name": "App.module.css",
+      "ext": ".css",
+      "language": "CSS",
+      "size": 1265,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "name": "App.tsx",
+      "ext": ".tsx",
+      "language": "React+TS",
+      "size": 5292,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/vite-env.d.ts",
+      "name": "vite-env.d.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 333,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/domain/alertas.ts",
+      "name": "alertas.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 1521,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/domain/fleet.ts",
+      "name": "fleet.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 6338,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/domain/types.ts",
+      "name": "types.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 1861,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/styles/base.css",
+      "name": "base.css",
+      "ext": ".css",
+      "language": "CSS",
+      "size": 4176,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/styles/tokens.css",
+      "name": "tokens.css",
+      "ext": ".css",
+      "language": "CSS",
+      "size": 2243,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/demo/simuladorNexe.ts",
+      "name": "simuladorNexe.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 14076,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/ui/estadoVisual.ts",
+      "name": "estadoVisual.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 1613,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/ui/strings.ts",
+      "name": "strings.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 4143,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/hooks/usePolling.ts",
+      "name": "usePolling.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 8194,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/hooks/useAlertas.ts",
+      "name": "useAlertas.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 1493,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/hooks/useHistorico.ts",
+      "name": "useHistorico.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 2858,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/api/parse.ts",
+      "name": "parse.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 8234,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/api/client.ts",
+      "name": "client.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 2635,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/FleetPanel/FleetPanel.module.css",
+      "name": "FleetPanel.module.css",
+      "ext": ".css",
+      "language": "CSS",
+      "size": 7218,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/FleetPanel/FleetPanel.tsx",
+      "name": "FleetPanel.tsx",
+      "ext": ".tsx",
+      "language": "React+TS",
+      "size": 8194,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/EstadoChip/EstadoChip.module.css",
+      "name": "EstadoChip.module.css",
+      "ext": ".css",
+      "language": "CSS",
+      "size": 173,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/EstadoChip/EstadoChip.tsx",
+      "name": "EstadoChip.tsx",
+      "ext": ".tsx",
+      "language": "React+TS",
+      "size": 831,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/StatusBar/StatusBar.module.css",
+      "name": "StatusBar.module.css",
+      "ext": ".css",
+      "language": "CSS",
+      "size": 3277,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/StatusBar/StatusBar.tsx",
+      "name": "StatusBar.tsx",
+      "ext": ".tsx",
+      "language": "React+TS",
+      "size": 6138,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/ResourceDetail/MiniGrafico.tsx",
+      "name": "MiniGrafico.tsx",
+      "ext": ".tsx",
+      "language": "React+TS",
+      "size": 2725,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/ResourceDetail/ResourceDetail.tsx",
+      "name": "ResourceDetail.tsx",
+      "ext": ".tsx",
+      "language": "React+TS",
+      "size": 4196,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/ResourceDetail/MiniGrafico.module.css",
+      "name": "MiniGrafico.module.css",
+      "ext": ".css",
+      "language": "CSS",
+      "size": 1122,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/ResourceDetail/ResourceDetail.module.css",
+      "name": "ResourceDetail.module.css",
+      "ext": ".css",
+      "language": "CSS",
+      "size": 2549,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/TimeRangeBar/TimeRangeBar.tsx",
+      "name": "TimeRangeBar.tsx",
+      "ext": ".tsx",
+      "language": "React+TS",
+      "size": 4700,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/TimeRangeBar/TimeRangeBar.module.css",
+      "name": "TimeRangeBar.module.css",
+      "ext": ".css",
+      "language": "CSS",
+      "size": 3664,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/Alertas/Alertas.tsx",
+      "name": "Alertas.tsx",
+      "ext": ".tsx",
+      "language": "React+TS",
+      "size": 2241,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/Alertas/Alertas.module.css",
+      "name": "Alertas.module.css",
+      "ext": ".css",
+      "language": "CSS",
+      "size": 1376,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/MapView/marcadores.css",
+      "name": "marcadores.css",
+      "ext": ".css",
+      "language": "CSS",
+      "size": 1715,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/MapView/MapView.tsx",
+      "name": "MapView.tsx",
+      "ext": ".tsx",
+      "language": "React+TS",
+      "size": 4218,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/MapView/marcador.ts",
+      "name": "marcador.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 1408,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/components/MapView/MapView.module.css",
+      "name": "MapView.module.css",
+      "ext": ".css",
+      "language": "CSS",
+      "size": 41,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/lib/exportar.ts",
+      "name": "exportar.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 3973,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/src/lib/format.ts",
+      "name": "format.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 2756,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/tests/usePolling.test.ts",
+      "name": "usePolling.test.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 7759,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/tests/exportar.test.ts",
+      "name": "exportar.test.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 2876,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/tests/format.test.ts",
+      "name": "format.test.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 1909,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/tests/alertas.test.ts",
+      "name": "alertas.test.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 2228,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/tests/parse.test.ts",
+      "name": "parse.test.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 4457,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/tests/useHistorico.test.ts",
+      "name": "useHistorico.test.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 4308,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/tests/setup.ts",
+      "name": "setup.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 42,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/tests/fleet.test.ts",
+      "name": "fleet.test.ts",
+      "ext": ".ts",
+      "language": "TypeScript",
+      "size": 6005,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/tests/FleetPanel.test.tsx",
+      "name": "FleetPanel.test.tsx",
+      "ext": ".tsx",
+      "language": "React+TS",
+      "size": 4142,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/tests/fixtures/respuesta_get_real.json",
+      "name": "respuesta_get_real.json",
+      "ext": ".json",
+      "language": "JSON",
+      "size": 1887,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "frontend/tests/fixtures/respuesta_lastpositions_real.json",
+      "name": "respuesta_lastpositions_real.json",
+      "ext": ".json",
+      "language": "JSON",
+      "size": 1752,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "db/schema.sql",
+      "name": "schema.sql",
+      "ext": ".sql",
+      "language": "SQL",
+      "size": 7924,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "INSUMO_PRODUCCION/guia-8-prompt-checklist-pre-deploy.md",
+      "name": "guia-8-prompt-checklist-pre-deploy.md",
+      "ext": ".md",
+      "language": "Markdown",
+      "size": 8058,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "INSUMO_PRODUCCION/DOCKER.md",
+      "name": "DOCKER.md",
+      "ext": ".md",
+      "language": "Markdown",
+      "size": 9668,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "INSUMO_PRODUCCION/nginx.conf",
+      "name": "nginx.conf",
+      "ext": ".conf",
+      "language": "Other",
+      "size": 4532,
+      "text": false,
+      "important": false
+    },
+    {
+      "path": "INSUMO_PRODUCCION/fastapi-postgresql-conexion.md",
+      "name": "fastapi-postgresql-conexion.md",
+      "ext": ".md",
+      "language": "Markdown",
+      "size": 6054,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": "INSUMO_PRODUCCION/guia-6-github-actions-por-repo.md",
+      "name": "guia-6-github-actions-por-repo.md",
+      "ext": ".md",
+      "language": "Markdown",
+      "size": 4606,
+      "text": true,
+      "important": false
+    },
+    {
+      "path": ".claude/scheduled_tasks.lock",
+      "name": "scheduled_tasks.lock",
+      "ext": ".lock",
+      "language": "Other",
+      "size": 90,
+      "text": false,
+      "important": false
+    }
+  ],
+  "structure": {
+    "descargar_historico_nexe.py": 1,
+    "docker-compose.dev.yml": 1,
+    "CLAUDE.md": 1,
+    ".gitignore": 1,
+    ".gitattributes": 1,
+    "docker-compose.yml": 1,
+    "README.md": 1,
+    ".env.example": 1,
+    ".dockerignore": 1,
+    "collector": 4,
+    "backend": 26,
+    ".github": 3,
+    "INSUMO": 5,
+    "frontend": 60,
+    "db": 1,
+    "INSUMO_PRODUCCION": 5,
+    ".claude": 1
+  },
+  "important_files": [
+    "backend/Dockerfile",
+    "collector/Dockerfile",
+    "docker-compose.yml",
+    "frontend/Dockerfile",
+    "backend/requirements.txt",
+    "frontend/package.json",
+    ".env.example",
+    "README.md",
+    "frontend/.env.example",
+    "frontend/README.md",
+    "frontend/package-lock.json",
+    ".github/workflows/deploy-prod.yml",
+    "db/schema.sql",
+    "docker-compose.dev.yml",
+    "frontend/vite.config.ts",
+    ".dockerignore",
+    ".github/workflows/despliegue-pages.yml",
+    ".github/workflows/readme.yml",
+    "INSUMO_PRODUCCION/DOCKER.md",
+    "INSUMO_PRODUCCION/fastapi-postgresql-conexion.md",
+    "INSUMO_PRODUCCION/guia-8-prompt-checklist-pre-deploy.md",
+    "backend/app/config.py",
+    "backend/app/db/__init__.py",
+    "backend/app/db/bootstrap.py",
+    "backend/app/db/consultas.py",
+    "backend/app/db/session.py",
+    "backend/app/main.py",
+    "backend/app/routers/__init__.py",
+    "backend/app/routers/comun.py",
+    "backend/app/routers/estado.py",
+    "backend/app/routers/exportar.py",
+    "backend/app/routers/posiciones.py",
+    "backend/app/routers/recursos.py",
+    "backend/app/routers/salud.py",
+    "collector/docker-entrypoint.sh",
+    "frontend/src/api/client.ts",
+    "frontend/src/api/parse.ts",
+    "frontend/tsconfig.json"
+  ],
+  "technologies": {
+    "React": {
+      "confidence": "high",
+      "evidence": [
+        {
+          "file": "CLAUDE.md",
+          "line": 13,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/package.json",
+          "line": 18,
+          "weight": 10,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/.oxlintrc.json",
+          "line": 3,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/package-lock.json",
+          "line": 12,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/README.md",
+          "line": 1,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/tsconfig.json",
+          "line": 7,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/vite.config.ts",
+          "line": 3,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/src/main.tsx",
+          "line": 1,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/src/App.tsx",
+          "line": 7,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/src/domain/fleet.ts",
+          "line": 31,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/src/ui/estadoVisual.ts",
+          "line": 13,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/src/hooks/usePolling.ts",
+          "line": 12,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/src/hooks/useAlertas.ts",
+          "line": 5,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/src/hooks/useHistorico.ts",
+          "line": 10,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/src/components/FleetPanel/FleetPanel.tsx",
+          "line": 6,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/src/components/StatusBar/StatusBar.tsx",
+          "line": 7,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/src/components/ResourceDetail/MiniGrafico.tsx",
+          "line": 7,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/src/components/ResourceDetail/ResourceDetail.tsx",
+          "line": 7,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/src/components/TimeRangeBar/TimeRangeBar.tsx",
+          "line": 6,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        },
+        {
+          "file": "frontend/src/components/Alertas/Alertas.tsx",
+          "line": 5,
+          "weight": 1,
+          "pattern": "\\breact\\b"
+        }
+      ]
+    },
+    "Vite": {
+      "confidence": "high",
+      "evidence": [
+        {
+          "file": "CLAUDE.md",
+          "line": 153,
+          "weight": 1,
+          "pattern": "\\bvite\\b"
+        },
+        {
+          "file": "frontend/package.json",
+          "line": 7,
+          "weight": 10,
+          "pattern": "\\bvite\\b"
+        },
+        {
+          "file": "frontend/package-lock.json",
+          "line": 29,
+          "weight": 1,
+          "pattern": "\\bvite\\b"
+        },
+        {
+          "file": "frontend/README.md",
+          "line": 1,
+          "weight": 1,
+          "pattern": "\\bvite\\b"
+        },
+        {
+          "file": "frontend/tsconfig.json",
+          "line": 18,
+          "weight": 1,
+          "pattern": "\\bvite\\b"
+        },
+        {
+          "file": "frontend/vite.config.ts",
+          "line": 2,
+          "weight": 1,
+          "pattern": "\\bvite\\b"
+        },
+        {
+          "file": "frontend/src/vite-env.d.ts",
+          "line": 1,
+          "weight": 1,
+          "pattern": "\\bvite\\b"
+        }
+      ]
+    },
+    "Vue": {
+      "confidence": "low",
+      "evidence": [
+        {
+          "file": "CLAUDE.md",
+          "line": 1297,
+          "weight": 1,
+          "pattern": "\\bvue\\b"
+        }
+      ]
+    },
+    "FastAPI": {
+      "confidence": "high",
+      "evidence": [
+        {
+          "file": "CLAUDE.md",
+          "line": 52,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "backend/requirements.txt",
+          "line": 1,
+          "weight": 10,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "backend/app/main.py",
+          "line": 16,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "backend/app/config.py",
+          "line": 3,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "backend/app/db/session.py",
+          "line": 5,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "backend/app/routers/recursos.py",
+          "line": 12,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "backend/app/routers/salud.py",
+          "line": 8,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "backend/app/routers/posiciones.py",
+          "line": 12,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "backend/app/routers/estado.py",
+          "line": 14,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "backend/app/routers/comun.py",
+          "line": 7,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "backend/app/routers/exportar.py",
+          "line": 13,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "frontend/vite.config.ts",
+          "line": 5,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "frontend/src/api/parse.ts",
+          "line": 13,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "frontend/tests/parse.test.ts",
+          "line": 70,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "INSUMO_PRODUCCION/DOCKER.md",
+          "line": 22,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        },
+        {
+          "file": "INSUMO_PRODUCCION/fastapi-postgresql-conexion.md",
+          "line": 1,
+          "weight": 1,
+          "pattern": "\\bfastapi\\b"
+        }
+      ]
+    },
+    "Express": {
+      "confidence": "low",
+      "evidence": [
+        {
+          "file": "CLAUDE.md",
+          "line": 1122,
+          "weight": 1,
+          "pattern": "\\bexpress\\b"
+        },
+        {
+          "file": "frontend/src/demo/simuladorNexe.ts",
+          "line": 2,
+          "weight": 1,
+          "pattern": "\\bexpress\\b"
+        }
+      ]
+    },
+    "Node.js": {
+      "confidence": "high",
+      "evidence": [
+        {
+          "file": ".github/workflows/despliegue-pages.yml",
+          "line": 30,
+          "weight": 1,
+          "pattern": "\\bnode\\b"
+        },
+        {
+          "file": "frontend/package.json",
+          "line": 27,
+          "weight": 10,
+          "pattern": "\\bnode\\b"
+        },
+        {
+          "file": "frontend/package-lock.json",
+          "line": 21,
+          "weight": 1,
+          "pattern": "\\bnode\\b"
+        },
+        {
+          "file": "frontend/tsconfig.json",
+          "line": 18,
+          "weight": 1,
+          "pattern": "\\bnode\\b"
+        },
+        {
+          "file": "INSUMO_PRODUCCION/DOCKER.md",
+          "line": 27,
+          "weight": 1,
+          "pattern": "\\bnode\\b"
+        }
+      ]
+    },
+    "PostgreSQL": {
+      "confidence": "high",
+      "evidence": [
+        {
+          "file": "docker-compose.dev.yml",
+          "line": 19,
+          "weight": 1,
+          "pattern": "\\bpostgresql\\b"
+        },
+        {
+          "file": "CLAUDE.md",
+          "line": 126,
+          "weight": 1,
+          "pattern": "\\bpostgresql\\b"
+        },
+        {
+          "file": "docker-compose.yml",
+          "line": 2,
+          "weight": 10,
+          "pattern": "\\bpostgresql\\b"
+        },
+        {
+          "file": "backend/app/config.py",
+          "line": 3,
+          "weight": 1,
+          "pattern": "\\bpostgresql\\b"
+        },
+        {
+          "file": "backend/app/db/session.py",
+          "line": 5,
+          "weight": 1,
+          "pattern": "\\bpostgresql\\b"
+        },
+        {
+          "file": "db/schema.sql",
+          "line": 1,
+          "weight": 1,
+          "pattern": "\\bpostgresql\\b"
+        },
+        {
+          "file": "INSUMO_PRODUCCION/DOCKER.md",
+          "line": 31,
+          "weight": 1,
+          "pattern": "\\bpostgresql\\b"
+        },
+        {
+          "file": "INSUMO_PRODUCCION/fastapi-postgresql-conexion.md",
+          "line": 1,
+          "weight": 1,
+          "pattern": "\\bpostgresql\\b"
+        }
+      ]
+    },
+    "Docker": {
+      "confidence": "high",
+      "evidence": [
+        {
+          "file": "docker-compose.dev.yml",
+          "line": 2,
+          "weight": 1,
+          "pattern": "\\bdocker\\b"
+        },
+        {
+          "file": "CLAUDE.md",
+          "line": 138,
+          "weight": 1,
+          "pattern": "\\bdocker\\b"
+        },
+        {
+          "file": "docker-compose.yml",
+          "line": 4,
+          "weight": 10,
+          "pattern": "\\bdocker\\b"
+        },
+        {
+          "file": "collector/ingesta.py",
+          "line": 17,
+          "weight": 1,
+          "pattern": "\\bdocker\\b"
+        },
+        {
+          "file": "backend/app/db/bootstrap.py",
+          "line": 9,
+          "weight": 1,
+          "pattern": "\\bdocker\\b"
+        },
+        {
+          "file": "backend/app/routers/salud.py",
+          "line": 1,
+          "weight": 1,
+          "pattern": "\\bdocker\\b"
+        },
+        {
+          "file": ".github/workflows/deploy-prod.yml",
+          "line": 9,
+          "weight": 1,
+          "pattern": "\\bdocker\\b"
+        },
+        {
+          "file": "INSUMO_PRODUCCION/guia-8-prompt-checklist-pre-deploy.md",
+          "line": 44,
+          "weight": 1,
+          "pattern": "\\bdocker\\b"
+        },
+        {
+          "file": "INSUMO_PRODUCCION/DOCKER.md",
+          "line": 1,
+          "weight": 1,
+          "pattern": "\\bdocker\\b"
+        },
+        {
+          "file": "INSUMO_PRODUCCION/fastapi-postgresql-conexion.md",
+          "line": 218,
+          "weight": 1,
+          "pattern": "\\bdocker\\b"
+        },
+        {
+          "file": "INSUMO_PRODUCCION/guia-6-github-actions-por-repo.md",
+          "line": 9,
+          "weight": 1,
+          "pattern": "\\bdocker\\b"
+        }
+      ]
+    },
+    "Leaflet": {
+      "confidence": "high",
+      "evidence": [
+        {
+          "file": "CLAUDE.md",
+          "line": 177,
+          "weight": 1,
+          "pattern": "\\bleaflet\\b"
+        },
+        {
+          "file": "frontend/package.json",
+          "line": 17,
+          "weight": 10,
+          "pattern": "\\bleaflet\\b"
+        },
+        {
+          "file": "frontend/package-lock.json",
+          "line": 11,
+          "weight": 1,
+          "pattern": "\\bleaflet\\b"
+        },
+        {
+          "file": "frontend/src/main.tsx",
+          "line": 3,
+          "weight": 1,
+          "pattern": "\\bleaflet\\b"
+        },
+        {
+          "file": "frontend/src/App.module.css",
+          "line": 29,
+          "weight": 1,
+          "pattern": "\\bleaflet\\b"
+        },
+        {
+          "file": "frontend/src/styles/base.css",
+          "line": 1,
+          "weight": 1,
+          "pattern": "\\bleaflet\\b"
+        },
+        {
+          "file": "frontend/src/components/Alertas/Alertas.module.css",
+          "line": 5,
+          "weight": 1,
+          "pattern": "\\bleaflet\\b"
+        },
+        {
+          "file": "frontend/src/components/MapView/MapView.tsx",
+          "line": 2,
+          "weight": 1,
+          "pattern": "\\bleaflet\\b"
+        },
+        {
+          "file": "frontend/src/components/MapView/marcador.ts",
+          "line": 2,
+          "weight": 1,
+          "pattern": "\\bleaflet\\b"
+        }
+      ]
+    },
+    "Tailwind": {
+      "confidence": "low",
+      "evidence": [
+        {
+          "file": "CLAUDE.md",
+          "line": 179,
+          "weight": 1,
+          "pattern": "\\btailwind\\b"
+        }
+      ]
+    },
+    "Pandas": {
+      "confidence": "low",
+      "evidence": [
+        {
+          "file": "descargar_historico_nexe.py",
+          "line": 3,
+          "weight": 1,
+          "pattern": "\\bpandas\\b"
+        },
+        {
+          "file": "backend/app/routers/exportar.py",
+          "line": 5,
+          "weight": 1,
+          "pattern": "\\bpandas\\b"
+        }
+      ]
+    },
+    "SQLAlchemy": {
+      "confidence": "high",
+      "evidence": [
+        {
+          "file": "CLAUDE.md",
+          "line": 182,
+          "weight": 1,
+          "pattern": "\\bsqlalchemy\\b"
+        },
+        {
+          "file": "collector/ingesta.py",
+          "line": 28,
+          "weight": 1,
+          "pattern": "\\bsqlalchemy\\b"
+        },
+        {
+          "file": "backend/requirements.txt",
+          "line": 3,
+          "weight": 10,
+          "pattern": "\\bsqlalchemy\\b"
+        },
+        {
+          "file": "backend/app/db/session.py",
+          "line": 1,
+          "weight": 1,
+          "pattern": "\\bsqlalchemy\\b"
+        },
+        {
+          "file": "backend/app/db/bootstrap.py",
+          "line": 16,
+          "weight": 1,
+          "pattern": "\\bsqlalchemy\\b"
+        },
+        {
+          "file": "backend/app/db/consultas.py",
+          "line": 3,
+          "weight": 1,
+          "pattern": "\\bsqlalchemy\\b"
+        },
+        {
+          "file": "backend/app/routers/recursos.py",
+          "line": 13,
+          "weight": 1,
+          "pattern": "\\bsqlalchemy\\b"
+        },
+        {
+          "file": "backend/app/routers/salud.py",
+          "line": 9,
+          "weight": 1,
+          "pattern": "\\bsqlalchemy\\b"
+        },
+        {
+          "file": "backend/app/routers/posiciones.py",
+          "line": 13,
+          "weight": 1,
+          "pattern": "\\bsqlalchemy\\b"
+        },
+        {
+          "file": "backend/app/routers/estado.py",
+          "line": 15,
+          "weight": 1,
+          "pattern": "\\bsqlalchemy\\b"
+        },
+        {
+          "file": "backend/app/routers/exportar.py",
+          "line": 15,
+          "weight": 1,
+          "pattern": "\\bsqlalchemy\\b"
+        },
+        {
+          "file": "INSUMO_PRODUCCION/fastapi-postgresql-conexion.md",
+          "line": 26,
+          "weight": 1,
+          "pattern": "\\bsqlalchemy\\b"
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "npm": [],
+    "python": []
+  },
+  "environment_variables": [
+    {
+      "value": "NEXE_API_KEY",
+      "file": "descargar_historico_nexe.py",
+      "line": 73,
+      "type": "python"
+    },
+    {
+      "value": "NEXE_BASE_URL",
+      "file": "descargar_historico_nexe.py",
+      "line": 92,
+      "type": "python"
+    },
+    {
+      "value": "SCHEMA_SQL_PATH",
+      "file": "backend/app/db/bootstrap.py",
+      "line": 35,
+      "type": "python"
+    },
+    {
+      "value": "VITE_API_BASE",
+      "file": "frontend/src/api/client.ts",
+      "line": 36,
+      "type": "javascript"
+    },
+    {
+      "value": "VITE_DEMO",
+      "file": "frontend/src/api/client.ts",
+      "line": 43,
+      "type": "javascript"
+    }
+  ],
+  "api": [
+    {
+      "method": "GET",
+      "path": "/api/recursos",
+      "file": "backend/app/routers/recursos.py",
+      "line": 24,
+      "type": "backend_route"
+    },
+    {
+      "method": "GET",
+      "path": "/api/recursos/{esn}",
+      "file": "backend/app/routers/recursos.py",
+      "line": 35,
+      "type": "backend_route"
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "file": "backend/app/routers/salud.py",
+      "line": 17,
+      "type": "backend_route"
+    },
+    {
+      "method": "GET",
+      "path": "/api/posiciones/incremental",
+      "file": "backend/app/routers/posiciones.py",
+      "line": 28,
+      "type": "backend_route"
+    },
+    {
+      "method": "GET",
+      "path": "/api/posiciones",
+      "file": "backend/app/routers/posiciones.py",
+      "line": 57,
+      "type": "backend_route"
+    },
+    {
+      "method": "GET",
+      "path": "/api/estado-ingesta",
+      "file": "backend/app/routers/estado.py",
+      "line": 28,
+      "type": "backend_route"
+    },
+    {
+      "method": "GET",
+      "path": "/api/exportar",
+      "file": "backend/app/routers/exportar.py",
+      "line": 28,
+      "type": "backend_route"
+    },
+    {
+      "method": "FETCH",
+      "path": "${API_BASE}/${ruta}${sufijo}",
+      "file": "frontend/src/api/client.ts",
+      "line": 67,
+      "type": "frontend_api_call"
+    }
+  ],
+  "database_tables": [
+    {
+      "value": "posicion",
+      "file": "db/schema.sql",
+      "line": 34
+    },
+    {
+      "value": "recurso",
+      "file": "db/schema.sql",
+      "line": 75
+    },
+    {
+      "value": "estado_ingesta",
+      "file": "db/schema.sql",
+      "line": 106
+    },
+    {
+      "value": "usando",
+      "file": "db/schema.sql",
+      "line": 66
+    },
+    {
+      "value": "compara",
+      "file": "db/schema.sql",
+      "line": 101
+    },
+    {
+      "value": "estado_ingesta",
+      "file": "db/schema.sql",
+      "line": 118
+    }
+  ],
+  "capability_signals": {
+    "Autenticación": {
+      "confidence": "medium",
+      "signals": [
+        {
+          "keyword": "logout",
+          "file": "CLAUDE.md",
+          "line": 1202
+        },
+        {
+          "keyword": "auth",
+          "file": "CLAUDE.md",
+          "line": 364
+        },
+        {
+          "keyword": "jwt",
+          "file": "CLAUDE.md",
+          "line": 34
+        },
+        {
+          "keyword": "token",
+          "file": "CLAUDE.md",
+          "line": 34
+        },
+        {
+          "keyword": "jwt",
+          "file": "backend/tests/test_paginacion.py",
+          "line": 183
+        },
+        {
+          "keyword": "token",
+          "file": "backend/tests/test_paginacion.py",
+          "line": 183
+        },
+        {
+          "keyword": "jwt",
+          "file": "backend/tests/test_aplanado.py",
+          "line": 182
+        },
+        {
+          "keyword": "token",
+          "file": "backend/tests/test_aplanado.py",
+          "line": 182
+        },
+        {
+          "keyword": "token",
+          "file": ".github/workflows/despliegue-pages.yml",
+          "line": 15
+        },
+        {
+          "keyword": "jwt",
+          "file": "frontend/package-lock.json",
+          "line": 1244
+        },
+        {
+          "keyword": "token",
+          "file": "frontend/package-lock.json",
+          "line": 50
+        },
+        {
+          "keyword": "token",
+          "file": "frontend/src/main.tsx",
+          "line": 4
+        },
+        {
+          "keyword": "token",
+          "file": "frontend/src/styles/tokens.css",
+          "line": 2
+        },
+        {
+          "keyword": "token",
+          "file": "frontend/src/ui/estadoVisual.ts",
+          "line": 50
+        },
+        {
+          "keyword": "token",
+          "file": "frontend/src/components/MapView/marcadores.css",
+          "line": 3
+        },
+        {
+          "keyword": "token",
+          "file": "frontend/src/components/MapView/MapView.tsx",
+          "line": 54
+        },
+        {
+          "keyword": "jwt",
+          "file": "frontend/tests/parse.test.ts",
+          "line": 71
+        },
+        {
+          "keyword": "token",
+          "file": "frontend/tests/parse.test.ts",
+          "line": 71
+        },
+        {
+          "keyword": "login",
+          "file": "INSUMO_PRODUCCION/guia-8-prompt-checklist-pre-deploy.md",
+          "line": 77
+        },
+        {
+          "keyword": "auth",
+          "file": "INSUMO_PRODUCCION/guia-8-prompt-checklist-pre-deploy.md",
+          "line": 67
+        }
+      ]
+    },
+    "Mapas / cartografía": {
+      "confidence": "medium",
+      "signals": [
+        {
+          "keyword": "leaflet",
+          "file": "CLAUDE.md",
+          "line": 177
+        },
+        {
+          "keyword": "mapa",
+          "file": "CLAUDE.md",
+          "line": 177
+        },
+        {
+          "keyword": "mapa",
+          "file": "backend/app/nexe/aplanado.py",
+          "line": 123
+        },
+        {
+          "keyword": "mapa",
+          "file": "INSUMO/plataforma_monitorizacion_mock.html",
+          "line": 223
+        },
+        {
+          "keyword": "mapa",
+          "file": "INSUMO/analisis_incidente_mock.html",
+          "line": 210
+        },
+        {
+          "keyword": "leaflet",
+          "file": "frontend/package.json",
+          "line": 17
+        },
+        {
+          "keyword": "leaflet",
+          "file": "frontend/package-lock.json",
+          "line": 11
+        },
+        {
+          "keyword": "leaflet",
+          "file": "frontend/src/main.tsx",
+          "line": 3
+        },
+        {
+          "keyword": "leaflet",
+          "file": "frontend/src/App.module.css",
+          "line": 29
+        },
+        {
+          "keyword": "mapa",
+          "file": "frontend/src/App.module.css",
+          "line": 19
+        },
+        {
+          "keyword": "mapa",
+          "file": "frontend/src/App.tsx",
+          "line": 5
+        },
+        {
+          "keyword": "leaflet",
+          "file": "frontend/src/styles/base.css",
+          "line": 1
+        },
+        {
+          "keyword": "mapa",
+          "file": "frontend/src/styles/tokens.css",
+          "line": 52
+        },
+        {
+          "keyword": "mapa",
+          "file": "frontend/src/ui/strings.ts",
+          "line": 69
+        },
+        {
+          "keyword": "mapa",
+          "file": "frontend/src/components/ResourceDetail/ResourceDetail.tsx",
+          "line": 2
+        },
+        {
+          "keyword": "mapa",
+          "file": "frontend/src/components/Alertas/Alertas.tsx",
+          "line": 2
+        },
+        {
+          "keyword": "leaflet",
+          "file": "frontend/src/components/Alertas/Alertas.module.css",
+          "line": 5
+        },
+        {
+          "keyword": "mapa",
+          "file": "frontend/src/components/MapView/marcadores.css",
+          "line": 2
+        },
+        {
+          "keyword": "leaflet",
+          "file": "frontend/src/components/MapView/MapView.tsx",
+          "line": 2
+        },
+        {
+          "keyword": "mapa",
+          "file": "frontend/src/components/MapView/MapView.tsx",
+          "line": 2
+        }
+      ]
+    },
+    "Exportación": {
+      "confidence": "medium",
+      "signals": [
+        {
+          "keyword": "csv",
+          "file": "descargar_historico_nexe.py",
+          "line": 4
+        },
+        {
+          "keyword": "export",
+          "file": "CLAUDE.md",
+          "line": 211
+        },
+        {
+          "keyword": "exportar",
+          "file": "CLAUDE.md",
+          "line": 211
+        },
+        {
+          "keyword": "csv",
+          "file": "CLAUDE.md",
+          "line": 197
+        },
+        {
+          "keyword": "export",
+          "file": "backend/app/main.py",
+          "line": 21
+        },
+        {
+          "keyword": "exportar",
+          "file": "backend/app/main.py",
+          "line": 21
+        },
+        {
+          "keyword": "csv",
+          "file": "backend/app/servicios/__init__.py",
+          "line": 1
+        },
+        {
+          "keyword": "export",
+          "file": "backend/app/servicios/geojson.py",
+          "line": 6
+        },
+        {
+          "keyword": "export",
+          "file": "backend/app/servicios/tabular.py",
+          "line": 3
+        },
+        {
+          "keyword": "exportar",
+          "file": "backend/app/servicios/tabular.py",
+          "line": 3
+        },
+        {
+          "keyword": "csv",
+          "file": "backend/app/servicios/tabular.py",
+          "line": 1
+        },
+        {
+          "keyword": "excel",
+          "file": "backend/app/servicios/tabular.py",
+          "line": 1
+        },
+        {
+          "keyword": "export",
+          "file": "backend/app/routers/exportar.py",
+          "line": 1
+        },
+        {
+          "keyword": "exportar",
+          "file": "backend/app/routers/exportar.py",
+          "line": 1
+        },
+        {
+          "keyword": "csv",
+          "file": "backend/app/routers/exportar.py",
+          "line": 1
+        },
+        {
+          "keyword": "excel",
+          "file": "backend/app/routers/exportar.py",
+          "line": 46
+        },
+        {
+          "keyword": "export",
+          "file": "frontend/.oxlintrc.json",
+          "line": 6
+        },
+        {
+          "keyword": "export",
+          "file": "frontend/vite.config.ts",
+          "line": 9
+        },
+        {
+          "keyword": "export",
+          "file": "frontend/src/App.tsx",
+          "line": 5
+        },
+        {
+          "keyword": "exportar",
+          "file": "frontend/src/App.tsx",
+          "line": 12
+        }
+      ]
+    },
+    "Carga de archivos": {
+      "confidence": "medium",
+      "signals": [
+        {
+          "keyword": "archivo",
+          "file": "descargar_historico_nexe.py",
+          "line": 4
+        },
+        {
+          "keyword": "file",
+          "file": "descargar_historico_nexe.py",
+          "line": 39
+        },
+        {
+          "keyword": "file",
+          "file": "docker-compose.dev.yml",
+          "line": 5
+        },
+        {
+          "keyword": "archivo",
+          "file": "CLAUDE.md",
+          "line": 3
+        },
+        {
+          "keyword": "file",
+          "file": "CLAUDE.md",
+          "line": 203
+        },
+        {
+          "keyword": "document",
+          "file": "CLAUDE.md",
+          "line": 98
+        },
+        {
+          "keyword": "archivo",
+          "file": "docker-compose.yml",
+          "line": 6
+        },
+        {
+          "keyword": "file",
+          "file": "docker-compose.yml",
+          "line": 6
+        },
+        {
+          "keyword": "archivo",
+          "file": "backend/app/config.py",
+          "line": 7
+        },
+        {
+          "keyword": "file",
+          "file": "backend/app/config.py",
+          "line": 14
+        },
+        {
+          "keyword": "archivo",
+          "file": "backend/app/servicios/tabular.py",
+          "line": 16
+        },
+        {
+          "keyword": "file",
+          "file": "backend/app/db/bootstrap.py",
+          "line": 25
+        },
+        {
+          "keyword": "file",
+          "file": "backend/app/routers/exportar.py",
+          "line": 53
+        },
+        {
+          "keyword": "file",
+          "file": "backend/tests/test_aplanado.py",
+          "line": 21
+        },
+        {
+          "keyword": "upload",
+          "file": ".github/workflows/despliegue-pages.yml",
+          "line": 50
+        },
+        {
+          "keyword": "document",
+          "file": "INSUMO/revision_postincidente_mock.html",
+          "line": 337
+        },
+        {
+          "keyword": "document",
+          "file": "INSUMO/revision_postincidente_mock_1.html",
+          "line": 337
+        },
+        {
+          "keyword": "document",
+          "file": "INSUMO/plataforma_monitorizacion_mock.html",
+          "line": 278
+        },
+        {
+          "keyword": "document",
+          "file": "INSUMO/analisis_incidente_mock.html",
+          "line": 268
+        },
+        {
+          "keyword": "file",
+          "file": "frontend/package-lock.json",
+          "line": 4
+        }
+      ]
+    },
+    "Reportes / analítica": {
+      "confidence": "medium",
+      "signals": [
+        {
+          "keyword": "report",
+          "file": "CLAUDE.md",
+          "line": 46
+        },
+        {
+          "keyword": "reporte",
+          "file": "CLAUDE.md",
+          "line": 397
+        },
+        {
+          "keyword": "dashboard",
+          "file": "CLAUDE.md",
+          "line": 954
+        },
+        {
+          "keyword": "analytics",
+          "file": "CLAUDE.md",
+          "line": 1286
+        },
+        {
+          "keyword": "report",
+          "file": "INSUMO/revision_postincidente_mock.html",
+          "line": 54
+        },
+        {
+          "keyword": "report",
+          "file": "INSUMO/revision_postincidente_mock_1.html",
+          "line": 54
+        },
+        {
+          "keyword": "report",
+          "file": "frontend/src/domain/fleet.ts",
+          "line": 150
+        },
+        {
+          "keyword": "reporte",
+          "file": "frontend/src/domain/fleet.ts",
+          "line": 150
+        },
+        {
+          "keyword": "report",
+          "file": "frontend/src/demo/simuladorNexe.ts",
+          "line": 13
+        },
+        {
+          "keyword": "reporte",
+          "file": "frontend/src/demo/simuladorNexe.ts",
+          "line": 13
+        },
+        {
+          "keyword": "report",
+          "file": "frontend/src/ui/strings.ts",
+          "line": 123
+        },
+        {
+          "keyword": "report",
+          "file": "frontend/src/api/parse.ts",
+          "line": 28
+        },
+        {
+          "keyword": "report",
+          "file": "db/schema.sql",
+          "line": 22
+        },
+        {
+          "keyword": "reporte",
+          "file": "db/schema.sql",
+          "line": 22
+        }
+      ]
+    },
+    "Procesamiento de datos": {
+      "confidence": "medium",
+      "signals": [
+        {
+          "keyword": "pandas",
+          "file": "descargar_historico_nexe.py",
+          "line": 3
+        },
+        {
+          "keyword": "etl",
+          "file": "collector/ingesta.py",
+          "line": 46
+        },
+        {
+          "keyword": "etl",
+          "file": "backend/app/main.py",
+          "line": 26
+        },
+        {
+          "keyword": "etl",
+          "file": "backend/app/nexe/cliente.py",
+          "line": 30
+        },
+        {
+          "keyword": "etl",
+          "file": "backend/app/db/bootstrap.py",
+          "line": 18
+        },
+        {
+          "keyword": "pandas",
+          "file": "backend/app/routers/exportar.py",
+          "line": 5
+        }
+      ]
+    }
+  },
+  "analysis": {
+    "descargar_historico_nexe.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "__future__",
+            "line": 29
+          },
+          {
+            "value": "argparse",
+            "line": 31
+          },
+          {
+            "value": "csv",
+            "line": 32
+          },
+          {
+            "value": "os",
+            "line": 33
+          },
+          {
+            "value": "sys",
+            "line": 34
+          },
+          {
+            "value": "time",
+            "line": 35
+          },
+          {
+            "value": "datetime",
+            "line": 36
+          },
+          {
+            "value": "pathlib",
+            "line": 37
+          },
+          {
+            "value": "app.nexe",
+            "line": 43
+          },
+          {
+            "value": "zoneinfo",
+            "line": 110
+          }
+        ],
+        "functions": [
+          {
+            "name": "leer_api_key",
+            "line": 71
+          },
+          {
+            "name": "leer_base_url",
+            "line": 91
+          },
+          {
+            "name": "zona_chile",
+            "line": 107
+          },
+          {
+            "name": "escribir_csv",
+            "line": 120
+          },
+          {
+            "name": "descargar_dia",
+            "line": 134
+          },
+          {
+            "name": "descargar_catalogo",
+            "line": 169
+          },
+          {
+            "name": "main",
+            "line": 178
+          }
+        ],
+        "classes": [],
+        "routes": [],
+        "env_vars": [
+          {
+            "value": "NEXE_API_KEY",
+            "line": 73,
+            "file": "descargar_historico_nexe.py"
+          },
+          {
+            "value": "NEXE_BASE_URL",
+            "line": 92,
+            "file": "descargar_historico_nexe.py"
+          }
+        ]
+      }
+    },
+    "collector/ingesta.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "__future__",
+            "line": 21
+          },
+          {
+            "value": "logging",
+            "line": 23
+          },
+          {
+            "value": "sys",
+            "line": 24
+          },
+          {
+            "value": "time",
+            "line": 25
+          },
+          {
+            "value": "datetime",
+            "line": 26
+          },
+          {
+            "value": "sqlalchemy",
+            "line": 28
+          },
+          {
+            "value": "sqlalchemy.orm",
+            "line": 29
+          },
+          {
+            "value": "app.config",
+            "line": 31
+          },
+          {
+            "value": "app.db",
+            "line": 32
+          },
+          {
+            "value": "app.db.session",
+            "line": 33
+          },
+          {
+            "value": "app.nexe.aplanado",
+            "line": 34
+          },
+          {
+            "value": "app.nexe.cliente",
+            "line": 35
+          }
+        ],
+        "functions": [
+          {
+            "name": "guardar_filas",
+            "line": 136
+          },
+          {
+            "name": "cursor_persistido",
+            "line": 148
+          },
+          {
+            "name": "una_pasada",
+            "line": 165
+          },
+          {
+            "name": "corrida",
+            "line": 199
+          },
+          {
+            "name": "_registrar_fallo",
+            "line": 259
+          }
+        ],
+        "classes": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/__init__.py": {
+      "python": {
+        "imports": [],
+        "functions": [],
+        "classes": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/main.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "logging",
+            "line": 13
+          },
+          {
+            "value": "contextlib",
+            "line": 14
+          },
+          {
+            "value": "fastapi",
+            "line": 16
+          },
+          {
+            "value": "config",
+            "line": 18
+          },
+          {
+            "value": "db",
+            "line": 19
+          },
+          {
+            "value": "db.session",
+            "line": 20
+          },
+          {
+            "value": "routers",
+            "line": 21
+          }
+        ],
+        "functions": [
+          {
+            "name": "lifespan",
+            "line": 30
+          }
+        ],
+        "classes": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/config.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "pydantic_settings",
+            "line": 10
+          }
+        ],
+        "functions": [
+          {
+            "name": "sqlalchemy_database_url",
+            "line": 45
+          },
+          {
+            "name": "validar_para_produccion",
+            "line": 51
+          },
+          {
+            "name": "advertencias",
+            "line": 70
+          }
+        ],
+        "classes": [
+          {
+            "name": "Settings",
+            "line": 13
+          }
+        ],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/nexe/__init__.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "aplanado",
+            "line": 8
+          },
+          {
+            "value": "cliente",
+            "line": 17
+          }
+        ],
+        "functions": [],
+        "classes": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/nexe/cliente.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "__future__",
+            "line": 20
+          },
+          {
+            "value": "logging",
+            "line": 22
+          },
+          {
+            "value": "time",
+            "line": 23
+          },
+          {
+            "value": "dataclasses",
+            "line": 24
+          },
+          {
+            "value": "datetime",
+            "line": 25
+          },
+          {
+            "value": "typing",
+            "line": 26
+          },
+          {
+            "value": "aplanado",
+            "line": 28
+          },
+          {
+            "value": "requests",
+            "line": 147
+          }
+        ],
+        "functions": [
+          {
+            "name": "iso_utc",
+            "line": 63
+          },
+          {
+            "name": "cuerpo_data_request",
+            "line": 75
+          },
+          {
+            "name": "__init__",
+            "line": 54
+          },
+          {
+            "name": "llena",
+            "line": 119
+          },
+          {
+            "name": "__init__",
+            "line": 131
+          },
+          {
+            "name": "_post",
+            "line": 154
+          },
+          {
+            "name": "pagina_desde",
+            "line": 188
+          },
+          {
+            "name": "paginas_desde",
+            "line": 200
+          },
+          {
+            "name": "ultimas_posiciones",
+            "line": 230
+          }
+        ],
+        "classes": [
+          {
+            "name": "NexeError",
+            "line": 43
+          },
+          {
+            "name": "ClaveRechazada",
+            "line": 47
+          },
+          {
+            "name": "ContratoRechazado",
+            "line": 51
+          },
+          {
+            "name": "NexeNoDisponible",
+            "line": 59
+          },
+          {
+            "name": "Pagina",
+            "line": 110
+          },
+          {
+            "name": "ClienteNexe",
+            "line": 123
+          }
+        ],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/nexe/aplanado.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "__future__",
+            "line": 18
+          },
+          {
+            "value": "datetime",
+            "line": 20
+          },
+          {
+            "value": "typing",
+            "line": 21
+          }
+        ],
+        "functions": [
+          {
+            "name": "_como_texto",
+            "line": 60
+          },
+          {
+            "name": "_como_numero",
+            "line": 68
+          },
+          {
+            "name": "_como_entero",
+            "line": 81
+          },
+          {
+            "name": "_como_datetime",
+            "line": 86
+          },
+          {
+            "name": "_como_fix",
+            "line": 108
+          },
+          {
+            "name": "_como_navstate",
+            "line": 113
+          },
+          {
+            "name": "aplanar_feature",
+            "line": 119
+          },
+          {
+            "name": "aplanar_coleccion",
+            "line": 181
+          },
+          {
+            "name": "solo_metadatos",
+            "line": 200
+          },
+          {
+            "name": "solo_posicion",
+            "line": 205
+          },
+          {
+            "name": "max_data_ctr_time",
+            "line": 210
+          }
+        ],
+        "classes": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/servicios/__init__.py": {
+      "python": {
+        "imports": [],
+        "functions": [],
+        "classes": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/servicios/geojson.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "__future__",
+            "line": 12
+          },
+          {
+            "value": "datetime",
+            "line": 14
+          },
+          {
+            "value": "typing",
+            "line": 15
+          }
+        ],
+        "functions": [
+          {
+            "name": "iso",
+            "line": 41
+          },
+          {
+            "name": "fila_a_feature",
+            "line": 55
+          },
+          {
+            "name": "coleccion",
+            "line": 87
+          }
+        ],
+        "classes": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/servicios/tabular.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "__future__",
+            "line": 7
+          },
+          {
+            "value": "csv",
+            "line": 9
+          },
+          {
+            "value": "io",
+            "line": 10
+          },
+          {
+            "value": "typing",
+            "line": 11
+          },
+          {
+            "value": "geojson",
+            "line": 13
+          }
+        ],
+        "functions": [
+          {
+            "name": "a_csv",
+            "line": 45
+          }
+        ],
+        "classes": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/db/__init__.py": {
+      "python": {
+        "imports": [],
+        "functions": [],
+        "classes": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/db/session.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "sqlalchemy",
+            "line": 9
+          },
+          {
+            "value": "sqlalchemy.orm",
+            "line": 10
+          },
+          {
+            "value": "config",
+            "line": 12
+          }
+        ],
+        "functions": [
+          {
+            "name": "get_db",
+            "line": 29
+          }
+        ],
+        "classes": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/db/bootstrap.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "logging",
+            "line": 12
+          },
+          {
+            "value": "os",
+            "line": 13
+          },
+          {
+            "value": "pathlib",
+            "line": 14
+          },
+          {
+            "value": "sqlalchemy",
+            "line": 16
+          }
+        ],
+        "functions": [
+          {
+            "name": "_ruta_esquema",
+            "line": 34
+          },
+          {
+            "name": "ensure_schema",
+            "line": 39
+          }
+        ],
+        "classes": [],
+        "routes": [],
+        "env_vars": [
+          {
+            "value": "SCHEMA_SQL_PATH",
+            "line": 35,
+            "file": "backend/app/db/bootstrap.py"
+          }
+        ]
+      }
+    },
+    "backend/app/db/consultas.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "__future__",
+            "line": 12
+          },
+          {
+            "value": "datetime",
+            "line": 14
+          },
+          {
+            "value": "typing",
+            "line": 15
+          },
+          {
+            "value": "sqlalchemy",
+            "line": 17
+          },
+          {
+            "value": "sqlalchemy.orm",
+            "line": 18
+          }
+        ],
+        "functions": [
+          {
+            "name": "_filas",
+            "line": 36
+          },
+          {
+            "name": "posiciones_incremental",
+            "line": 40
+          },
+          {
+            "name": "posiciones_por_rango",
+            "line": 60
+          },
+          {
+            "name": "ultima_posicion_por_recurso",
+            "line": 85
+          },
+          {
+            "name": "recurso_por_esn",
+            "line": 105
+          },
+          {
+            "name": "estado_ingesta",
+            "line": 120
+          },
+          {
+            "name": "resumen",
+            "line": 134
+          },
+          {
+            "name": "ping",
+            "line": 148
+          }
+        ],
+        "classes": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/routers/recursos.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "__future__",
+            "line": 8
+          },
+          {
+            "value": "typing",
+            "line": 10
+          },
+          {
+            "value": "fastapi",
+            "line": 12
+          },
+          {
+            "value": "sqlalchemy.orm",
+            "line": 13
+          },
+          {
+            "value": "db",
+            "line": 15
+          },
+          {
+            "value": "db.session",
+            "line": 16
+          },
+          {
+            "value": "servicios",
+            "line": 17
+          }
+        ],
+        "functions": [
+          {
+            "name": "listar",
+            "line": 25
+          },
+          {
+            "name": "detalle",
+            "line": 36
+          }
+        ],
+        "classes": [],
+        "routes": [
+          {
+            "method": "GET",
+            "path": "/api/recursos",
+            "line": 24,
+            "file": "backend/app/routers/recursos.py"
+          },
+          {
+            "method": "GET",
+            "path": "/api/recursos/{esn}",
+            "line": 35,
+            "file": "backend/app/routers/recursos.py"
+          }
+        ],
+        "env_vars": []
+      }
+    },
+    "backend/app/routers/__init__.py": {
+      "python": {
+        "imports": [],
+        "functions": [],
+        "classes": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/routers/salud.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "fastapi",
+            "line": 8
+          },
+          {
+            "value": "sqlalchemy.orm",
+            "line": 9
+          },
+          {
+            "value": "db",
+            "line": 11
+          },
+          {
+            "value": "db.session",
+            "line": 12
+          }
+        ],
+        "functions": [
+          {
+            "name": "health",
+            "line": 18
+          }
+        ],
+        "classes": [],
+        "routes": [
+          {
+            "method": "GET",
+            "path": "/health",
+            "line": 17,
+            "file": "backend/app/routers/salud.py"
+          }
+        ],
+        "env_vars": []
+      }
+    },
+    "backend/app/routers/posiciones.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "__future__",
+            "line": 7
+          },
+          {
+            "value": "datetime",
+            "line": 9
+          },
+          {
+            "value": "typing",
+            "line": 10
+          },
+          {
+            "value": "fastapi",
+            "line": 12
+          },
+          {
+            "value": "sqlalchemy.orm",
+            "line": 13
+          },
+          {
+            "value": "db",
+            "line": 15
+          },
+          {
+            "value": "db.session",
+            "line": 16
+          },
+          {
+            "value": "servicios",
+            "line": 17
+          },
+          {
+            "value": "comun",
+            "line": 18
+          }
+        ],
+        "functions": [
+          {
+            "name": "incremental",
+            "line": 29
+          },
+          {
+            "name": "por_rango",
+            "line": 58
+          }
+        ],
+        "classes": [],
+        "routes": [
+          {
+            "method": "GET",
+            "path": "/api/posiciones/incremental",
+            "line": 28,
+            "file": "backend/app/routers/posiciones.py"
+          },
+          {
+            "method": "GET",
+            "path": "/api/posiciones",
+            "line": 57,
+            "file": "backend/app/routers/posiciones.py"
+          }
+        ],
+        "env_vars": []
+      }
+    },
+    "backend/app/routers/estado.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "__future__",
+            "line": 9
+          },
+          {
+            "value": "datetime",
+            "line": 11
+          },
+          {
+            "value": "typing",
+            "line": 12
+          },
+          {
+            "value": "fastapi",
+            "line": 14
+          },
+          {
+            "value": "sqlalchemy.orm",
+            "line": 15
+          },
+          {
+            "value": "db",
+            "line": 17
+          },
+          {
+            "value": "db.session",
+            "line": 18
+          },
+          {
+            "value": "servicios.geojson",
+            "line": 19
+          }
+        ],
+        "functions": [
+          {
+            "name": "estado_ingesta",
+            "line": 29
+          }
+        ],
+        "classes": [],
+        "routes": [
+          {
+            "method": "GET",
+            "path": "/api/estado-ingesta",
+            "line": 28,
+            "file": "backend/app/routers/estado.py"
+          }
+        ],
+        "env_vars": []
+      }
+    },
+    "backend/app/routers/comun.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "__future__",
+            "line": 3
+          },
+          {
+            "value": "datetime",
+            "line": 5
+          },
+          {
+            "value": "fastapi",
+            "line": 7
+          }
+        ],
+        "functions": [
+          {
+            "name": "como_utc",
+            "line": 10
+          },
+          {
+            "name": "validar_rango",
+            "line": 21
+          }
+        ],
+        "classes": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/app/routers/exportar.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "__future__",
+            "line": 8
+          },
+          {
+            "value": "json",
+            "line": 10
+          },
+          {
+            "value": "datetime",
+            "line": 11
+          },
+          {
+            "value": "fastapi",
+            "line": 13
+          },
+          {
+            "value": "fastapi.responses",
+            "line": 14
+          },
+          {
+            "value": "sqlalchemy.orm",
+            "line": 15
+          },
+          {
+            "value": "db",
+            "line": 17
+          },
+          {
+            "value": "db.session",
+            "line": 18
+          },
+          {
+            "value": "servicios",
+            "line": 19
+          },
+          {
+            "value": "comun",
+            "line": 20
+          }
+        ],
+        "functions": [
+          {
+            "name": "exportar",
+            "line": 29
+          }
+        ],
+        "classes": [],
+        "routes": [
+          {
+            "method": "GET",
+            "path": "/api/exportar",
+            "line": 28,
+            "file": "backend/app/routers/exportar.py"
+          }
+        ],
+        "env_vars": []
+      }
+    },
+    "backend/tests/test_contrato_nexe.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "re",
+            "line": 7
+          },
+          {
+            "value": "datetime",
+            "line": 8
+          },
+          {
+            "value": "pytest",
+            "line": 10
+          },
+          {
+            "value": "app.nexe.cliente",
+            "line": 12
+          }
+        ],
+        "functions": [
+          {
+            "name": "test_formato_con_milisegundos_y_z",
+            "line": 19
+          },
+          {
+            "name": "test_convierte_desde_otra_zona",
+            "line": 23
+          },
+          {
+            "name": "test_conserva_los_milisegundos",
+            "line": 29
+          },
+          {
+            "name": "test_los_tres_campos_raiz",
+            "line": 35
+          },
+          {
+            "name": "test_type_literal_exacto",
+            "line": 39
+          },
+          {
+            "name": "test_nunca_produce_listas_vacias",
+            "line": 42
+          },
+          {
+            "name": "test_data_center_completo",
+            "line": 48
+          },
+          {
+            "name": "test_msg_request_completo_y_con_el_filtro",
+            "line": 56
+          },
+          {
+            "name": "test_acepta_el_cursor_ya_como_texto",
+            "line": 62
+          },
+          {
+            "name": "test_req_time_es_la_hora_de_la_solicitud",
+            "line": 67
+          },
+          {
+            "name": "test_sin_domain_el_parametro_no_va",
+            "line": 76
+          },
+          {
+            "name": "test_domain_va_como_lista",
+            "line": 81
+          }
+        ],
+        "classes": [
+          {
+            "name": "TestIsoUtc",
+            "line": 18
+          },
+          {
+            "name": "TestCuerpoDataRequest",
+            "line": 34
+          },
+          {
+            "name": "TestDomain",
+            "line": 75
+          }
+        ],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/tests/test_paginacion.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "datetime",
+            "line": 8
+          },
+          {
+            "value": "pytest",
+            "line": 10
+          },
+          {
+            "value": "app.nexe.cliente",
+            "line": 12
+          }
+        ],
+        "functions": [
+          {
+            "name": "feature",
+            "line": 48
+          },
+          {
+            "name": "coleccion",
+            "line": 59
+          },
+          {
+            "name": "cliente",
+            "line": 63
+          },
+          {
+            "name": "cursores_pedidos",
+            "line": 76
+          },
+          {
+            "name": "__init__",
+            "line": 24
+          },
+          {
+            "name": "json",
+            "line": 29
+          },
+          {
+            "name": "__init__",
+            "line": 36
+          },
+          {
+            "name": "post",
+            "line": 40
+          },
+          {
+            "name": "test_pagina_llena_seguida_de_corta",
+            "line": 81
+          },
+          {
+            "name": "test_la_segunda_pagina_pide_desde_el_maximo_de_la_primera",
+            "line": 94
+          },
+          {
+            "name": "test_una_sola_pagina_corta_no_pide_mas",
+            "line": 108
+          },
+          {
+            "name": "test_respuesta_vacia_termina_la_iteracion",
+            "line": 113
+          },
+          {
+            "name": "test_cursor_que_no_avanza_no_provoca_bucle_infinito",
+            "line": 120
+          },
+          {
+            "name": "test_respeta_el_tope_de_paginas_por_corrida",
+            "line": 130
+          },
+          {
+            "name": "test_las_filas_vienen_ya_aplanadas",
+            "line": 154
+          },
+          {
+            "name": "test_inyecta_la_api_key",
+            "line": 163
+          },
+          {
+            "name": "test_url_del_endpoint",
+            "line": 169
+          },
+          {
+            "name": "test_exige_api_key",
+            "line": 174
+          },
+          {
+            "name": "test_401_no_se_reintenta",
+            "line": 180
+          },
+          {
+            "name": "test_422_no_se_reintenta_y_conserva_el_detalle",
+            "line": 190
+          },
+          {
+            "name": "test_500_reintenta_con_backoff_y_luego_falla",
+            "line": 198
+          },
+          {
+            "name": "test_500_transitorio_se_recupera",
+            "line": 207
+          },
+          {
+            "name": "test_error_de_red_tambien_reintenta",
+            "line": 219
+          },
+          {
+            "name": "test_devuelve_filas_con_metadatos",
+            "line": 231
+          },
+          {
+            "name": "siguiente",
+            "line": 135
+          },
+          {
+            "name": "revienta",
+            "line": 220
+          }
+        ],
+        "classes": [
+          {
+            "name": "RespuestaFalsa",
+            "line": 23
+          },
+          {
+            "name": "SesionFalsa",
+            "line": 33
+          },
+          {
+            "name": "TestPaginacion",
+            "line": 80
+          },
+          {
+            "name": "TestCabeceras",
+            "line": 162
+          },
+          {
+            "name": "TestErrores",
+            "line": 179
+          },
+          {
+            "name": "TestUltimasPosiciones",
+            "line": 230
+          }
+        ],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "backend/tests/test_aplanado.py": {
+      "python": {
+        "imports": [
+          {
+            "value": "json",
+            "line": 7
+          },
+          {
+            "value": "datetime",
+            "line": 8
+          },
+          {
+            "value": "pathlib",
+            "line": 9
+          },
+          {
+            "value": "pytest",
+            "line": 11
+          },
+          {
+            "value": "app.nexe.aplanado",
+            "line": 13
+          }
+        ],
+        "functions": [
+          {
+            "name": "_fixture",
+            "line": 24
+          },
+          {
+            "name": "respuesta_get",
+            "line": 29
+          },
+          {
+            "name": "respuesta_lastpositions",
+            "line": 34
+          },
+          {
+            "name": "_feature",
+            "line": 38
+          },
+          {
+            "name": "test_aplana_las_cuatro_features_sin_descartes",
+            "line": 54
+          },
+          {
+            "name": "test_invierte_las_coordenadas_geojson",
+            "line": 59
+          },
+          {
+            "name": "test_traduce_los_nombres_de_nexe",
+            "line": 65
+          },
+          {
+            "name": "test_conserva_los_microsegundos_del_data_ctr_time",
+            "line": 75
+          },
+          {
+            "name": "test_los_tiempos_quedan_aware_en_utc",
+            "line": 82
+          },
+          {
+            "name": "test_en_get_no_llegan_los_metadatos_del_recurso",
+            "line": 87
+          },
+          {
+            "name": "test_coerciona_hgnavstate_de_string_a_entero",
+            "line": 96
+          },
+          {
+            "name": "test_trae_los_metadatos_del_recurso",
+            "line": 101
+          },
+          {
+            "name": "test_separa_metadatos_y_posicion",
+            "line": 111
+          },
+          {
+            "name": "test_descarta_features_sin_lo_esencial",
+            "line": 120
+          },
+          {
+            "name": "test_cuenta_los_descartes",
+            "line": 134
+          },
+          {
+            "name": "test_sin_data_ctr_time_usa_pos_time",
+            "line": 139
+          },
+          {
+            "name": "test_pos_time_sin_microsegundos_tambien_parsea",
+            "line": 146
+          },
+          {
+            "name": "test_altitud_tolerante",
+            "line": 154
+          },
+          {
+            "name": "test_altitud_desde_la_tercera_coordenada",
+            "line": 158
+          },
+          {
+            "name": "test_fix_normalizado",
+            "line": 164
+          },
+          {
+            "name": "test_fix_desconocido_queda_nulo",
+            "line": 167
+          },
+          {
+            "name": "test_navstate_fuera_del_dominio_queda_nulo",
+            "line": 170
+          },
+          {
+            "name": "test_numeros_como_texto_se_coercionan",
+            "line": 174
+          },
+          {
+            "name": "test_respuesta_que_no_es_featurecollection",
+            "line": 181
+          },
+          {
+            "name": "test_devuelve_el_maximo",
+            "line": 187
+          },
+          {
+            "name": "test_lista_vacia",
+            "line": 197
+          }
+        ],
+        "classes": [
+          {
+            "name": "TestRespuestaGetReal",
+            "line": 53
+          },
+          {
+            "name": "TestRespuestaLastPositionsReal",
+            "line": 95
+          },
+          {
+            "name": "TestCasosBorde",
+            "line": 119
+          },
+          {
+            "name": "TestMaxDataCtrTime",
+            "line": 186
+          }
+        ],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/vite.config.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "vite",
+            "line": 2
+          },
+          {
+            "value": "@vitejs/plugin-react",
+            "line": 3
+          }
+        ],
+        "exports": [
+          {
+            "value": "defineConfig",
+            "line": 9
+          }
+        ],
+        "components": [],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/main.tsx": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "react",
+            "line": 1
+          },
+          {
+            "value": "react-dom/client",
+            "line": 2
+          },
+          {
+            "value": "./App",
+            "line": 3
+          }
+        ],
+        "exports": [],
+        "components": [],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/App.tsx": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "react",
+            "line": 7
+          },
+          {
+            "value": "lucide-react",
+            "line": 8
+          },
+          {
+            "value": "./hooks/usePolling",
+            "line": 9
+          },
+          {
+            "value": "./hooks/useHistorico",
+            "line": 10
+          },
+          {
+            "value": "./hooks/useAlertas",
+            "line": 11
+          },
+          {
+            "value": "./lib/exportar",
+            "line": 12
+          },
+          {
+            "value": "./ui/strings",
+            "line": 13
+          },
+          {
+            "value": "./components/Alertas/Alertas",
+            "line": 14
+          },
+          {
+            "value": "./components/FleetPanel/FleetPanel",
+            "line": 15
+          },
+          {
+            "value": "./components/MapView/MapView",
+            "line": 16
+          },
+          {
+            "value": "./components/StatusBar/StatusBar",
+            "line": 17
+          },
+          {
+            "value": "./components/TimeRangeBar/TimeRangeBar",
+            "line": 18
+          },
+          {
+            "value": "./App.module.css",
+            "line": 19
+          }
+        ],
+        "exports": [
+          {
+            "value": "App",
+            "line": 21
+          }
+        ],
+        "components": [
+          {
+            "value": "App",
+            "line": 21
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/vite-env.d.ts": {
+      "javascript": {
+        "imports": [],
+        "exports": [],
+        "components": [],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/domain/alertas.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "./types",
+            "line": 6
+          }
+        ],
+        "exports": [
+          {
+            "value": "interface",
+            "line": 8
+          },
+          {
+            "value": "detectarTransiciones",
+            "line": 16
+          },
+          {
+            "value": "instantaneaFrescura",
+            "line": 48
+          }
+        ],
+        "components": [],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/domain/fleet.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "./types",
+            "line": 5
+          }
+        ],
+        "exports": [
+          {
+            "value": "MAX_TRAIL_PUNTOS",
+            "line": 7
+          },
+          {
+            "value": "MAX_TRAIL_MS",
+            "line": 8
+          },
+          {
+            "value": "UMBRAL_LIVE_S",
+            "line": 10
+          },
+          {
+            "value": "UMBRAL_DELAYED_S",
+            "line": 11
+          },
+          {
+            "value": "type",
+            "line": 14
+          },
+          {
+            "value": "interface",
+            "line": 20
+          },
+          {
+            "value": "mergePositions",
+            "line": 33
+          },
+          {
+            "value": "computeFreshness",
+            "line": 88
+          },
+          {
+            "value": "buildFleet",
+            "line": 167
+          },
+          {
+            "value": "maxDataCtrTime",
+            "line": 181
+          }
+        ],
+        "components": [
+          {
+            "value": "MAX_TRAIL_PUNTOS",
+            "line": 7
+          },
+          {
+            "value": "MAX_TRAIL_MS",
+            "line": 8
+          },
+          {
+            "value": "UMBRAL_LIVE_S",
+            "line": 10
+          },
+          {
+            "value": "UMBRAL_DELAYED_S",
+            "line": 11
+          },
+          {
+            "value": "CAMPOS_META",
+            "line": 110
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/domain/types.ts": {
+      "javascript": {
+        "imports": [],
+        "exports": [
+          {
+            "value": "type",
+            "line": 4
+          },
+          {
+            "value": "type",
+            "line": 7
+          },
+          {
+            "value": "interface",
+            "line": 9
+          },
+          {
+            "value": "type",
+            "line": 34
+          },
+          {
+            "value": "interface",
+            "line": 36
+          }
+        ],
+        "components": [],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/demo/simuladorNexe.ts": {
+      "javascript": {
+        "imports": [],
+        "exports": [
+          {
+            "value": "PASO_REPORTE_MS",
+            "line": 13
+          },
+          {
+            "value": "LIMITE_RESPUESTA",
+            "line": 14
+          },
+          {
+            "value": "interface",
+            "line": 18
+          },
+          {
+            "value": "FLOTA",
+            "line": 37
+          },
+          {
+            "value": "interface",
+            "line": 138
+          },
+          {
+            "value": "feature",
+            "line": 224
+          },
+          {
+            "value": "featureCollection",
+            "line": 267
+          },
+          {
+            "value": "posicionesLlegadasDesde",
+            "line": 280
+          },
+          {
+            "value": "ultimasPosiciones",
+            "line": 301
+          },
+          {
+            "value": "manejarSimulacion",
+            "line": 329
+          }
+        ],
+        "components": [
+          {
+            "value": "PASO_REPORTE_MS",
+            "line": 13
+          },
+          {
+            "value": "LIMITE_RESPUESTA",
+            "line": 14
+          },
+          {
+            "value": "FLOTA",
+            "line": 37
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/ui/estadoVisual.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "lucide-react",
+            "line": 6
+          },
+          {
+            "value": "../domain/types",
+            "line": 14
+          },
+          {
+            "value": "./strings",
+            "line": 15
+          }
+        ],
+        "exports": [
+          {
+            "value": "type",
+            "line": 17
+          },
+          {
+            "value": "estadoVisual",
+            "line": 20
+          },
+          {
+            "value": "TEXTO_ESTADO",
+            "line": 34
+          },
+          {
+            "value": "ICONO_ESTADO",
+            "line": 42
+          },
+          {
+            "value": "COLOR_ESTADO",
+            "line": 51
+          }
+        ],
+        "components": [
+          {
+            "value": "TEXTO_ESTADO",
+            "line": 34
+          },
+          {
+            "value": "ICONO_ESTADO",
+            "line": 42
+          },
+          {
+            "value": "COLOR_ESTADO",
+            "line": 51
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/ui/strings.ts": {
+      "javascript": {
+        "imports": [],
+        "exports": [
+          {
+            "value": "STRINGS",
+            "line": 3
+          }
+        ],
+        "components": [
+          {
+            "value": "STRINGS",
+            "line": 3
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/hooks/usePolling.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "react",
+            "line": 12
+          },
+          {
+            "value": "../api/client",
+            "line": 13
+          },
+          {
+            "value": "../api/parse",
+            "line": 14
+          },
+          {
+            "value": "../domain/fleet",
+            "line": 15
+          },
+          {
+            "value": "../domain/types",
+            "line": 16
+          }
+        ],
+        "exports": [
+          {
+            "value": "POLL_INTERVAL_MS",
+            "line": 18
+          },
+          {
+            "value": "type",
+            "line": 23
+          },
+          {
+            "value": "interface",
+            "line": 25
+          },
+          {
+            "value": "interface",
+            "line": 31
+          },
+          {
+            "value": "usePolling",
+            "line": 68
+          }
+        ],
+        "components": [
+          {
+            "value": "POLL_INTERVAL_MS",
+            "line": 18
+          },
+          {
+            "value": "BACKOFF_MS",
+            "line": 19
+          },
+          {
+            "value": "TICK_FRESCURA_MS",
+            "line": 20
+          },
+          {
+            "value": "MAX_TANDAS_POR_CICLO",
+            "line": 21
+          },
+          {
+            "value": "ESTADO_INICIAL",
+            "line": 41
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/hooks/useAlertas.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "react",
+            "line": 5
+          },
+          {
+            "value": "../domain/alertas",
+            "line": 6
+          },
+          {
+            "value": "../domain/types",
+            "line": 11
+          }
+        ],
+        "exports": [
+          {
+            "value": "useAlertas",
+            "line": 16
+          }
+        ],
+        "components": [
+          {
+            "value": "EXPIRACION_MS",
+            "line": 13
+          },
+          {
+            "value": "MAX_ALERTAS",
+            "line": 14
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/hooks/useHistorico.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "react",
+            "line": 10
+          },
+          {
+            "value": "../api/client",
+            "line": 11
+          },
+          {
+            "value": "../api/parse",
+            "line": 12
+          },
+          {
+            "value": "../domain/fleet",
+            "line": 13
+          },
+          {
+            "value": "../domain/types",
+            "line": 14
+          }
+        ],
+        "exports": [
+          {
+            "value": "LIMITE_HISTORICO",
+            "line": 17
+          },
+          {
+            "value": "type",
+            "line": 19
+          },
+          {
+            "value": "interface",
+            "line": 21
+          },
+          {
+            "value": "useHistorico",
+            "line": 47
+          }
+        ],
+        "components": [
+          {
+            "value": "LIMITE_HISTORICO",
+            "line": 17
+          },
+          {
+            "value": "ESTADO_INICIAL",
+            "line": 30
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/api/parse.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "../domain/types",
+            "line": 11
+          }
+        ],
+        "exports": [
+          {
+            "value": "NexeRespuestaError",
+            "line": 14
+          },
+          {
+            "value": "extraerLista",
+            "line": 62
+          },
+          {
+            "value": "normalizarPosicion",
+            "line": 161
+          },
+          {
+            "value": "interface",
+            "line": 208
+          },
+          {
+            "value": "parsePositions",
+            "line": 214
+          }
+        ],
+        "components": [
+          {
+            "value": "CLAVES_CANDIDATAS",
+            "line": 28
+          },
+          {
+            "value": "ALIAS",
+            "line": 95
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/api/client.ts": {
+      "javascript": {
+        "imports": [],
+        "exports": [
+          {
+            "value": "ApiRequestError",
+            "line": 12
+          },
+          {
+            "value": "ApiNoDisponibleError",
+            "line": 22
+          },
+          {
+            "value": "type",
+            "line": 45
+          },
+          {
+            "value": "type",
+            "line": 51
+          },
+          {
+            "value": "async",
+            "line": 53
+          }
+        ],
+        "components": [
+          {
+            "value": "API_BASE",
+            "line": 36
+          },
+          {
+            "value": "MODO_DEMO",
+            "line": 43
+          }
+        ],
+        "api_calls": [
+          {
+            "method": "FETCH",
+            "target": "${API_BASE}/${ruta}${sufijo}",
+            "line": 67,
+            "file": "frontend/src/api/client.ts"
+          }
+        ],
+        "routes": [],
+        "env_vars": [
+          {
+            "value": "VITE_API_BASE",
+            "line": 36,
+            "file": "frontend/src/api/client.ts"
+          },
+          {
+            "value": "VITE_DEMO",
+            "line": 43,
+            "file": "frontend/src/api/client.ts"
+          }
+        ]
+      }
+    },
+    "frontend/src/components/FleetPanel/FleetPanel.tsx": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "react",
+            "line": 6
+          },
+          {
+            "value": "lucide-react",
+            "line": 7
+          },
+          {
+            "value": "../../domain/types",
+            "line": 8
+          },
+          {
+            "value": "../../lib/format",
+            "line": 9
+          },
+          {
+            "value": "../../ui/estadoVisual",
+            "line": 10
+          },
+          {
+            "value": "../../ui/strings",
+            "line": 16
+          },
+          {
+            "value": "../EstadoChip/EstadoChip",
+            "line": 17
+          },
+          {
+            "value": "./FleetPanel.module.css",
+            "line": 18
+          }
+        ],
+        "exports": [
+          {
+            "value": "FleetPanel",
+            "line": 39
+          }
+        ],
+        "components": [
+          {
+            "value": "TILES",
+            "line": 32
+          },
+          {
+            "value": "FleetPanel",
+            "line": 39
+          },
+          {
+            "value": "Icono",
+            "line": 86
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/components/EstadoChip/EstadoChip.tsx": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "../../domain/types",
+            "line": 5
+          },
+          {
+            "value": "../../ui/estadoVisual",
+            "line": 6
+          },
+          {
+            "value": "./EstadoChip.module.css",
+            "line": 7
+          }
+        ],
+        "exports": [
+          {
+            "value": "EstadoChip",
+            "line": 14
+          }
+        ],
+        "components": [
+          {
+            "value": "EstadoChip",
+            "line": 14
+          },
+          {
+            "value": "Icono",
+            "line": 16
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/components/StatusBar/StatusBar.tsx": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "react",
+            "line": 7
+          },
+          {
+            "value": "lucide-react",
+            "line": 8
+          },
+          {
+            "value": "../../hooks/useHistorico",
+            "line": 9
+          },
+          {
+            "value": "../../hooks/usePolling",
+            "line": 10
+          },
+          {
+            "value": "../../lib/format",
+            "line": 11
+          },
+          {
+            "value": "../../ui/strings",
+            "line": 12
+          },
+          {
+            "value": "./StatusBar.module.css",
+            "line": 13
+          }
+        ],
+        "exports": [
+          {
+            "value": "StatusBar",
+            "line": 38
+          }
+        ],
+        "components": [
+          {
+            "value": "StatusBar",
+            "line": 38
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/components/ResourceDetail/MiniGrafico.tsx": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "react",
+            "line": 7
+          },
+          {
+            "value": "./MiniGrafico.module.css",
+            "line": 8
+          }
+        ],
+        "exports": [
+          {
+            "value": "interface",
+            "line": 10
+          },
+          {
+            "value": "MiniGrafico",
+            "line": 27
+          }
+        ],
+        "components": [
+          {
+            "value": "ANCHO",
+            "line": 23
+          },
+          {
+            "value": "ALTO",
+            "line": 24
+          },
+          {
+            "value": "MARGEN",
+            "line": 25
+          },
+          {
+            "value": "MiniGrafico",
+            "line": 27
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/components/ResourceDetail/ResourceDetail.tsx": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "react",
+            "line": 7
+          },
+          {
+            "value": "lucide-react",
+            "line": 8
+          },
+          {
+            "value": "../../domain/types",
+            "line": 9
+          },
+          {
+            "value": "../../lib/format",
+            "line": 10
+          },
+          {
+            "value": "../../ui/estadoVisual",
+            "line": 19
+          },
+          {
+            "value": "../../ui/strings",
+            "line": 20
+          },
+          {
+            "value": "../EstadoChip/EstadoChip",
+            "line": 21
+          },
+          {
+            "value": "./MiniGrafico",
+            "line": 22
+          },
+          {
+            "value": "./ResourceDetail.module.css",
+            "line": 23
+          }
+        ],
+        "exports": [
+          {
+            "value": "ResourceDetail",
+            "line": 44
+          }
+        ],
+        "components": [
+          {
+            "value": "ResourceDetail",
+            "line": 44
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/components/TimeRangeBar/TimeRangeBar.tsx": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "react",
+            "line": 6
+          },
+          {
+            "value": "lucide-react",
+            "line": 7
+          },
+          {
+            "value": "../../ui/strings",
+            "line": 8
+          },
+          {
+            "value": "./TimeRangeBar.module.css",
+            "line": 9
+          }
+        ],
+        "exports": [
+          {
+            "value": "de",
+            "line": 3
+          },
+          {
+            "value": "TimeRangeBar",
+            "line": 33
+          }
+        ],
+        "components": [
+          {
+            "value": "PRESETS",
+            "line": 11
+          },
+          {
+            "value": "TimeRangeBar",
+            "line": 33
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/components/Alertas/Alertas.tsx": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "lucide-react",
+            "line": 5
+          },
+          {
+            "value": "../../domain/alertas",
+            "line": 6
+          },
+          {
+            "value": "../../lib/format",
+            "line": 7
+          },
+          {
+            "value": "../../ui/strings",
+            "line": 8
+          },
+          {
+            "value": "./Alertas.module.css",
+            "line": 9
+          }
+        ],
+        "exports": [
+          {
+            "value": "Alertas",
+            "line": 17
+          }
+        ],
+        "components": [
+          {
+            "value": "Alertas",
+            "line": 17
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/components/MapView/MapView.tsx": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "react",
+            "line": 6
+          },
+          {
+            "value": "react-leaflet",
+            "line": 7
+          },
+          {
+            "value": "../../domain/types",
+            "line": 17
+          },
+          {
+            "value": "../../ui/estadoVisual",
+            "line": 18
+          },
+          {
+            "value": "../../ui/strings",
+            "line": 19
+          },
+          {
+            "value": "../ResourceDetail/ResourceDetail",
+            "line": 20
+          },
+          {
+            "value": "./marcador",
+            "line": 21
+          },
+          {
+            "value": "./MapView.module.css",
+            "line": 22
+          }
+        ],
+        "exports": [
+          {
+            "value": "MapView",
+            "line": 71
+          }
+        ],
+        "components": [
+          {
+            "value": "CENTRO_INICIAL",
+            "line": 25
+          },
+          {
+            "value": "ZOOM_INICIAL",
+            "line": 26
+          },
+          {
+            "value": "ZOOM_SEGUIMIENTO",
+            "line": 27
+          },
+          {
+            "value": "CentrarEnSeleccion",
+            "line": 37
+          },
+          {
+            "value": "MapView",
+            "line": 71
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/components/MapView/marcador.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "leaflet",
+            "line": 8
+          },
+          {
+            "value": "../../domain/types",
+            "line": 9
+          },
+          {
+            "value": "../../ui/estadoVisual",
+            "line": 10
+          }
+        ],
+        "exports": [
+          {
+            "value": "iconoRecurso",
+            "line": 12
+          }
+        ],
+        "components": [],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/lib/exportar.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "../domain/types",
+            "line": 7
+          }
+        ],
+        "exports": [
+          {
+            "value": "aGeoJSON",
+            "line": 45
+          },
+          {
+            "value": "aCSV",
+            "line": 92
+          },
+          {
+            "value": "descargar",
+            "line": 108
+          },
+          {
+            "value": "nombreArchivo",
+            "line": 121
+          }
+        ],
+        "components": [
+          {
+            "value": "COLUMNAS",
+            "line": 59
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/src/lib/format.ts": {
+      "javascript": {
+        "imports": [],
+        "exports": [
+          {
+            "value": "horaChile",
+            "line": 27
+          },
+          {
+            "value": "fechaHoraChile",
+            "line": 34
+          },
+          {
+            "value": "utcCrudo",
+            "line": 41
+          },
+          {
+            "value": "haceCuanto",
+            "line": 46
+          },
+          {
+            "value": "MS_A_KMH",
+            "line": 65
+          },
+          {
+            "value": "velocidad",
+            "line": 68
+          },
+          {
+            "value": "altitud",
+            "line": 76
+          },
+          {
+            "value": "rumbo",
+            "line": 81
+          },
+          {
+            "value": "coordenadas",
+            "line": 86
+          }
+        ],
+        "components": [
+          {
+            "value": "ZONA_CHILE",
+            "line": 6
+          },
+          {
+            "value": "MS_A_KMH",
+            "line": 65
+          },
+          {
+            "value": "MS_A_NUDOS",
+            "line": 66
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/tests/usePolling.test.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "@testing-library/react",
+            "line": 6
+          },
+          {
+            "value": "vitest",
+            "line": 7
+          },
+          {
+            "value": "../src/api/client",
+            "line": 14
+          },
+          {
+            "value": "../src/hooks/usePolling",
+            "line": 21
+          }
+        ],
+        "exports": [],
+        "components": [
+          {
+            "value": "T0",
+            "line": 25
+          },
+          {
+            "value": "CURSOR_INICIAL",
+            "line": 26
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/tests/exportar.test.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "vitest",
+            "line": 1
+          },
+          {
+            "value": "../src/lib/exportar",
+            "line": 2
+          },
+          {
+            "value": "../src/domain/types",
+            "line": 3
+          }
+        ],
+        "exports": [
+          {
+            "value": "compatible",
+            "line": 33
+          }
+        ],
+        "components": [],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/tests/format.test.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "vitest",
+            "line": 8
+          },
+          {
+            "value": "../src/lib/format",
+            "line": 9
+          }
+        ],
+        "exports": [],
+        "components": [],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/tests/alertas.test.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "vitest",
+            "line": 1
+          },
+          {
+            "value": "../src/domain/alertas",
+            "line": 2
+          },
+          {
+            "value": "../src/domain/types",
+            "line": 3
+          }
+        ],
+        "exports": [],
+        "components": [
+          {
+            "value": "AHORA",
+            "line": 24
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/tests/parse.test.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "vitest",
+            "line": 1
+          },
+          {
+            "value": "../src/api/parse",
+            "line": 2
+          },
+          {
+            "value": "./fixtures/respuesta_get_real.json",
+            "line": 3
+          },
+          {
+            "value": "./fixtures/respuesta_lastpositions_real.json",
+            "line": 4
+          }
+        ],
+        "exports": [],
+        "components": [],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/tests/useHistorico.test.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "@testing-library/react",
+            "line": 6
+          },
+          {
+            "value": "vitest",
+            "line": 7
+          },
+          {
+            "value": "../src/api/client",
+            "line": 14
+          },
+          {
+            "value": "../src/hooks/useHistorico",
+            "line": 15
+          }
+        ],
+        "exports": [],
+        "components": [
+          {
+            "value": "DESDE",
+            "line": 19
+          },
+          {
+            "value": "HASTA",
+            "line": 20
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/tests/setup.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "@testing-library/jest-dom/vitest",
+            "line": 1
+          }
+        ],
+        "exports": [],
+        "components": [],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/tests/fleet.test.ts": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "vitest",
+            "line": 1
+          },
+          {
+            "value": "../src/domain/fleet",
+            "line": 2
+          },
+          {
+            "value": "../src/domain/types",
+            "line": 10
+          }
+        ],
+        "exports": [],
+        "components": [
+          {
+            "value": "BASE_MS",
+            "line": 12
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "frontend/tests/FleetPanel.test.tsx": {
+      "javascript": {
+        "imports": [
+          {
+            "value": "@testing-library/react",
+            "line": 6
+          },
+          {
+            "value": "vitest",
+            "line": 7
+          },
+          {
+            "value": "../src/components/FleetPanel/FleetPanel",
+            "line": 8
+          },
+          {
+            "value": "../src/domain/types",
+            "line": 9
+          }
+        ],
+        "exports": [],
+        "components": [
+          {
+            "value": "FLOTA",
+            "line": 37
+          }
+        ],
+        "api_calls": [],
+        "routes": [],
+        "env_vars": []
+      }
+    },
+    "db/schema.sql": {
+      "sql": {
+        "tables": [
+          {
+            "value": "posicion",
+            "file": "db/schema.sql",
+            "line": 34
+          },
+          {
+            "value": "recurso",
+            "file": "db/schema.sql",
+            "line": 75
+          },
+          {
+            "value": "estado_ingesta",
+            "file": "db/schema.sql",
+            "line": 106
+          },
+          {
+            "value": "usando",
+            "file": "db/schema.sql",
+            "line": 66
+          },
+          {
+            "value": "compara",
+            "file": "db/schema.sql",
+            "line": 101
+          },
+          {
+            "value": "estado_ingesta",
+            "file": "db/schema.sql",
+            "line": 118
+          }
+        ],
+        "operations": {
+          "SELECT": 2,
+          "INSERT": 3,
+          "UPDATE": 2,
+          "DELETE": 0,
+          "CREATE": 8,
+          "ALTER": 0,
+          "DROP": 0
+        }
+      }
+    }
+  },
+  "existing_readme": {
+    "exists": true,
+    "summary": [
+      "# COIPO_NEXE"
+    ]
+  }
+}
