@@ -1,0 +1,49 @@
+# Producción: los servicios de COIPO_NEXE. La base de datos NO está aquí — es un
+# PostgreSQL 17 compartido entre las apps de CONAF, administrado aparte (172.31.2.40,
+# ver .env.example). Para desarrollo con un Postgres desechable, combinar con
+# docker-compose.dev.yml.
+#
+# `context: .` en todos los build: los Dockerfile necesitan copiar archivos de fuera
+# de su propia carpeta (db/schema.sql en backend y collector).
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: .env
+    # Sin `ports`: nadie fuera de Docker le habla directo. El Nginx del servidor solo
+    # necesita alcanzar a `app`, que lo proxea por la red interna de Compose. Para
+    # depurar: docker compose exec backend python -c "..." o el override de dev.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  collector:
+    build:
+      context: .
+      dockerfile: collector/Dockerfile
+    env_file: .env
+    # Tampoco publica puerto: no es un servicio web. Corre su propio horario dentro
+    # del contenedor con supercronic (collector/crontab). Sin `depends_on` hacia
+    # backend: solo habla con Postgres — la dependencia sería artificial.
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        BASE_PATH: /
+    depends_on:
+      backend:
+        # No basta con que el contenedor exista: `app` proxea /api hacia él, así
+        # que tiene que estar respondiendo /health antes de recibir tráfico.
+        condition: service_healthy
+    # El ÚNICO servicio con puerto publicado: el Nginx del servidor apunta acá.
+    ports:
+      - "${APP_PORT:-8080}:8000"
+    restart: unless-stopped

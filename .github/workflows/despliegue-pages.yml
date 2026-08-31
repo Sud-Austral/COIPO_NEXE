@@ -43,7 +43,9 @@ jobs:
         run: npm run build
         env:
           VITE_DEMO: "1"
-          VITE_BASE: /COIPO_NEXE/
+          # Subruta de Pages = nombre del repo. Debe cambiarse a la vez que el
+          # rename a minúsculas, o los assets quedan con rutas rotas.
+          VITE_BASE: /${{ github.event.repository.name }}/
 
       - uses: actions/upload-pages-artifact@v3
         with:

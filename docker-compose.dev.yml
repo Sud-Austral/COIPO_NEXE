@@ -1,0 +1,39 @@
+# Override de desarrollo: agrega un Postgres desechable y publica el puerto del
+# backend para poder curl-earlo desde el host. NO reemplaza a docker-compose.yml —
+# Compose combina ambos:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env.dev up --build
+#
+# En .env.dev, DATABASE_HOST debe ser `postgres-dev` (el nombre del servicio: lo
+# resuelve el DNS interno de Compose), no una IP.
+services:
+  postgres-dev:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-coipo}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-coipo}
+      POSTGRES_DB: ${DATABASE_NAME:-coipo_nexe}
+    ports:
+      - "${POSTGRES_DEV_PORT:-5432}:5432"
+    volumes:
+      - postgres_dev_datos:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-coipo} -d ${DATABASE_NAME:-coipo_nexe}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"   # solo en dev: en producción no publica puerto
+
+  collector:
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+
+volumes:
+  postgres_dev_datos:

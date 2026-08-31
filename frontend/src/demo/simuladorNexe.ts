@@ -228,7 +228,7 @@ export function feature(p: PosicionSimulada, completo: boolean): Record<string, 
     cog: p.cog,
     dataCtrTime: isoMicro(p.dataCtrTimeMs, `${p.medio.esn}|micro|${p.posTimeMs}`),
     src: 'GPS',
-    spd: Math.round(p.spd * 1.943844), // spd en NUDOS (hipótesis del contrato real)
+    spd: Math.round(p.spd), // m/s — unidad CONFIRMADA con datos reales (§2)
     fix: p.medio.fix,
     pdop: 1 + Math.round(aleatorio01(`${p.medio.esn}|pdop|${p.posTimeMs}`) * 3),
     hdop: 1 + Math.round(aleatorio01(`${p.medio.esn}|hdop|${p.posTimeMs}`) * 2),
@@ -314,51 +314,79 @@ export function ultimasPosiciones(ahoraMs: number, domains: string[] | null): Po
   return resultado
 }
 
-// ── Extracción tolerante de parámetros del msgRequest ────────────────────────
-
-export function extraerCampo(msgRequest: unknown[], claves: string[]): string | null {
-  for (const item of msgRequest) {
-    if (typeof item === 'object' && item !== null) {
-      for (const clave of claves) {
-        const valor = (item as Record<string, unknown>)[clave]
-        if (typeof valor === 'string' && valor !== 'string' && valor !== '') return valor
-      }
-    }
-  }
-  return null
-}
-
-/** `domain` viene como lista de familias (contrato real). */
-export function extraerDomain(msgRequest: unknown[]): string[] | null {
-  for (const item of msgRequest) {
-    if (typeof item === 'object' && item !== null) {
-      const valor = (item as Record<string, unknown>).domain
-      if (Array.isArray(valor)) {
-        const dominios = valor.filter((d): d is string => typeof d === 'string')
-        if (dominios.length > 0) return dominios.map((d) => d.toLowerCase())
-      }
-    }
-  }
-  return null
-}
-
 // ── Punto de entrada del modo demo en el navegador ───────────────────────────
 
+/** ISO con microsegundos, como los cursores reales del backend. */
+function isoCursor(ms: number): string {
+  return new Date(ms).toISOString().replace('Z', '000Z')
+}
+
 /**
- * Atiende una petición del cliente con la misma semántica del servidor real.
- * En VITE_DEMO=1 reemplaza al fetch: cero red, cero key.
+ * Atiende una consulta del cliente con la MISMA semántica del backend real
+ * (mismas rutas, mismos query params, misma forma de respuesta). En VITE_DEMO=1
+ * reemplaza al fetch: cero red, cero backend, cero secretos.
  */
 export function manejarSimulacion(
-  ruta: 'get' | 'lastpositions',
-  body: { msgRequest: unknown[] },
+  ruta: 'posiciones/incremental' | 'posiciones' | 'recursos' | 'estado-ingesta',
+  parametros: Record<string, string | number | undefined>,
 ): unknown {
   const ahora = Date.now()
-  if (ruta === 'lastpositions') {
-    const domains = extraerDomain(body.msgRequest)
-    return featureCollection(ultimasPosiciones(ahora, domains).map((p) => feature(p, true)))
+  const texto = (clave: string): string | undefined => {
+    const valor = parametros[clave]
+    return valor === undefined ? undefined : String(valor)
   }
-  const desdeTexto = extraerCampo(body.msgRequest, ['dataCtrTime'])
-  const desdeMs = desdeTexto !== null ? Date.parse(desdeTexto) : NaN
-  const desde = Number.isNaN(desdeMs) ? ahora - 2 * 3600_000 : desdeMs
-  return featureCollection(posicionesLlegadasDesde(desde, ahora).map((p) => feature(p, false)))
+
+  if (ruta === 'recursos') {
+    const familia = texto('familia')
+    const posiciones = ultimasPosiciones(ahora, familia ? [familia] : null)
+    return {
+      ...featureCollection(posiciones.map((p) => feature(p, true))),
+      recursos: posiciones.length,
+    }
+  }
+
+  if (ruta === 'estado-ingesta') {
+    return {
+      cursor: isoCursor(ahora),
+      ultimaCorridaOkEn: isoCursor(ahora - 30_000),
+      minutosDesdeUltimaCorridaOk: 0.5,
+      ingestaDetenida: false,
+      posicionesUltimaCorrida: FLOTA.length,
+      fallosConsecutivos: 0,
+      ultimoErrorEn: null,
+      ultimoErrorClase: null,
+    }
+  }
+
+  if (ruta === 'posiciones') {
+    const desde = Date.parse(texto('desde') ?? '')
+    const hasta = Date.parse(texto('hasta') ?? '')
+    const inicio = Number.isNaN(desde) ? ahora - 6 * 3600_000 : desde
+    const fin = Number.isNaN(hasta) ? ahora : hasta
+    const limite = Number(parametros.limite ?? 20000)
+    // El histórico filtra por posTime (cuándo estuvo ahí), no por llegada.
+    const enRango = posicionesLlegadasDesde(inicio - 3600_000, fin).filter(
+      (p) => p.posTimeMs >= inicio && p.posTimeMs <= fin,
+    )
+    const recortadas = enRango.slice(0, limite)
+    return {
+      ...featureCollection(recortadas.map((p) => feature(p, false))),
+      desde: new Date(inicio).toISOString(),
+      hasta: new Date(fin).toISOString(),
+      truncado: recortadas.length >= limite,
+    }
+  }
+
+  // posiciones/incremental
+  const cursorMs = Date.parse(texto('cursor') ?? '')
+  const desde = Number.isNaN(cursorMs) ? ahora - 2 * 3600_000 : cursorMs
+  const limite = Number(parametros.limite ?? 1000)
+  const encontradas = posicionesLlegadasDesde(desde, ahora)
+  const recortadas = encontradas.slice(0, limite)
+  const ultima = recortadas[recortadas.length - 1]
+  return {
+    ...featureCollection(recortadas.map((p) => feature(p, false))),
+    siguienteCursor: ultima ? isoCursor(ultima.dataCtrTimeMs) : isoCursor(desde),
+    hayMas: recortadas.length >= limite,
+  }
 }

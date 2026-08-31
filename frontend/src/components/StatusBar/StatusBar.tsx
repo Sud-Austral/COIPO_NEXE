@@ -124,7 +124,7 @@ export function StatusBar({ estado, simulacion, historico = null }: Props) {
             )}
           {historico.fase === 'vacio' && STRINGS.historico.vacio}
           {historico.fase === 'error' && STRINGS.historico.error}
-          {historico.truncado && ` — ${STRINGS.historico.truncado(historico.paginasCargadas)}`}
+          {historico.truncado && ` — ${STRINGS.historico.truncado(historico.posiciones)}`}
         </p>
       )}
 
@@ -137,9 +137,7 @@ export function StatusBar({ estado, simulacion, historico = null }: Props) {
         >
           <AlertTriangle size={15} strokeWidth={2.25} aria-hidden="true" />
           <span>
-            {estado.error.tipo === 'auth' && STRINGS.banners.credencialesInvalidas}
-            {estado.error.tipo === 'contrato' && STRINGS.banners.contratoDesalineado}
-            {estado.error.tipo === 'respuesta' && STRINGS.banners.respuestaDesconocida}
+            {estado.error.tipo === 'consulta' && STRINGS.banners.consultaRechazada}
             {estado.error.tipo === 'red' &&
               STRINGS.banners.reintentando(restante ?? 0)}
           </span>
