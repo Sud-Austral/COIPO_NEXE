@@ -1,7 +1,12 @@
 # Nunca al contexto de build: secretos, dependencias y datos locales.
-.env
-.env.*
-!.env.example
+#
+# OJO con la semántica: los patrones son filepath.Match ANCLADOS a la raíz del
+# contexto, no prefijos, y `*` no cruza `/`. Por eso `.env` a secas NO cubría
+# `frontend/.env` (que existe con la key real de Nexe) y `*.md` sólo excluía los
+# `.md` de la raíz. De ahí los `**/`.
+**/.env
+**/.env.*
+!**/.env.example
 
 node_modules
 frontend/node_modules
@@ -16,7 +21,13 @@ __pycache__
 
 .git
 .github
-INSUMO
-INSUMO_PRODUCCION
-*.md
+.claude
+backend/.pytest_cache
+
+# `INSUMO*` cubre INSUMO/, INSUMO_PRODUCCION/ e INSUMO_PRODUCCION2/: son
+# documentación, ningún Dockerfile las copia, y editarlas invalidaba la caché de
+# build de las tres imágenes.
+INSUMO*
+
+**/*.md
 !README.md

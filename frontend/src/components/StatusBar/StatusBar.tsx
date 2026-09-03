@@ -6,6 +6,7 @@
  */
 import { useEffect, useState } from 'react'
 import { AlertTriangle, FlaskConical, History, RefreshCw, Wifi, WifiOff } from 'lucide-react'
+import type { EstadoIngesta } from '../../hooks/useEstadoIngesta'
 import type { EstadoHistorico } from '../../hooks/useHistorico'
 import type { EstadoPolling } from '../../hooks/usePolling'
 import { fechaHoraChile, haceCuanto, utcCrudo } from '../../lib/format'
@@ -17,6 +18,8 @@ interface Props {
   simulacion: boolean
   /** presente = modo histórico activo: el polling está detenido */
   historico?: EstadoHistorico | null
+  /** salud del collector: distingue "flota quieta" de "nadie trae datos" */
+  ingesta?: EstadoIngesta | null
 }
 
 /** Segundos que faltan para `timestamp`, refrescado cada segundo. */
@@ -35,7 +38,7 @@ function useCuentaRegresiva(timestamp: number | null): number | null {
   return restante
 }
 
-export function StatusBar({ estado, simulacion, historico = null }: Props) {
+export function StatusBar({ estado, simulacion, historico = null, ingesta = null }: Props) {
   const restante = useCuentaRegresiva(estado.proximoPollMs)
   const enHistorico = historico !== null
 
@@ -109,6 +112,18 @@ export function StatusBar({ estado, simulacion, historico = null }: Props) {
         <p className={styles.bannerSimulacion} role="status">
           <FlaskConical size={15} strokeWidth={2.25} aria-hidden="true" />
           {STRINGS.banners.modoSimulacion}
+        </p>
+      )}
+
+      {/* La ingesta muerta se avisa SIEMPRE, también en histórico: es lo único
+          que separa "no hay vuelos" de "nadie está trayendo datos". */}
+      {ingesta?.ingestaDetenida && (
+        <p className={styles.bannerPeligro} role="alert">
+          <AlertTriangle size={15} strokeWidth={2.25} aria-hidden="true" />
+          {STRINGS.banners.ingestaDetenida(
+            ingesta.minutosDesdeUltimaCorridaOk,
+            ingesta.ultimoErrorClase,
+          )}
         </p>
       )}
 

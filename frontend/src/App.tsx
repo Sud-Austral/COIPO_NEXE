@@ -7,6 +7,7 @@
 import { useMemo, useState } from 'react'
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { usePolling, POLL_INTERVAL_MS } from './hooks/usePolling'
+import { useEstadoIngesta } from './hooks/useEstadoIngesta'
 import { useHistorico } from './hooks/useHistorico'
 import { useAlertas } from './hooks/useAlertas'
 import { aCSV, aGeoJSON, descargar, nombreArchivo } from './lib/exportar'
@@ -14,6 +15,7 @@ import { STRINGS } from './ui/strings'
 import { Alertas } from './components/Alertas/Alertas'
 import { FleetPanel } from './components/FleetPanel/FleetPanel'
 import { MapView } from './components/MapView/MapView'
+import { ResourceDetail } from './components/ResourceDetail/ResourceDetail'
 import { StatusBar } from './components/StatusBar/StatusBar'
 import { TimeRangeBar } from './components/TimeRangeBar/TimeRangeBar'
 import styles from './App.module.css'
@@ -28,6 +30,9 @@ export default function App() {
   const fleet = enHistorico ? historico.fleet : estadoVivo.fleet
 
   const { alertas, descartar } = useAlertas(estadoVivo.fleet, !enHistorico)
+  // Cadencia propia (1/min) e independiente del polling: un mapa vacío por key
+  // rotada es indistinguible de una tarde sin vuelos si nadie mira esto.
+  const ingesta = useEstadoIngesta()
 
   const [seleccionado, setSeleccionado] = useState<string | null>(null)
   const [panelAbierto, setPanelAbierto] = useState(true)
@@ -86,12 +91,19 @@ export default function App() {
 
   const simulacion = fleet.some((r) => r.last.hgCompany === 'SIMULADO')
 
+  // La ficha se monta acá, fuera del mapa, para que quede fija en pantalla
+  // mientras el operador arrastra el mapa por detrás. La selección la gobierna
+  // `seleccionado`, así que un clic en la lista abre la ficha igual que un clic
+  // en el marcador (antes solo lo hacía el marcador, por vía de Leaflet).
+  const recursoSeleccionado = fleet.find((r) => r.esn === seleccionado) ?? null
+
   return (
     <div className={styles.app}>
       <StatusBar
         estado={estadoVivo}
         simulacion={simulacion}
         historico={enHistorico ? historico : null}
+        ingesta={ingesta}
       />
 
       <div className={styles.cuerpo}>
@@ -118,6 +130,7 @@ export default function App() {
             seleccionado={seleccionado}
             onSeleccionar={setSeleccionado}
             trailsVisibles={trailsVisibles}
+            fichaAbierta={recursoSeleccionado !== null}
           />
           <button
             type="button"
@@ -134,6 +147,12 @@ export default function App() {
               <PanelLeftOpen size={18} strokeWidth={2.25} aria-hidden="true" />
             )}
           </button>
+          {recursoSeleccionado && (
+            <ResourceDetail
+              recurso={recursoSeleccionado}
+              onCerrar={() => setSeleccionado(null)}
+            />
+          )}
           <Alertas alertas={alertas} onDescartar={descartar} onSeleccionar={setSeleccionado} />
         </main>
       </div>

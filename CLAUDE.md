@@ -135,7 +135,7 @@ tres ganancias frente al proxy anterior: historial propio ilimitado (ya no depen
 ventana móvil de ~1 semana de staging), consultas históricas instantáneas sin paginar en el
 navegador, y el visor sigue pintando la flota aunque Nexe se caiga.
 
-Los tres servicios (estándar CONAF, ver `INSUMO_PRODUCCION/DOCKER.md`):
+Los tres servicios (estándar CONAF, ver `INSUMO_PRODUCCION2/DOCKER.md`):
 
 | Servicio | Qué es | Puerto |
 |---|---|---|
@@ -174,7 +174,7 @@ la flota. Para datos reales fuera del servidor CONAF hay que desplegar los tres 
 | Capa | Elección | Notas |
 |---|---|---|
 | Frontend | **React 19 + Vite + TypeScript** | SPA. Sin Next.js (no se necesita SSR). |
-| Mapa | **react-leaflet 4 + Leaflet 1.9** con tiles OSM | Atribución OSM obligatoria visible. Sin API keys de mapas. |
+| Mapa | **react-leaflet 5 + Leaflet 1.9** con tiles OSM | Atribución OSM obligatoria visible. Sin API keys de mapas. |
 | Estado | Hooks + Context (o Zustand si crece) | No Redux. |
 | Estilos | CSS Modules **o** Tailwind — elegir UNO y ser consistente | Tokens semánticos en `:root` (§10.1); **prohibido hex crudo en componentes**. |
 | Íconos | **lucide-react** | Una sola familia. **Prohibido usar emojis como íconos.** |
@@ -210,7 +210,7 @@ Estructura de carpetas REAL (actualizada jul-2026):
 │   │   ├── db/{session,bootstrap,consultas}.py
 │   │   ├── routers/{salud,posiciones,recursos,exportar,estado,comun}.py
 │   │   └── servicios/{geojson,tabular}.py  ← filas → FeatureCollection / CSV
-│   └── tests/                      ← 55 tests pytest (contrato, aplanado, paginación)
+│   └── tests/                      ← 63 tests pytest (contrato, aplanado, paginación, config)
 ├── collector/
 │   ├── Dockerfile · crontab · docker-entrypoint.sh
 │   └── ingesta.py                  ← cursor persistido, upserts, salud de la ingesta
@@ -228,7 +228,8 @@ Estructura de carpetas REAL (actualizada jul-2026):
     │   ├── hooks/
     │   │   ├── usePolling.ts      ← ciclo vivo con cursor servido por el backend (§8.3)
     │   │   ├── useHistorico.ts    ← una consulta por rango libre (§11 Fase 2-7)
-    │   │   └── useAlertas.ts      ← toasts de pérdida/recuperación de señal
+    │   │   ├── useAlertas.ts      ← toasts de pérdida/recuperación de señal
+    │   │   └── useEstadoIngesta.ts ← salud del collector (banner de ingesta detenida)
     │   ├── components/
     │   │   ├── MapView/           ← mapa, marcadores (marcador.ts + marcadores.css), trails
     │   │   ├── FleetPanel/        ← KPIs por estado (filtran), búsqueda, tarjetas con riel
@@ -246,7 +247,7 @@ Estructura de carpetas REAL (actualizada jul-2026):
     │   ├── styles/tokens.css      ← design tokens (§10.1) + extensiones (§10.4)
     │   ├── styles/base.css        ← reset, foco, reduced-motion, overrides Leaflet
     │   └── main.tsx / App.tsx
-    ├── tests/                     ← 71 tests Vitest + fixtures reales (§12)
+    ├── tests/                     ← 76 tests Vitest + fixtures reales (§12)
     └── vite.config.ts             ← proxy /api→8000; base configurable (VITE_BASE)
 ```
 
@@ -688,7 +689,7 @@ se muestra solo por color + etiqueta.
 │ ─────────    │                MapView (Leaflet)                │
 │ ▸ PUMA-1  ✈  │   marcadores rotados por heading                │
 │   En ruta    │   trails por ESN (polyline, color por estado)   │
-│   hace 40 s  │   popup → ResourceDetail                        │
+│   hace 40 s  │   ficha flotante ← ResourceDetail (§10.5)       │
 │ ▸ H-02    ▲  │                                                 │
 │   En tierra  │                                                 │
 ├──────────────┴─────────────────────────────────────────────────┤
@@ -739,10 +740,48 @@ Decisiones de diseño ya construidas — mantener coherencia al extender:
 - **Gráficos** (MiniGrafico): una serie por gráfico con su propia escala — **nunca doble
   eje**; título nombra la serie (sin leyenda); punto final enfatizado; mín/máx como texto;
   grilla recesiva.
-- **Targets Leaflet corregidos a ≥44 px** (zoom y cierre de popup) y `summary` de detalles
-  técnicos a 44 px — los defaults de Leaflet NO cumplen §10.3.
+- **Targets Leaflet corregidos a ≥44 px** (zoom) y `summary` de detalles técnicos a 44 px —
+  los defaults de Leaflet NO cumplen §10.3. El override del zoom necesita el selector
+  `.leaflet-touch .leaflet-bar a` además del simple: Leaflet trae ese (especificidad 0,2,1)
+  con 30×30 y le ganaba a un `.leaflet-bar a` a secas. Era un fallo **mudo**.
 - La frescura en filas del panel lleva `title`/`aria-label` con el texto ("En vivo"/"Con
   retraso"/"Sin señal") + hora UTC: el punto de color nunca queda solo.
+
+### 10.5 La ficha del recurso es un panel flotante, NO un popup de Leaflet
+
+`ResourceDetail` se monta en `App.tsx` como overlay absoluto dentro de `<main>` (el área del
+mapa), gobernado por `seleccionado`. **No** va dentro de un `<Popup>` de react-leaflet, y esto
+no es una preferencia estética:
+
+- Un popup vive en `.leaflet-popup-pane`, **dentro del pane transformado del mapa**: se arrastra
+  con cada pan y zoom. El operador no puede leer la ficha de una aeronave mientras mueve el mapa
+  para mirar otra, que es exactamente lo que pide la sala.
+- Sus defaults agravaban el problema: `closeOnClick` la cerraba con cualquier clic en el mapa y
+  `autoPan` movía el mapa al abrirla, peleando con el `flyTo` de la selección.
+- Y no cabía: `maxWidth: 300` menos 32 px de margen dejaba 268 px útiles para un contenido que
+  pide 280.
+
+Reglas al extenderlo:
+
+- **Anclaje arriba a la izquierda.** Es la única esquina libre: zoom, atribución OSM
+  (obligatoria) y toasts de alertas están todos abajo a la derecha.
+- **`z-index: 1100`**, la capa de overlays de la app. Los controles de Leaflet son 1000 y
+  **escapan del contenedor** porque `.mapa` es `position: relative` sin `z-index` (no crea
+  contexto de apilado). **No** darle `z-index` a `.mapa`: encerraría los controles, pero también
+  dejaría que cualquier overlay tape la atribución.
+- **`role="region"`, nunca `role="dialog"`**: el panel no es modal — el mapa sigue vivo y
+  arrastrable —, así que no se atrapa el foco. Cierra con la X (44×44) o con `Escape`. **No**
+  cierra al hacer clic en el mapa: el usuario pidió que se quede.
+- **El `flyTo` compensa el ancho del panel** para que el marcador no caiga debajo, y solo cuando
+  el mapa es más ancho que dos veces la ficha (bajo ~900 px ocupa todo el ancho).
+- **Bajo 900 px de ancho el FleetPanel es un drawer inferior, pero solo con `min-height: 501px`.**
+  En un teléfono en horizontal el cromo deja el mapa en ~200 px y un drawer del 46% no dejaba
+  sitio a nada: la ficha colapsaba a 27 px. Ahí el panel sigue siendo columna lateral.
+- **Los controles de Leaflet anclados abajo se suben sobre el drawer** (`base.css`), y la ficha
+  reserva esa banda: si no, tapaba la atribución OSM.
+
+Verificado por CDP arrastrando el mapa: la ficha se desplaza **0 px** mientras el marcador
+viaja 283 px (§12).
 
 ---
 
@@ -752,7 +791,7 @@ Decisiones de diseño ya construidas — mantener coherencia al extender:
 
 1. ✔ Cliente de datos + parser + polling con cursor `dataCtrTime`.
 2. ✔ Mapa con la flota en vivo: marcadores rotados por `heading`, color/ícono por `hgNavstate`,
-   pulso de frescura, popup con telemetría resumida.
+   pulso de frescura, y ficha flotante con telemetría resumida (§10.5).
 3. ✔ FleetPanel: lista ordenada por frescura, KPIs por estado que filtran, búsqueda por
    alias/patente y clic → centra el mapa en el recurso.
 4. ✔ Trazas (trail) por recurso, activables por recurso o "todas", con tope de memoria (§8.3).
@@ -793,7 +832,7 @@ Decisiones de diseño ya construidas — mantener coherencia al extender:
 
 ## 12. Testing
 
-**Backend (`cd backend && pytest`) — 55 tests:**
+**Backend (`cd backend && pytest`) — 63 tests:**
 
 - `test_contrato_nexe.py`: el body lleva los 3 campos raíz y los 5 placeholders obligatorios;
   nunca listas vacías (regresión directa del 500 real); `reqTime` en ISO con ms y Z; `domain`
@@ -803,8 +842,12 @@ Decisiones de diseño ya construidas — mantener coherencia al extender:
   depende de ellos), `hgNavstate` `"2"` → `2`, descartes contados.
 - `test_paginacion.py`: página llena → pide la siguiente; cursor que no avanza no provoca
   bucle infinito; 401 y 422 no se reintentan; 5xx sí, con backoff 5/10/20.
+- `test_config_produccion.py`: `validar_para_produccion()` deja el arranque ROJO con
+  `NEXE_API_KEY` vacía, con la contraseña por defecto o con un host de desarrollo, y reporta
+  los tres problemas de una vez. Es la regresión del agujero de la guía 8 §11: sin la primera
+  comprobación el despliegue salía **verde con la base vacía**.
 
-**Frontend (`cd frontend && npm test`) — 71 tests:**
+**Frontend (`cd frontend && npm test`) — 76 tests:**
 
 - `parse.test.ts`: FeatureCollection real + fallbacks + error `{detail}` tipado.
 - `fleet.test.ts`: dedupe por `(esn, posTime)`; orden por `posTime` con llegada desordenada;
@@ -814,6 +857,10 @@ Decisiones de diseño ya construidas — mantener coherencia al extender:
 - `useHistorico.test.ts`: UNA sola consulta; conserva rangos > 6 h; frescura relativa al fin
   del rango.
 - `format.test.ts`: velocidad en m/s (regresión de la hipótesis equivocada, §2).
+- `useEstadoIngesta.test.ts`: la salud del collector llega a la UI — regresión de un agujero
+  real (`/api/estado-ingesta` existía y **nadie lo consultaba**: con la ingesta muerta el visor
+  decía "Conectado" sobre un mapa vacío). Cubre el parser tolerante y que un fallo de red no
+  tumbe el visor.
 - `exportar.test.ts`, `alertas.test.ts`, `FleetPanel.test.tsx` (los 4 estados con ícono y texto).
 
 Fixtures reales anonimizadas en `frontend/tests/fixtures/`, compartidas por ambos lados.
@@ -893,8 +940,10 @@ Fixtures reales anonimizadas en `frontend/tests/fixtures/`, compartidas por ambo
   request/response, semántica del filtro, límite ~1000, `domain`, respuestas a las 20 dudas).
 - Soporte/incidencias del servicio: `soporte.monitor@heligrafics.net` (incluir detalle y ejemplo
   del problema). No existe endpoint de heartbeat.
-- Insumos del despliegue CONAF: `INSUMO_PRODUCCION/` (DOCKER.md, fastapi-postgresql-conexion.md,
+- Insumos del despliegue CONAF: `INSUMO_PRODUCCION2/` (00-HALLAZGOS-Y-ESTADO-REAL.md — estado
+  del servidor verificado por SSH el 2026-08-20 —, DOCKER.md, fastapi-postgresql-conexion.md,
   guía 6 del workflow por repo, guía 8 con el checklist pre-deploy, y un `nginx.conf` de ejemplo).
+  Reemplaza a `INSUMO_PRODUCCION/`, borrada.
 - Apps CONAF de referencia con el mismo patrón, ya desplegadas: `COIPO_PRENSA2` (canónica) y
   `COIPO_ENTREGA_PLANTA`.
 
@@ -913,13 +962,21 @@ workflow reusable de `Sud-Austral/infra-docker-base` y hace el `docker compose b
    El deploy arma la ruta del servidor con `${{ github.event.repository.name }}` y la convención
    es minúsculas (guía 8 §1). El workflow de Pages toma la subruta del mismo nombre, así que
    ambas cosas quedan alineadas solas.
-2. **Pedir a TI**: base y rol de Postgres (pueden NO llamarse como el repo), `APP_PORT` libre, y
-   el dominio (p. ej. `visor.conaf.cl`).
+2. **Pedir a TI**: base y rol de Postgres (pueden NO llamarse como el repo) y confirmación de
+   que el `APP_PORT` sigue libre (`sudo ss -tlnp | grep :<puerto>`).
+   Decidido: dominio **`aeronaves.conaf.cl`**, `APP_PORT` **8120**. El puerto vive **solo** en
+   `/opt/apps/coipo_nexe/.env`; `.env.example` lo deja vacío a propósito, para que nadie copie
+   un número ocupado (el ejemplo anterior, 8116, es de `coipo_archivo`).
 3. **Crear el `.env` en el servidor** (`/opt/apps/coipo_nexe/.env`) a partir de `.env.example`,
    con `APP_ENV=production`. Si quedan valores de desarrollo, el backend **se niega a arrancar**
    con un mensaje explícito (`config.py::validar_para_produccion`).
-4. **Vhost de Nginx del servidor** apuntando el dominio a `127.0.0.1:${APP_PORT}`. Vive en el
-   servidor, **no en este repo** (ejemplo en `INSUMO_PRODUCCION/nginx.conf`).
+4. **Vhost de Nginx del servidor**: `aeronaves.conaf.cl.conf` apuntando a `127.0.0.1:8120`.
+   Vive en el servidor, **no en este repo** (plantilla en `INSUMO_PRODUCCION2/nginx.conf`).
+   **No** poner la IP en `server_name` (ya hay un conflicto real entre `academia` y
+   `dendroenergia`, hallazgo H1) y **no** copiar `Connection $connection_upgrade` de la
+   plantilla de Moodle: esa variable la define un `map` en `conf.d/ajustes-globales.conf` y sin
+   él nginx no arranca, tumbando **todos** los vhosts. Tras editar: `nginx -t` leyendo los
+   AVISOS, no solo el "syntax ok".
 
 **Smoke test tras el deploy:**
 

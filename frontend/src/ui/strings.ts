@@ -42,6 +42,14 @@ export const STRINGS = {
       'El servidor rechazó la consulta: frontend y backend no coinciden. Actualización detenida (detalle técnico abajo).',
     modoSimulacion: 'MODO SIMULACIÓN — datos ficticios generados en el navegador',
     verDetalle: 'Detalle técnico',
+    ingestaDetenida: (minutos: number | null, clase: string | null) =>
+      `INGESTA DETENIDA — ${
+        minutos === null
+          ? 'el collector aún no completa ninguna corrida'
+          : `el collector no completa una corrida hace ${Math.round(minutos)} min`
+      }. Las posiciones que ves pueden estar desactualizadas${
+        clase ? ` · último error: ${clase}` : ''
+      }.`,
   },
 
   fleetPanel: {
@@ -73,6 +81,8 @@ export const STRINGS = {
   },
 
   detalle: {
+    tituloRegion: (label: string) => `Ficha del recurso ${label}`,
+    cerrar: 'Cerrar la ficha',
     patente: 'Patente',
     modelo: 'Modelo',
     familia: 'Familia',

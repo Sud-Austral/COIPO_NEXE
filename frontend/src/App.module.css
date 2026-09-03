@@ -49,8 +49,12 @@
   display: none;
 }
 
-/* bajo 900 px el panel colapsa a un drawer inferior; el mapa queda detrás (§10.2) */
-@media (max-width: 900px) {
+/* Bajo 900 px el panel colapsa a un drawer inferior; el mapa queda detrás (§10.2).
+   El `min-height` es necesario: en un teléfono en HORIZONTAL el cromo de la app
+   (StatusBar en dos filas + banner + TimeRangeBar) deja el mapa en ~200 px, y un
+   drawer que se lleva el 46% de eso no deja sitio ni para la ficha ni para el
+   mapa. Ahí el panel sigue siendo columna lateral, que a 844 px de ancho cabe. */
+@media (max-width: 900px) and (min-height: 501px) {
   .panel {
     position: absolute;
     left: 0;

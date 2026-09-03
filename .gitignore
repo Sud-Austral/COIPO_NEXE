@@ -5,7 +5,9 @@
 !.env.example
 
 # Descargas del extractor histórico (descargar_historico_nexe.py) — datos, no código
-datos_historicos/
+# Anclado con barra inicial: sin ella, git ignoraría CUALQUIER carpeta con este
+# nombre a cualquier profundidad (guía 8 §8).
+/datos_historicos/
 
 # Python
 __pycache__/
@@ -16,3 +18,6 @@ venv/
 
 # Node (el frontend tiene su propio .gitignore, esto cubre la raíz)
 node_modules/
+
+# reglas de COIPO_ERRORES (rutas absolutas, personales)
+.claude/rules/errores-*.md

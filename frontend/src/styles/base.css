@@ -112,38 +112,9 @@ input {
   filter: brightness(0.72) saturate(0.65) contrast(1.05);
 }
 
-.leaflet-popup-content-wrapper {
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-l);
-  box-shadow: var(--shadow-2);
-}
-
-.leaflet-popup-content {
-  margin: var(--sp-3) var(--sp-4);
-  line-height: 1.5;
-}
-
-.leaflet-popup-tip {
-  background: var(--surface);
-  border: 1px solid var(--line);
-}
-
-.leaflet-container a.leaflet-popup-close-button {
-  color: var(--text-muted);
-  /* target táctil ≥ 44×44 px (§10.3) */
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  font-size: 20px;
-  padding: 0;
-}
-
-.leaflet-container a.leaflet-popup-close-button:hover {
-  color: var(--text);
-}
+/* Sin overrides de .leaflet-popup*: la app no usa popups de Leaflet. La ficha del
+   recurso es un panel flotante propio (ResourceDetail.module.css), porque un popup
+   vive DENTRO del pane transformado del mapa y se arrastra con él. */
 
 .leaflet-bar {
   border: 1px solid var(--line);
@@ -152,12 +123,17 @@ input {
   box-shadow: var(--shadow-1);
 }
 
-.leaflet-bar a {
+/* Targets táctiles ≥ 44×44 px (§10.3).
+   El segundo selector NO es redundante: Leaflet trae `.leaflet-touch .leaflet-bar a`
+   (especificidad 0,2,1) con 30×30, que le ganaba a un `.leaflet-bar a` a secas
+   (0,1,1). Era un fallo MUDO — la regla no aplicaba y nada avisaba; medido con
+   CDP, el zoom salía de 30 px. Hay que igualar la especificidad para ganarle. */
+.leaflet-bar a,
+.leaflet-touch .leaflet-bar a {
   background: var(--glass);
   backdrop-filter: blur(8px);
   color: var(--text);
   border-bottom: 1px solid var(--line-soft);
-  /* targets táctiles ≥ 44×44 px (§10.3) — Leaflet trae 30×30 */
   width: 44px;
   height: 44px;
   line-height: 44px;
@@ -165,7 +141,9 @@ input {
 }
 
 .leaflet-bar a:hover,
-.leaflet-bar a:focus {
+.leaflet-bar a:focus,
+.leaflet-touch .leaflet-bar a:hover,
+.leaflet-touch .leaflet-bar a:focus {
   background: var(--bg-1);
   color: var(--accent);
 }
@@ -186,6 +164,18 @@ input {
 
 .leaflet-tooltip.mk-etiqueta::before {
   display: none; /* sin flecha: la etiqueta flota limpia sobre el marcador */
+}
+
+/* Bajo 900 px el FleetPanel se convierte en un drawer que ocupa el 46% inferior
+   a z-index 1100 (App.module.css). Los controles que Leaflet ancla abajo —el
+   zoom y la atribución OSM, que es OBLIGATORIA (§4)— quedaban detrás: medido con
+   CDP, elementFromPoint sobre la atribución devolvía el drawer. Se suben por
+   encima. La condición replica exactamente la del drawer: sin `min-height` esto
+   se aplicaría también en horizontal, donde el drawer no existe. */
+@media (max-width: 900px) and (min-height: 501px) {
+  .leaflet-bottom {
+    bottom: calc(46% + var(--sp-2));
+  }
 }
 
 /* atribución OSM obligatoria y legible (§4) */

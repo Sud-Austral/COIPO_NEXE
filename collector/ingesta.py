@@ -203,6 +203,15 @@ def corrida() -> int:
             "NEXE_API_KEY vacía: el collector no puede ingerir. Revisar el .env del "
             "servidor (guía 8 §2)."
         )
+        # Registrarlo en la base ANTES de salir: era el único fallo que no dejaba
+        # rastro en /api/estado-ingesta (se salía antes de tocarla), así que una key
+        # ausente se veía exactamente igual que una tarde sin vuelos.
+        bootstrap.ensure_schema(engine)
+        db = SessionLocal()
+        try:
+            _registrar_fallo(db, "ClaveVacia")
+        finally:
+            db.close()
         return 1
 
     bootstrap.ensure_schema(engine)

@@ -1,6 +1,6 @@
 """Configuración del backend y del collector (comparten el mismo `.env`).
 
-Sigue `INSUMO_PRODUCCION/fastapi-postgresql-conexion.md`: cinco variables de conexión
+Sigue `INSUMO_PRODUCCION2/fastapi-postgresql-conexion.md`: cinco variables de conexión
 SEPARADAS, nunca una `DATABASE_URL` armada desde el entorno.
 
 `NEXE_API_KEY` la usa EXCLUSIVAMENTE el collector: el backend nunca habla con Nexe
@@ -64,6 +64,13 @@ class Settings(BaseSettings):
         if self.database_host in ("localhost", "postgres-dev"):
             problemas.append(
                 "DATABASE_HOST apunta a un Postgres de desarrollo, no al compartido."
+            )
+        if not self.nexe_api_key.strip():
+            # Sin esto el despliegue queda VERDE con la base vacía: el backend
+            # arranca, /health da 200 y el smoke test pasa, mientras el collector
+            # aborta cada corrida y el visor pinta un mapa sin flota (guía 8 §11).
+            problemas.append(
+                "NEXE_API_KEY vacía: el collector no puede ingerir de Nexe."
             )
         return problemas
 

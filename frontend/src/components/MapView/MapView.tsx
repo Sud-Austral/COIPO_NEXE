@@ -1,14 +1,16 @@
 /**
- * Mapa Leaflet: marcadores rotados por heading con pulso de frescura, trails
- * por ESN coloreadas por estado, popup con la ficha del recurso
- * (CLAUDE.md §10.2, §11 MVP-2/4).
+ * Mapa Leaflet: marcadores rotados por heading con pulso de frescura y trails
+ * por ESN coloreadas por estado (CLAUDE.md §10.2, §11 MVP-2/4).
+ *
+ * La ficha del recurso NO se pinta acá: es un panel flotante que monta App sobre
+ * el área del mapa. Un `<Popup>` de Leaflet vive dentro del pane transformado y
+ * se arrastra con el mapa, que es justo lo que no se quiere.
  */
 import { useEffect, useMemo } from 'react'
 import {
   MapContainer,
   Marker,
   Polyline,
-  Popup,
   TileLayer,
   Tooltip,
   useMap,
@@ -17,7 +19,6 @@ import {
 import type { FleetResource } from '../../domain/types'
 import { estadoVisual, TEXTO_ESTADO, type EstadoVisual } from '../../ui/estadoVisual'
 import { STRINGS } from '../../ui/strings'
-import { ResourceDetail } from '../ResourceDetail/ResourceDetail'
 import { iconoRecurso } from './marcador'
 import './marcadores.css'
 import styles from './MapView.module.css'
@@ -25,26 +26,43 @@ import styles from './MapView.module.css'
 const CENTRO_INICIAL: [number, number] = [-35.8, -71.9] // zona centro-sur de Chile
 const ZOOM_INICIAL = 7
 const ZOOM_SEGUIMIENTO = 11
+/** Ancho de la ficha flotante + su margen (ResourceDetail.module.css `.panel`). */
+const ANCHO_FICHA = 352
 
 interface Props {
   recursos: FleetResource[]
   seleccionado: string | null
   onSeleccionar: (esn: string) => void
   trailsVisibles: ReadonlySet<string>
+  /** La ficha tapa una franja a la izquierda: el vuelo la compensa. */
+  fichaAbierta: boolean
 }
 
 /** Vuela hacia el recurso cuando cambia la selección (no en cada poll). */
-function CentrarEnSeleccion({ recurso }: { recurso: FleetResource | null }) {
+function CentrarEnSeleccion({
+  recurso,
+  fichaAbierta,
+}: {
+  recurso: FleetResource | null
+  fichaAbierta: boolean
+}) {
   const mapa = useMap()
   const esn = recurso?.esn ?? null
   useEffect(() => {
-    if (recurso) {
-      mapa.flyTo(
-        [recurso.last.latitude, recurso.last.longitude],
-        Math.max(mapa.getZoom(), ZOOM_SEGUIMIENTO),
-        { duration: 0.8 },
-      )
+    if (!recurso) return
+    const destino: [number, number] = [recurso.last.latitude, recurso.last.longitude]
+    const zoom = Math.max(mapa.getZoom(), ZOOM_SEGUIMIENTO)
+
+    // Corre el centro a la izquierda para que el marcador caiga en la mitad
+    // visible y no debajo de la ficha. Solo cuando el mapa es lo bastante ancho
+    // para que la ficha sea una columna lateral: bajo ~900 px ocupa todo el
+    // ancho y desplazar dejaría el marcador fuera de cuadro.
+    if (fichaAbierta && mapa.getSize().x > ANCHO_FICHA * 2) {
+      const punto = mapa.project(destino, zoom).subtract([ANCHO_FICHA / 2, 0])
+      mapa.flyTo(mapa.unproject(punto, zoom), zoom, { duration: 0.8 })
+      return
     }
+    mapa.flyTo(destino, zoom, { duration: 0.8 })
     // eslint-disable-next-line react-hooks/exhaustive-deps -- volar solo al cambiar la selección
   }, [mapa, esn])
   return null
@@ -68,7 +86,13 @@ function useColoresEstado(): Record<EstadoVisual, string> {
   }, [])
 }
 
-export function MapView({ recursos, seleccionado, onSeleccionar, trailsVisibles }: Props) {
+export function MapView({
+  recursos,
+  seleccionado,
+  onSeleccionar,
+  trailsVisibles,
+  fichaAbierta,
+}: Props) {
   const colores = useColoresEstado()
   const recursoSeleccionado = recursos.find((r) => r.esn === seleccionado) ?? null
 
@@ -86,7 +110,7 @@ export function MapView({ recursos, seleccionado, onSeleccionar, trailsVisibles 
         attribution={STRINGS.mapa.atribucion}
       />
 
-      <CentrarEnSeleccion recurso={recursoSeleccionado} />
+      <CentrarEnSeleccion recurso={recursoSeleccionado} fichaAbierta={fichaAbierta} />
 
       {recursos.map(
         (recurso) =>
@@ -112,8 +136,15 @@ export function MapView({ recursos, seleccionado, onSeleccionar, trailsVisibles 
           eventHandlers={{ click: () => onSeleccionar(recurso.esn) }}
         >
           {/* alias + estado en texto (§10.3: nunca solo color): al pasar el
-              mouse, y fijo para el seleccionado */}
+              mouse, y fijo para el seleccionado.
+
+              El `key` NO es decorativo: react-leaflet pasa `permanent` a
+              bindTooltip al CREAR la capa y no la re-vincula cuando la prop
+              cambia, así que la etiqueta fija del seleccionado nunca llegaba a
+              abrirse (medido: 0 tooltips en el pane con 5 marcadores). Cambiar
+              el key fuerza el remontaje y con él un bindTooltip nuevo. */}
           <Tooltip
+            key={recurso.esn === seleccionado ? 'fija' : 'hover'}
             className="mk-etiqueta"
             direction="top"
             offset={[0, -14]}
@@ -122,9 +153,6 @@ export function MapView({ recursos, seleccionado, onSeleccionar, trailsVisibles 
           >
             {recurso.label} · {TEXTO_ESTADO[estadoVisual(recurso)]}
           </Tooltip>
-          <Popup>
-            <ResourceDetail recurso={recurso} />
-          </Popup>
         </Marker>
       ))}
     </MapContainer>

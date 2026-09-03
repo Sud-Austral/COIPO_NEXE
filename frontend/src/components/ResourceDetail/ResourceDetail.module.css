@@ -1,28 +1,110 @@
-.ficha {
-  min-width: 280px;
-  font-size: 13px;
-  padding-top: var(--sp-2);
-  position: relative;
+/* Panel FLOTANTE sobre el mapa, no un popup de Leaflet: vive fuera del pane
+   transformado, así que se queda quieto mientras el mapa se arrastra por detrás.
+   Anclado arriba a la izquierda porque es la única esquina libre — el zoom, la
+   atribución OSM obligatoria y los toasts de alertas están abajo a la derecha. */
+.panel {
+  position: absolute;
+  top: calc(var(--sp-3) * 2 + 44px); /* bajo el botón que colapsa el FleetPanel */
+  left: var(--sp-3);
+  /* Los controles de Leaflet son z-index 1000 y ESCAPAN del contenedor del mapa
+     (.mapa es position:relative sin z-index, así que no crea contexto de
+     apilado). 1100 es la capa de overlays de la app: la misma de .togglePanel y
+     de la pila de alertas. No darle z-index a .mapa: encerraría los controles,
+     pero también dejaría que cualquier overlay tape la atribución OSM. */
+  z-index: 1100;
+  width: 340px;
+  max-height: calc(100% - var(--sp-3) * 3 - 44px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--glass);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-2);
 }
 
-/* barra superior en el color del estado (redundante con el chip ícono+texto) */
-.ficha::before {
+/* barra superior en el color del estado (redundante con el chip ícono+texto).
+   `sticky` para que siga visible si la ficha scrollea. */
+.panel::before {
   content: '';
-  position: absolute;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
+  display: block;
   height: 3px;
   border-radius: 999px;
   background: var(--estado-color);
+}
+
+@media (max-width: 900px) and (min-height: 501px) {
+  /* El FleetPanel pasa a drawer inferior con el 46% del alto, así que la ficha
+     vive en el 54% de arriba y se estira a lo ancho.
+     Se coloca AL LADO del botón del panel, no debajo: ponerla debajo gastaba
+     60 px de un alto que aquí no sobra.
+     Los ~104 px reservados abajo son para el zoom y la atribución OSM, que
+     base.css sube por encima del drawer: sin esa reserva la ficha los tapaba
+     (medido con elementFromPoint: la atribución devolvía `.grilla` de la ficha). */
+  .panel {
+    top: var(--sp-2);
+    left: calc(var(--sp-3) + 44px + var(--sp-2));
+    right: var(--sp-3);
+    width: auto;
+    max-height: calc(54% - var(--sp-2) * 2 - 104px);
+  }
+}
+
+/* Pantalla baja (teléfono en horizontal): el cromo deja ~200 px de mapa. Con el
+   cálculo porcentual la ficha quedaba en 27 px — una tira donde ni el alias se
+   leía. Acá el FleetPanel NO es drawer (ver App.module.css), así que la ficha
+   puede usar todo el alto del mapa; se corre a la derecha del botón del panel en
+   vez de ponerse debajo, que es lo que costaba el alto. */
+@media (max-height: 500px) {
+  .panel {
+    top: var(--sp-2);
+    left: calc(var(--sp-3) + 44px + var(--sp-2));
+    right: var(--sp-3);
+    width: auto;
+    /* los 20 px extra dejan libre la atribución OSM, que es obligatoria y va
+       abajo a la derecha (§4) */
+    max-height: calc(100% - var(--sp-2) * 2 - 20px);
+  }
+}
+
+.ficha {
+  font-size: 13px;
+  padding: var(--sp-3);
 }
 
 .cabecera {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--sp-3);
+  gap: var(--sp-2);
   margin-bottom: var(--sp-1);
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  flex-shrink: 0;
+}
+
+.cerrar {
+  display: grid;
+  place-items: center;
+  /* target táctil ≥ 44×44 px (§10.3); el margen negativo evita que ese tamaño
+     estire la cabecera más de lo necesario. */
+  width: 44px;
+  height: 44px;
+  margin: calc(var(--sp-2) * -1) calc(var(--sp-2) * -1) calc(var(--sp-2) * -1) 0;
+  border-radius: var(--radius-m);
+  color: var(--text-muted);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.cerrar:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--line) 60%, transparent);
 }
 
 .identificacion {
